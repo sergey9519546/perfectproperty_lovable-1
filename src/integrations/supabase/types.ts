@@ -356,6 +356,42 @@ export type Database = {
           },
         ]
       }
+      distress_sources: {
+        Row: {
+          category: string
+          created_at: string
+          enabled: boolean
+          key: string
+          label: string
+          notes: string | null
+          spider: string | null
+          tier: string
+          url: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          enabled?: boolean
+          key: string
+          label: string
+          notes?: string | null
+          spider?: string | null
+          tier?: string
+          url: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          enabled?: boolean
+          key?: string
+          label?: string
+          notes?: string | null
+          spider?: string | null
+          tier?: string
+          url?: string
+        }
+        Relationships: []
+      }
       enrichment_queue: {
         Row: {
           attempts: number
