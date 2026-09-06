@@ -637,16 +637,22 @@ export function SheriffSalesView() {
 
             {/* Cost Model Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {OPEN_SOURCE_COST_MODEL.components.map((c) => (
-                <div key={c.name} className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-1 text-xs">
-                  <div className="flex justify-between items-center font-bold">
-                    <span className="text-slate-900">{c.name}</span>
-                    <span className="font-mono text-emerald-700">${c.monthlyCost}/mo</span>
-                  </div>
-                  <div className="text-[11px] text-slate-500 font-mono">Provider: {c.provider}</div>
-                  <p className="text-slate-600 text-[11px] mt-1">{c.notes}</p>
-                </div>
-              ))}
+              {Object.entries(OPEN_SOURCE_COST_MODEL)
+                .filter(([, v]) => typeof v === 'object' && v !== null)
+                .map(([key, v]) => {
+                  const item = v as { cost: number; source: string; notes: string };
+                  const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, (m) => m.toUpperCase());
+                  return (
+                    <div key={key} className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-1 text-xs">
+                      <div className="flex justify-between items-center font-bold">
+                        <span className="text-slate-900">{label}</span>
+                        <span className="font-mono text-emerald-700">${item.cost}/mo</span>
+                      </div>
+                      <div className="text-[11px] text-slate-500 font-mono">Source: {item.source}</div>
+                      <p className="text-slate-600 text-[11px] mt-1">{item.notes}</p>
+                    </div>
+                  );
+                })}
             </div>
 
             {/* Statutes Table */}
@@ -664,9 +670,9 @@ export function SheriffSalesView() {
                   <tbody className="divide-y divide-slate-100">
                     {VERIFIED_AUGUST_2026_STATUTES.map((s, idx) => (
                       <tr key={idx} className="hover:bg-slate-50">
-                        <td className="p-3 font-bold text-slate-900">{s.jurisdiction} • {s.topic}</td>
-                        <td className="p-3 font-mono text-blue-700 font-bold">{s.citation}</td>
-                        <td className="p-3 text-slate-700 leading-relaxed">{s.summary}</td>
+                        <td className="p-3 font-bold text-slate-900">{s.jurisdiction} • {s.statuteTitle}</td>
+                        <td className="p-3 font-mono text-blue-700 font-bold">{s.statuteCitation}</td>
+                        <td className="p-3 text-slate-700 leading-relaxed">{s.legalBasis}</td>
                       </tr>
                     ))}
                   </tbody>

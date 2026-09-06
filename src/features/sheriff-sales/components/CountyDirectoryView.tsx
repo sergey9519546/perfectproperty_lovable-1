@@ -28,7 +28,7 @@ export function CountyDirectoryView() {
   const [calcMuni, setCalcMuni] = useState('Hackensack');
   const [calcAssessed, setCalcAssessed] = useState(409400);
 
-  const calcResult = calculateNJTrueMarketValue(calcMuni, calcAssessed);
+  const calcResult = calculateNJTrueMarketValue(calcAssessed, calcMuni, 'Bergen');
 
   const filteredCounties = COUNTY_COVERAGE_REGISTRY.filter((c) => {
     if (selectedState !== 'ALL' && c.state !== selectedState) return false;
@@ -178,43 +178,39 @@ export function CountyDirectoryView() {
                 </span>
                 <span
                   className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                    county.status === 'ACTIVE'
-                      ? 'bg-emerald-100 text-emerald-800'
-                      : county.status === 'BETA'
-                      ? 'bg-blue-100 text-blue-800'
-                      : 'bg-amber-100 text-amber-800'
+                    county.activeCount > 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
                   }`}
                 >
-                  {county.status}
+                  {county.activeCount} active
                 </span>
               </div>
 
               <h3 className="text-base font-bold text-slate-900 mt-2">{county.countyName}</h3>
-              <p className="text-xs text-slate-600 mt-0.5">{county.sheriffOfficeName}</p>
+              <p className="text-xs text-slate-600 mt-0.5">{county.sheriffOfficeAddress}</p>
 
               <div className="mt-3 space-y-1.5 text-xs text-slate-600 font-mono">
                 <div className="flex items-center gap-1.5">
                   <MapPin size={14} className="text-slate-400 shrink-0" />
-                  <span className="truncate">{county.biddingLocation}</span>
+                  <span className="truncate">{county.sheriffOfficeAddress}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Clock size={14} className="text-slate-400 shrink-0" />
-                  <span>Deposit: {county.depositTerms}</span>
+                  <span>Deposit: {county.depositRule}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Scales size={14} className="text-slate-400 shrink-0" />
-                  <span className="truncate">Statute: {county.statutoryCitation}</span>
+                  <span className="truncate">Statute: {county.verifiedAugust2026Statute}</span>
                 </div>
               </div>
             </div>
 
             <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
               <span className="text-[11px] font-mono text-slate-500">
-                Redemption: {county.redemptionPeriodDays} days
+                Next auction: {county.nextAuctionDate}
               </span>
-              {county.auctionUrl && (
+              {county.sheriffWebsiteUrl && (
                 <a
-                  href={county.auctionUrl}
+                  href={county.sheriffWebsiteUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-600 hover:text-blue-800 font-bold flex items-center gap-1"
