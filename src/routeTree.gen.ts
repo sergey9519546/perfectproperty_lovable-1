@@ -16,6 +16,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as DealsRouteImport } from './routes/deals'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as MonitoringRouteImport } from './routes/monitoring'
+import { Route as NoticesRouteImport } from './routes/notices'
 import { Route as ProphecyRouteImport } from './routes/prophecy'
 import { Route as ShadowRouteImport } from './routes/shadow'
 import { Route as SheriffSalesRouteImport } from './routes/sheriff-sales'
@@ -76,6 +77,11 @@ const McpRoute = McpRouteImport.update({
 const MonitoringRoute = MonitoringRouteImport.update({
   id: '/monitoring',
   path: '/monitoring',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NoticesRoute = NoticesRouteImport.update({
+  id: '/notices',
+  path: '/notices',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProphecyRoute = ProphecyRouteImport.update({
@@ -227,6 +233,7 @@ export interface FileRoutesByFullPath {
   '/deals': typeof DealsRoute
   '/mcp': typeof McpRoute
   '/monitoring': typeof MonitoringRoute
+  '/notices': typeof NoticesRoute
   '/prophecy': typeof ProphecyRoute
   '/shadow': typeof ShadowRoute
   '/sheriff-sales': typeof SheriffSalesRoute
@@ -261,6 +268,7 @@ export interface FileRoutesByTo {
   '/deals': typeof DealsRoute
   '/mcp': typeof McpRoute
   '/monitoring': typeof MonitoringRoute
+  '/notices': typeof NoticesRoute
   '/prophecy': typeof ProphecyRoute
   '/shadow': typeof ShadowRoute
   '/sheriff-sales': typeof SheriffSalesRoute
@@ -297,6 +305,7 @@ export interface FileRoutesById {
   '/deals': typeof DealsRoute
   '/mcp': typeof McpRoute
   '/monitoring': typeof MonitoringRoute
+  '/notices': typeof NoticesRoute
   '/prophecy': typeof ProphecyRoute
   '/shadow': typeof ShadowRoute
   '/sheriff-sales': typeof SheriffSalesRoute
@@ -334,6 +343,7 @@ export interface FileRouteTypes {
     | '/deals'
     | '/mcp'
     | '/monitoring'
+    | '/notices'
     | '/prophecy'
     | '/shadow'
     | '/sheriff-sales'
@@ -368,6 +378,7 @@ export interface FileRouteTypes {
     | '/deals'
     | '/mcp'
     | '/monitoring'
+    | '/notices'
     | '/prophecy'
     | '/shadow'
     | '/sheriff-sales'
@@ -403,6 +414,7 @@ export interface FileRouteTypes {
     | '/deals'
     | '/mcp'
     | '/monitoring'
+    | '/notices'
     | '/prophecy'
     | '/shadow'
     | '/sheriff-sales'
@@ -439,6 +451,7 @@ export interface RootRouteChildren {
   DealsRoute: typeof DealsRoute
   McpRoute: typeof McpRoute
   MonitoringRoute: typeof MonitoringRoute
+  NoticesRoute: typeof NoticesRoute
   ProphecyRoute: typeof ProphecyRoute
   ShadowRoute: typeof ShadowRoute
   SheriffSalesRoute: typeof SheriffSalesRoute
@@ -513,6 +526,13 @@ declare module '@tanstack/react-router' {
       path: '/monitoring'
       fullPath: '/monitoring'
       preLoaderRoute: typeof MonitoringRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notices': {
+      id: '/notices'
+      path: '/notices'
+      fullPath: '/notices'
+      preLoaderRoute: typeof NoticesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/prophecy': {
@@ -722,6 +742,7 @@ const rootRouteChildren: RootRouteChildren = {
   DealsRoute: DealsRoute,
   McpRoute: McpRoute,
   MonitoringRoute: MonitoringRoute,
+  NoticesRoute: NoticesRoute,
   ProphecyRoute: ProphecyRoute,
   ShadowRoute: ShadowRoute,
   SheriffSalesRoute: SheriffSalesRoute,
