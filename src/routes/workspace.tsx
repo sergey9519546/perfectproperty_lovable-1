@@ -18,9 +18,9 @@ function WorkspaceRouteComponent() {
 
 export const Route = createFileRoute("/workspace")({
   ssr: false,
-  validateSearch: (s: Record<string, unknown>) => ({
-    query: typeof s.query === "string" ? s.query : undefined,
-    parcelId: typeof s.parcelId === "string" ? s.parcelId : undefined,
+  validateSearch: (s: Record<string, unknown>): { query?: string; parcelId?: string } => ({
+    ...(typeof s.query === "string" ? { query: s.query } : {}),
+    ...(typeof s.parcelId === "string" ? { parcelId: s.parcelId } : {}),
   }),
   beforeLoad: async ({ search }) => {
     const firebaseUser = await getAuthenticatedFirebaseUser();
