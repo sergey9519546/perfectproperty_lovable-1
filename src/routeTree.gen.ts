@@ -9,75 +9,43 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as WorkspaceRouteImport } from './routes/workspace'
-import { Route as ShadowRouteImport } from './routes/shadow'
-import { Route as ProphecyRouteImport } from './routes/prophecy'
-import { Route as MonitoringRouteImport } from './routes/monitoring'
-import { Route as McpRouteImport } from './routes/mcp'
-import { Route as DealsRouteImport } from './routes/deals'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AdminRouteImport } from './routes/admin'
-import { Route as AccuracyRouteImport } from './routes/accuracy'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AdminIndexRouteImport } from './routes/admin.index'
-import { Route as AdminHealthRouteImport } from './routes/admin.health'
-import { Route as AdminAnalyticsRouteImport } from './routes/admin.analytics'
-import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
+import { Route as AccuracyRouteImport } from './routes/accuracy'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as DealsRouteImport } from './routes/deals'
+import { Route as McpRouteImport } from './routes/mcp'
+import { Route as MonitoringRouteImport } from './routes/monitoring'
+import { Route as ProphecyRouteImport } from './routes/prophecy'
+import { Route as ShadowRouteImport } from './routes/shadow'
+import { Route as SheriffSalesRouteImport } from './routes/sheriff-sales'
+import { Route as WorkspaceRouteImport } from './routes/workspace'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
-import { Route as ApiPublicScrapyIngestRouteImport } from './routes/api/public/scrapy-ingest'
-import { Route as ApiPublicScrapeRunCompleteRouteImport } from './routes/api/public/scrape-run-complete'
-import { Route as ApiPublicRunRecipesRouteImport } from './routes/api/public/run-recipes'
-import { Route as ApiPublicRunRealieEnrichmentRouteImport } from './routes/api/public/run-realie-enrichment'
-import { Route as ApiPublicRunMonitoringRouteImport } from './routes/api/public/run-monitoring'
-import { Route as ApiPublicRunBulkLookupsRouteImport } from './routes/api/public/run-bulk-lookups'
-import { Route as ApiPublicRerunUnderwriteRouteImport } from './routes/api/public/rerun-underwrite'
-import { Route as ApiPublicNextScrapeTargetsRouteImport } from './routes/api/public/next-scrape-targets'
-import { Route as ApiPublicIngestOutcomesRouteImport } from './routes/api/public/ingest-outcomes'
-import { Route as ApiPublicIngestAllRouteImport } from './routes/api/public/ingest-all'
-import { Route as ApiPublicBackfillOutcomesRouteImport } from './routes/api/public/backfill-outcomes'
-import { Route as ApiAnalyticsEventsRouteImport } from './routes/api/analytics/events'
-import { Route as ApiAnalyticsActionsRouteImport } from './routes/api/analytics/actions'
-import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
+import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as AdminAnalyticsRouteImport } from './routes/admin.analytics'
+import { Route as AdminHealthRouteImport } from './routes/admin.health'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
+import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
+import { Route as ApiAnalyticsActionsRouteImport } from './routes/api/analytics/actions'
+import { Route as ApiAnalyticsEventsRouteImport } from './routes/api/analytics/events'
+import { Route as ApiGeminiGroundedIntelligenceRouteImport } from './routes/api/gemini/grounded-intelligence'
+import { Route as ApiGeminiSheriffIntelligenceRouteImport } from './routes/api/gemini/sheriff-intelligence'
+import { Route as ApiPublicBackfillOutcomesRouteImport } from './routes/api/public/backfill-outcomes'
+import { Route as ApiPublicIngestAllRouteImport } from './routes/api/public/ingest-all'
+import { Route as ApiPublicIngestOutcomesRouteImport } from './routes/api/public/ingest-outcomes'
+import { Route as ApiPublicNextScrapeTargetsRouteImport } from './routes/api/public/next-scrape-targets'
+import { Route as ApiPublicRerunUnderwriteRouteImport } from './routes/api/public/rerun-underwrite'
+import { Route as ApiPublicRunBulkLookupsRouteImport } from './routes/api/public/run-bulk-lookups'
+import { Route as ApiPublicRunMonitoringRouteImport } from './routes/api/public/run-monitoring'
+import { Route as ApiPublicRunRealieEnrichmentRouteImport } from './routes/api/public/run-realie-enrichment'
+import { Route as ApiPublicRunRecipesRouteImport } from './routes/api/public/run-recipes'
+import { Route as ApiPublicScrapeRunCompleteRouteImport } from './routes/api/public/scrape-run-complete'
+import { Route as ApiPublicScrapyIngestRouteImport } from './routes/api/public/scrapy-ingest'
 
-const WorkspaceRoute = WorkspaceRouteImport.update({
-  id: '/workspace',
-  path: '/workspace',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ShadowRoute = ShadowRouteImport.update({
-  id: '/shadow',
-  path: '/shadow',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProphecyRoute = ProphecyRouteImport.update({
-  id: '/prophecy',
-  path: '/prophecy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MonitoringRoute = MonitoringRouteImport.update({
-  id: '/monitoring',
-  path: '/monitoring',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const McpRoute = McpRouteImport.update({
-  id: '/mcp',
-  path: '/mcp',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DealsRoute = DealsRouteImport.update({
-  id: '/deals',
-  path: '/deals',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminRoute = AdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AccuracyRoute = AccuracyRouteImport.update({
@@ -85,19 +53,66 @@ const AccuracyRoute = AccuracyRouteImport.update({
   path: '/accuracy',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DealsRoute = DealsRouteImport.update({
+  id: '/deals',
+  path: '/deals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MonitoringRoute = MonitoringRouteImport.update({
+  id: '/monitoring',
+  path: '/monitoring',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProphecyRoute = ProphecyRouteImport.update({
+  id: '/prophecy',
+  path: '/prophecy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShadowRoute = ShadowRouteImport.update({
+  id: '/shadow',
+  path: '/shadow',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SheriffSalesRoute = SheriffSalesRouteImport.update({
+  id: '/sheriff-sales',
+  path: '/sheriff-sales',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WorkspaceRoute = WorkspaceRouteImport.update({
+  id: '/workspace',
+  path: '/workspace',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Char91DotmcpChar93ListToolsRoute =
+  Char91DotmcpChar93ListToolsRouteImport.update({
+    id: '/.mcp/list-tools',
+    path: '/.mcp/list-tools',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const Char91DotwellKnownChar93OauthProtectedResourceRoute =
+  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminHealthRoute = AdminHealthRouteImport.update({
-  id: '/health',
-  path: '/health',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminAnalyticsRoute = AdminAnalyticsRouteImport.update({
@@ -105,86 +120,14 @@ const AdminAnalyticsRoute = AdminAnalyticsRouteImport.update({
   path: '/analytics',
   getParentRoute: () => AdminRoute,
 } as any)
-const Char91DotwellKnownChar93OauthProtectedResourceRoute =
-  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
-    id: '/.well-known/oauth-protected-resource',
-    path: '/.well-known/oauth-protected-resource',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const Char91DotmcpChar93ListToolsRoute =
-  Char91DotmcpChar93ListToolsRouteImport.update({
-    id: '/.mcp/list-tools',
-    path: '/.mcp/list-tools',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicScrapyIngestRoute = ApiPublicScrapyIngestRouteImport.update({
-  id: '/api/public/scrapy-ingest',
-  path: '/api/public/scrapy-ingest',
-  getParentRoute: () => rootRouteImport,
+const AdminHealthRoute = AdminHealthRouteImport.update({
+  id: '/health',
+  path: '/health',
+  getParentRoute: () => AdminRoute,
 } as any)
-const ApiPublicScrapeRunCompleteRoute =
-  ApiPublicScrapeRunCompleteRouteImport.update({
-    id: '/api/public/scrape-run-complete',
-    path: '/api/public/scrape-run-complete',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicRunRecipesRoute = ApiPublicRunRecipesRouteImport.update({
-  id: '/api/public/run-recipes',
-  path: '/api/public/run-recipes',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicRunRealieEnrichmentRoute =
-  ApiPublicRunRealieEnrichmentRouteImport.update({
-    id: '/api/public/run-realie-enrichment',
-    path: '/api/public/run-realie-enrichment',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicRunMonitoringRoute = ApiPublicRunMonitoringRouteImport.update({
-  id: '/api/public/run-monitoring',
-  path: '/api/public/run-monitoring',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicRunBulkLookupsRoute = ApiPublicRunBulkLookupsRouteImport.update({
-  id: '/api/public/run-bulk-lookups',
-  path: '/api/public/run-bulk-lookups',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicRerunUnderwriteRoute =
-  ApiPublicRerunUnderwriteRouteImport.update({
-    id: '/api/public/rerun-underwrite',
-    path: '/api/public/rerun-underwrite',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicNextScrapeTargetsRoute =
-  ApiPublicNextScrapeTargetsRouteImport.update({
-    id: '/api/public/next-scrape-targets',
-    path: '/api/public/next-scrape-targets',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicIngestOutcomesRoute = ApiPublicIngestOutcomesRouteImport.update({
-  id: '/api/public/ingest-outcomes',
-  path: '/api/public/ingest-outcomes',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicIngestAllRoute = ApiPublicIngestAllRouteImport.update({
-  id: '/api/public/ingest-all',
-  path: '/api/public/ingest-all',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicBackfillOutcomesRoute =
-  ApiPublicBackfillOutcomesRouteImport.update({
-    id: '/api/public/backfill-outcomes',
-    path: '/api/public/backfill-outcomes',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiAnalyticsEventsRoute = ApiAnalyticsEventsRouteImport.update({
-  id: '/api/analytics/events',
-  path: '/api/analytics/events',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAnalyticsActionsRoute = ApiAnalyticsActionsRouteImport.update({
-  id: '/api/analytics/actions',
-  path: '/api/analytics/actions',
+const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
+  id: '/.lovable/oauth/consent',
+  path: '/.lovable/oauth/consent',
   getParentRoute: () => rootRouteImport,
 } as any)
 const Char91DotmcpChar93InvokeToolToolRoute =
@@ -193,9 +136,86 @@ const Char91DotmcpChar93InvokeToolToolRoute =
     path: '/.mcp/invoke-tool/$tool',
     getParentRoute: () => rootRouteImport,
   } as any)
-const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
-  id: '/.lovable/oauth/consent',
-  path: '/.lovable/oauth/consent',
+const ApiAnalyticsActionsRoute = ApiAnalyticsActionsRouteImport.update({
+  id: '/api/analytics/actions',
+  path: '/api/analytics/actions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAnalyticsEventsRoute = ApiAnalyticsEventsRouteImport.update({
+  id: '/api/analytics/events',
+  path: '/api/analytics/events',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiGeminiGroundedIntelligenceRoute =
+  ApiGeminiGroundedIntelligenceRouteImport.update({
+    id: '/api/gemini/grounded-intelligence',
+    path: '/api/gemini/grounded-intelligence',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiGeminiSheriffIntelligenceRoute =
+  ApiGeminiSheriffIntelligenceRouteImport.update({
+    id: '/api/gemini/sheriff-intelligence',
+    path: '/api/gemini/sheriff-intelligence',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicBackfillOutcomesRoute =
+  ApiPublicBackfillOutcomesRouteImport.update({
+    id: '/api/public/backfill-outcomes',
+    path: '/api/public/backfill-outcomes',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicIngestAllRoute = ApiPublicIngestAllRouteImport.update({
+  id: '/api/public/ingest-all',
+  path: '/api/public/ingest-all',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicIngestOutcomesRoute = ApiPublicIngestOutcomesRouteImport.update({
+  id: '/api/public/ingest-outcomes',
+  path: '/api/public/ingest-outcomes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicNextScrapeTargetsRoute =
+  ApiPublicNextScrapeTargetsRouteImport.update({
+    id: '/api/public/next-scrape-targets',
+    path: '/api/public/next-scrape-targets',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicRerunUnderwriteRoute =
+  ApiPublicRerunUnderwriteRouteImport.update({
+    id: '/api/public/rerun-underwrite',
+    path: '/api/public/rerun-underwrite',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicRunBulkLookupsRoute = ApiPublicRunBulkLookupsRouteImport.update({
+  id: '/api/public/run-bulk-lookups',
+  path: '/api/public/run-bulk-lookups',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicRunMonitoringRoute = ApiPublicRunMonitoringRouteImport.update({
+  id: '/api/public/run-monitoring',
+  path: '/api/public/run-monitoring',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicRunRealieEnrichmentRoute =
+  ApiPublicRunRealieEnrichmentRouteImport.update({
+    id: '/api/public/run-realie-enrichment',
+    path: '/api/public/run-realie-enrichment',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicRunRecipesRoute = ApiPublicRunRecipesRouteImport.update({
+  id: '/api/public/run-recipes',
+  path: '/api/public/run-recipes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicScrapeRunCompleteRoute =
+  ApiPublicScrapeRunCompleteRouteImport.update({
+    id: '/api/public/scrape-run-complete',
+    path: '/api/public/scrape-run-complete',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicScrapyIngestRoute = ApiPublicScrapyIngestRouteImport.update({
+  id: '/api/public/scrapy-ingest',
+  path: '/api/public/scrapy-ingest',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -209,6 +229,7 @@ export interface FileRoutesByFullPath {
   '/monitoring': typeof MonitoringRoute
   '/prophecy': typeof ProphecyRoute
   '/shadow': typeof ShadowRoute
+  '/sheriff-sales': typeof SheriffSalesRoute
   '/workspace': typeof WorkspaceRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -219,6 +240,8 @@ export interface FileRoutesByFullPath {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/analytics/actions': typeof ApiAnalyticsActionsRoute
   '/api/analytics/events': typeof ApiAnalyticsEventsRoute
+  '/api/gemini/grounded-intelligence': typeof ApiGeminiGroundedIntelligenceRoute
+  '/api/gemini/sheriff-intelligence': typeof ApiGeminiSheriffIntelligenceRoute
   '/api/public/backfill-outcomes': typeof ApiPublicBackfillOutcomesRoute
   '/api/public/ingest-all': typeof ApiPublicIngestAllRoute
   '/api/public/ingest-outcomes': typeof ApiPublicIngestOutcomesRoute
@@ -240,6 +263,7 @@ export interface FileRoutesByTo {
   '/monitoring': typeof MonitoringRoute
   '/prophecy': typeof ProphecyRoute
   '/shadow': typeof ShadowRoute
+  '/sheriff-sales': typeof SheriffSalesRoute
   '/workspace': typeof WorkspaceRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -250,6 +274,8 @@ export interface FileRoutesByTo {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/analytics/actions': typeof ApiAnalyticsActionsRoute
   '/api/analytics/events': typeof ApiAnalyticsEventsRoute
+  '/api/gemini/grounded-intelligence': typeof ApiGeminiGroundedIntelligenceRoute
+  '/api/gemini/sheriff-intelligence': typeof ApiGeminiSheriffIntelligenceRoute
   '/api/public/backfill-outcomes': typeof ApiPublicBackfillOutcomesRoute
   '/api/public/ingest-all': typeof ApiPublicIngestAllRoute
   '/api/public/ingest-outcomes': typeof ApiPublicIngestOutcomesRoute
@@ -273,6 +299,7 @@ export interface FileRoutesById {
   '/monitoring': typeof MonitoringRoute
   '/prophecy': typeof ProphecyRoute
   '/shadow': typeof ShadowRoute
+  '/sheriff-sales': typeof SheriffSalesRoute
   '/workspace': typeof WorkspaceRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -283,6 +310,8 @@ export interface FileRoutesById {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/analytics/actions': typeof ApiAnalyticsActionsRoute
   '/api/analytics/events': typeof ApiAnalyticsEventsRoute
+  '/api/gemini/grounded-intelligence': typeof ApiGeminiGroundedIntelligenceRoute
+  '/api/gemini/sheriff-intelligence': typeof ApiGeminiSheriffIntelligenceRoute
   '/api/public/backfill-outcomes': typeof ApiPublicBackfillOutcomesRoute
   '/api/public/ingest-all': typeof ApiPublicIngestAllRoute
   '/api/public/ingest-outcomes': typeof ApiPublicIngestOutcomesRoute
@@ -307,6 +336,7 @@ export interface FileRouteTypes {
     | '/monitoring'
     | '/prophecy'
     | '/shadow'
+    | '/sheriff-sales'
     | '/workspace'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
@@ -317,6 +347,8 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/api/analytics/actions'
     | '/api/analytics/events'
+    | '/api/gemini/grounded-intelligence'
+    | '/api/gemini/sheriff-intelligence'
     | '/api/public/backfill-outcomes'
     | '/api/public/ingest-all'
     | '/api/public/ingest-outcomes'
@@ -338,6 +370,7 @@ export interface FileRouteTypes {
     | '/monitoring'
     | '/prophecy'
     | '/shadow'
+    | '/sheriff-sales'
     | '/workspace'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
@@ -348,6 +381,8 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/api/analytics/actions'
     | '/api/analytics/events'
+    | '/api/gemini/grounded-intelligence'
+    | '/api/gemini/sheriff-intelligence'
     | '/api/public/backfill-outcomes'
     | '/api/public/ingest-all'
     | '/api/public/ingest-outcomes'
@@ -370,6 +405,7 @@ export interface FileRouteTypes {
     | '/monitoring'
     | '/prophecy'
     | '/shadow'
+    | '/sheriff-sales'
     | '/workspace'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
@@ -380,6 +416,8 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/api/analytics/actions'
     | '/api/analytics/events'
+    | '/api/gemini/grounded-intelligence'
+    | '/api/gemini/sheriff-intelligence'
     | '/api/public/backfill-outcomes'
     | '/api/public/ingest-all'
     | '/api/public/ingest-outcomes'
@@ -403,6 +441,7 @@ export interface RootRouteChildren {
   MonitoringRoute: typeof MonitoringRoute
   ProphecyRoute: typeof ProphecyRoute
   ShadowRoute: typeof ShadowRoute
+  SheriffSalesRoute: typeof SheriffSalesRoute
   WorkspaceRoute: typeof WorkspaceRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -410,6 +449,8 @@ export interface RootRouteChildren {
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiAnalyticsActionsRoute: typeof ApiAnalyticsActionsRoute
   ApiAnalyticsEventsRoute: typeof ApiAnalyticsEventsRoute
+  ApiGeminiGroundedIntelligenceRoute: typeof ApiGeminiGroundedIntelligenceRoute
+  ApiGeminiSheriffIntelligenceRoute: typeof ApiGeminiSheriffIntelligenceRoute
   ApiPublicBackfillOutcomesRoute: typeof ApiPublicBackfillOutcomesRoute
   ApiPublicIngestAllRoute: typeof ApiPublicIngestAllRoute
   ApiPublicIngestOutcomesRoute: typeof ApiPublicIngestOutcomesRoute
@@ -425,60 +466,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/workspace': {
-      id: '/workspace'
-      path: '/workspace'
-      fullPath: '/workspace'
-      preLoaderRoute: typeof WorkspaceRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/shadow': {
-      id: '/shadow'
-      path: '/shadow'
-      fullPath: '/shadow'
-      preLoaderRoute: typeof ShadowRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/prophecy': {
-      id: '/prophecy'
-      path: '/prophecy'
-      fullPath: '/prophecy'
-      preLoaderRoute: typeof ProphecyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/monitoring': {
-      id: '/monitoring'
-      path: '/monitoring'
-      fullPath: '/monitoring'
-      preLoaderRoute: typeof MonitoringRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mcp': {
-      id: '/mcp'
-      path: '/mcp'
-      fullPath: '/mcp'
-      preLoaderRoute: typeof McpRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/deals': {
-      id: '/deals'
-      path: '/deals'
-      fullPath: '/deals'
-      preLoaderRoute: typeof DealsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin': {
-      id: '/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AdminRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/accuracy': {
@@ -488,39 +480,67 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AccuracyRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/': {
-      id: '/admin/'
-      path: '/'
-      fullPath: '/admin/'
-      preLoaderRoute: typeof AdminIndexRouteImport
-      parentRoute: typeof AdminRoute
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/admin/health': {
-      id: '/admin/health'
-      path: '/health'
-      fullPath: '/admin/health'
-      preLoaderRoute: typeof AdminHealthRouteImport
-      parentRoute: typeof AdminRoute
+    '/deals': {
+      id: '/deals'
+      path: '/deals'
+      fullPath: '/deals'
+      preLoaderRoute: typeof DealsRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/admin/analytics': {
-      id: '/admin/analytics'
-      path: '/analytics'
-      fullPath: '/admin/analytics'
-      preLoaderRoute: typeof AdminAnalyticsRouteImport
-      parentRoute: typeof AdminRoute
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/.well-known/oauth-protected-resource': {
-      id: '/.well-known/oauth-protected-resource'
-      path: '/.well-known/oauth-protected-resource'
-      fullPath: '/.well-known/oauth-protected-resource'
-      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
+    '/monitoring': {
+      id: '/monitoring'
+      path: '/monitoring'
+      fullPath: '/monitoring'
+      preLoaderRoute: typeof MonitoringRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/prophecy': {
+      id: '/prophecy'
+      path: '/prophecy'
+      fullPath: '/prophecy'
+      preLoaderRoute: typeof ProphecyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shadow': {
+      id: '/shadow'
+      path: '/shadow'
+      fullPath: '/shadow'
+      preLoaderRoute: typeof ShadowRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sheriff-sales': {
+      id: '/sheriff-sales'
+      path: '/sheriff-sales'
+      fullPath: '/sheriff-sales'
+      preLoaderRoute: typeof SheriffSalesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/workspace': {
+      id: '/workspace'
+      path: '/workspace'
+      fullPath: '/workspace'
+      preLoaderRoute: typeof WorkspaceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/.mcp/list-tools': {
@@ -530,95 +550,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char91DotmcpChar93ListToolsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/scrapy-ingest': {
-      id: '/api/public/scrapy-ingest'
-      path: '/api/public/scrapy-ingest'
-      fullPath: '/api/public/scrapy-ingest'
-      preLoaderRoute: typeof ApiPublicScrapyIngestRouteImport
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/scrape-run-complete': {
-      id: '/api/public/scrape-run-complete'
-      path: '/api/public/scrape-run-complete'
-      fullPath: '/api/public/scrape-run-complete'
-      preLoaderRoute: typeof ApiPublicScrapeRunCompleteRouteImport
-      parentRoute: typeof rootRouteImport
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
     }
-    '/api/public/run-recipes': {
-      id: '/api/public/run-recipes'
-      path: '/api/public/run-recipes'
-      fullPath: '/api/public/run-recipes'
-      preLoaderRoute: typeof ApiPublicRunRecipesRouteImport
-      parentRoute: typeof rootRouteImport
+    '/admin/analytics': {
+      id: '/admin/analytics'
+      path: '/analytics'
+      fullPath: '/admin/analytics'
+      preLoaderRoute: typeof AdminAnalyticsRouteImport
+      parentRoute: typeof AdminRoute
     }
-    '/api/public/run-realie-enrichment': {
-      id: '/api/public/run-realie-enrichment'
-      path: '/api/public/run-realie-enrichment'
-      fullPath: '/api/public/run-realie-enrichment'
-      preLoaderRoute: typeof ApiPublicRunRealieEnrichmentRouteImport
-      parentRoute: typeof rootRouteImport
+    '/admin/health': {
+      id: '/admin/health'
+      path: '/health'
+      fullPath: '/admin/health'
+      preLoaderRoute: typeof AdminHealthRouteImport
+      parentRoute: typeof AdminRoute
     }
-    '/api/public/run-monitoring': {
-      id: '/api/public/run-monitoring'
-      path: '/api/public/run-monitoring'
-      fullPath: '/api/public/run-monitoring'
-      preLoaderRoute: typeof ApiPublicRunMonitoringRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/run-bulk-lookups': {
-      id: '/api/public/run-bulk-lookups'
-      path: '/api/public/run-bulk-lookups'
-      fullPath: '/api/public/run-bulk-lookups'
-      preLoaderRoute: typeof ApiPublicRunBulkLookupsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/rerun-underwrite': {
-      id: '/api/public/rerun-underwrite'
-      path: '/api/public/rerun-underwrite'
-      fullPath: '/api/public/rerun-underwrite'
-      preLoaderRoute: typeof ApiPublicRerunUnderwriteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/next-scrape-targets': {
-      id: '/api/public/next-scrape-targets'
-      path: '/api/public/next-scrape-targets'
-      fullPath: '/api/public/next-scrape-targets'
-      preLoaderRoute: typeof ApiPublicNextScrapeTargetsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/ingest-outcomes': {
-      id: '/api/public/ingest-outcomes'
-      path: '/api/public/ingest-outcomes'
-      fullPath: '/api/public/ingest-outcomes'
-      preLoaderRoute: typeof ApiPublicIngestOutcomesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/ingest-all': {
-      id: '/api/public/ingest-all'
-      path: '/api/public/ingest-all'
-      fullPath: '/api/public/ingest-all'
-      preLoaderRoute: typeof ApiPublicIngestAllRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/backfill-outcomes': {
-      id: '/api/public/backfill-outcomes'
-      path: '/api/public/backfill-outcomes'
-      fullPath: '/api/public/backfill-outcomes'
-      preLoaderRoute: typeof ApiPublicBackfillOutcomesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/analytics/events': {
-      id: '/api/analytics/events'
-      path: '/api/analytics/events'
-      fullPath: '/api/analytics/events'
-      preLoaderRoute: typeof ApiAnalyticsEventsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/analytics/actions': {
-      id: '/api/analytics/actions'
-      path: '/api/analytics/actions'
-      fullPath: '/api/analytics/actions'
-      preLoaderRoute: typeof ApiAnalyticsActionsRouteImport
+    '/.lovable/oauth/consent': {
+      id: '/.lovable/oauth/consent'
+      path: '/.lovable/oauth/consent'
+      fullPath: '/.lovable/oauth/consent'
+      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/.mcp/invoke-tool/$tool': {
@@ -628,11 +592,109 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/.lovable/oauth/consent': {
-      id: '/.lovable/oauth/consent'
-      path: '/.lovable/oauth/consent'
-      fullPath: '/.lovable/oauth/consent'
-      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
+    '/api/analytics/actions': {
+      id: '/api/analytics/actions'
+      path: '/api/analytics/actions'
+      fullPath: '/api/analytics/actions'
+      preLoaderRoute: typeof ApiAnalyticsActionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/analytics/events': {
+      id: '/api/analytics/events'
+      path: '/api/analytics/events'
+      fullPath: '/api/analytics/events'
+      preLoaderRoute: typeof ApiAnalyticsEventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/gemini/grounded-intelligence': {
+      id: '/api/gemini/grounded-intelligence'
+      path: '/api/gemini/grounded-intelligence'
+      fullPath: '/api/gemini/grounded-intelligence'
+      preLoaderRoute: typeof ApiGeminiGroundedIntelligenceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/gemini/sheriff-intelligence': {
+      id: '/api/gemini/sheriff-intelligence'
+      path: '/api/gemini/sheriff-intelligence'
+      fullPath: '/api/gemini/sheriff-intelligence'
+      preLoaderRoute: typeof ApiGeminiSheriffIntelligenceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/backfill-outcomes': {
+      id: '/api/public/backfill-outcomes'
+      path: '/api/public/backfill-outcomes'
+      fullPath: '/api/public/backfill-outcomes'
+      preLoaderRoute: typeof ApiPublicBackfillOutcomesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/ingest-all': {
+      id: '/api/public/ingest-all'
+      path: '/api/public/ingest-all'
+      fullPath: '/api/public/ingest-all'
+      preLoaderRoute: typeof ApiPublicIngestAllRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/ingest-outcomes': {
+      id: '/api/public/ingest-outcomes'
+      path: '/api/public/ingest-outcomes'
+      fullPath: '/api/public/ingest-outcomes'
+      preLoaderRoute: typeof ApiPublicIngestOutcomesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/next-scrape-targets': {
+      id: '/api/public/next-scrape-targets'
+      path: '/api/public/next-scrape-targets'
+      fullPath: '/api/public/next-scrape-targets'
+      preLoaderRoute: typeof ApiPublicNextScrapeTargetsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/rerun-underwrite': {
+      id: '/api/public/rerun-underwrite'
+      path: '/api/public/rerun-underwrite'
+      fullPath: '/api/public/rerun-underwrite'
+      preLoaderRoute: typeof ApiPublicRerunUnderwriteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/run-bulk-lookups': {
+      id: '/api/public/run-bulk-lookups'
+      path: '/api/public/run-bulk-lookups'
+      fullPath: '/api/public/run-bulk-lookups'
+      preLoaderRoute: typeof ApiPublicRunBulkLookupsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/run-monitoring': {
+      id: '/api/public/run-monitoring'
+      path: '/api/public/run-monitoring'
+      fullPath: '/api/public/run-monitoring'
+      preLoaderRoute: typeof ApiPublicRunMonitoringRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/run-realie-enrichment': {
+      id: '/api/public/run-realie-enrichment'
+      path: '/api/public/run-realie-enrichment'
+      fullPath: '/api/public/run-realie-enrichment'
+      preLoaderRoute: typeof ApiPublicRunRealieEnrichmentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/run-recipes': {
+      id: '/api/public/run-recipes'
+      path: '/api/public/run-recipes'
+      fullPath: '/api/public/run-recipes'
+      preLoaderRoute: typeof ApiPublicRunRecipesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/scrape-run-complete': {
+      id: '/api/public/scrape-run-complete'
+      path: '/api/public/scrape-run-complete'
+      fullPath: '/api/public/scrape-run-complete'
+      preLoaderRoute: typeof ApiPublicScrapeRunCompleteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/scrapy-ingest': {
+      id: '/api/public/scrapy-ingest'
+      path: '/api/public/scrapy-ingest'
+      fullPath: '/api/public/scrapy-ingest'
+      preLoaderRoute: typeof ApiPublicScrapyIngestRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -662,6 +724,7 @@ const rootRouteChildren: RootRouteChildren = {
   MonitoringRoute: MonitoringRoute,
   ProphecyRoute: ProphecyRoute,
   ShadowRoute: ShadowRoute,
+  SheriffSalesRoute: SheriffSalesRoute,
   WorkspaceRoute: WorkspaceRoute,
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
@@ -670,6 +733,8 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiAnalyticsActionsRoute: ApiAnalyticsActionsRoute,
   ApiAnalyticsEventsRoute: ApiAnalyticsEventsRoute,
+  ApiGeminiGroundedIntelligenceRoute: ApiGeminiGroundedIntelligenceRoute,
+  ApiGeminiSheriffIntelligenceRoute: ApiGeminiSheriffIntelligenceRoute,
   ApiPublicBackfillOutcomesRoute: ApiPublicBackfillOutcomesRoute,
   ApiPublicIngestAllRoute: ApiPublicIngestAllRoute,
   ApiPublicIngestOutcomesRoute: ApiPublicIngestOutcomesRoute,
