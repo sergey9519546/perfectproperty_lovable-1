@@ -42,7 +42,7 @@ export function CommandPalette({ open, parcels, onClose, onSelect }: Props) {
   const results = useMemo(
     () =>
       parcels.filter((parcel) =>
-        `${parcel.address} ${parcel.city} ${parcel.state} ${parcel.ringLabel} ${parcel.scope}`
+        `${parcel.address} ${parcel.city} ${parcel.state} ${parcel.ringLabel} ${parcel.scope} ${parcel.apn ?? ''}`
           .toLowerCase()
           .includes(query.toLowerCase()),
       ),
@@ -203,7 +203,7 @@ export function CommandPalette({ open, parcels, onClose, onSelect }: Props) {
                         {parcel.address}
                       </strong>
                       <small className="mt-1 block text-xs text-pp-faint">
-                        {parcel.marketLabel} · {parcel.ringLabel}
+                        {parcel.marketLabel} · {parcel.ringLabel}{parcel.apn ? ` · APN ${parcel.apn}` : ''}
                       </small>
                     </span>
                     <span className="flex items-center gap-3 font-mono text-md text-pp-gold">

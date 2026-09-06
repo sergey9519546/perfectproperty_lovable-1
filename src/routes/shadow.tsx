@@ -9,12 +9,17 @@ import { fmt$ } from "@/lib/format";
 import { supabase } from "@/integrations/supabase/client";
 import { SectionBoundary } from "@/components/SectionBoundary";
 import { ScorePill } from "@/components/ScorePill";
+import { ProtectedLayout } from "@/components/ProtectedLayout";
+import { getAuthenticatedFirebaseUser } from "@/integrations/firebase";
 
 export const Route = createFileRoute("/shadow")({
   ssr: false,
   beforeLoad: async () => {
-    const { data } = await supabase.auth.getUser();
-    if (!data.user) throw redirect({ to: "/auth", search: { next: "/shadow" } });
+    const firebaseUser = await getAuthenticatedFirebaseUser();
+    if (!firebaseUser) {
+      const { data } = await supabase.auth.getUser();
+      if (!data.user) throw redirect({ to: "/auth", search: { next: "/shadow" } });
+    }
   },
   head: () => ({
     meta: [
@@ -23,9 +28,11 @@ export const Route = createFileRoute("/shadow")({
     ],
   }),
   component: () => (
-    <SectionBoundary label="Shadow market unavailable" minHeight={400}>
-      <ShadowPage />
-    </SectionBoundary>
+    <ProtectedLayout>
+      <SectionBoundary label="Shadow market unavailable" minHeight={400}>
+        <ShadowPage />
+      </SectionBoundary>
+    </ProtectedLayout>
   ),
 });
 
@@ -43,15 +50,15 @@ function ShadowPage() {
 
 
         <div className="mt-6 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-          {q.isLoading && Array.from({length:6}).map((_,i)=>(<div key={i} className="rounded-lg border border-border bg-surface p-4"><div className="skeleton h-5 w-3/4 rounded-sm" /><div className="skeleton mt-3 h-4 w-1/2 rounded-sm" /><div className="skeleton mt-2 h-4 w-2/3 rounded-sm" /></div>))}
+          {q.isLoading && Array.from({length:6}).map((_,i)=>(<div key={i} className="rounded-lg border border-pp-border bg-pp-page p-4"><div className="skeleton h-5 w-3/4 rounded-sm" /><div className="skeleton mt-3 h-4 w-1/2 rounded-sm" /><div className="skeleton mt-2 h-4 w-2/3 rounded-sm" /></div>))}
           {(q.data ?? []).map((r: any, i: number) => {
             const flags = (r.skeptic_flags as string[]) ?? [];
             return (
-              <button key={r.parcel_id} onClick={() => setSel(r.parcel_id)} style={{animationDelay:`${Math.min(i*50,500)}ms`}} className="text-left rounded-lg border border-border bg-surface p-4 transition-colors hover:border-border-strong hover:bg-surface-2 animate-in fade-in slide-in-from-bottom-2 duration-300 fill-mode-backwards">
+              <button key={r.parcel_id} onClick={() => setSel(r.parcel_id)} style={{animationDelay:`${Math.min(i*50,500)}ms`}} className="text-left rounded-lg border border-pp-border bg-pp-page p-4 transition-colors hover:border-pp-border-strong hover:bg-pp-header animate-in fade-in slide-in-from-bottom-2 duration-300 fill-mode-backwards">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <div className="truncate text-[14px] font-medium">{r.parcels.address}</div>
-                    <div className="truncate text-[11px] text-muted-foreground">{r.parcels.city}, {r.parcels.state}</div>
+                    <div className="truncate text-[11px] text-pp-muted">{r.parcels.city}, {r.parcels.state}</div>
                   </div>
                   <ScorePill score={Number(r.perfect_score)} size="lg" />
                 </div>
@@ -61,7 +68,7 @@ function ShadowPage() {
                   <Metric label="Deal odds" v={`${Math.round(Number(r.acquisition_probability) * 100)}%`} />
                   <Metric label="Days to sell" v={`${r.exit_days}d`} />
                 </div>
-                {flags.length > 0 && <div className="mt-2 text-[10px] text-skeptic">{flags.length} warning{flags.length > 1 ? "s" : ""}</div>}
+                {flags.length > 0 && <div className="mt-2 text-[10px] text-rose-500">{flags.length} warning{flags.length > 1 ? "s" : ""}</div>}
               </button>
             );
           })}
@@ -73,9 +80,9 @@ function ShadowPage() {
 }
 function Metric({ label, v, accent }: { label: string; v: string; accent?: boolean }) {
   return (
-    <div className="rounded-md border border-border bg-surface-2 px-2 py-1.5">
-      <div className="text-[9px] uppercase tracking-wider text-muted-foreground">{label}</div>
-      <div className={"num text-[12px] " + (accent ? "text-profit-strong" : "")}>{v}</div>
+    <div className="rounded-md border border-pp-border bg-pp-header px-2 py-1.5">
+      <div className="text-[9px] uppercase tracking-wider text-pp-muted">{label}</div>
+      <div className={"num text-[12px] " + (accent ? "text-pp-live" : "")}>{v}</div>
     </div>
   );
 }

@@ -63,7 +63,7 @@ export function WhyThisScorePanel({ parcelId }: { parcelId: string }) {
   const [openField, setOpenField] = useState<string | null>(null);
 
   if (q.isLoading) {
-    return <div className="text-[11px] text-muted-foreground">Loading provenance…</div>;
+    return <div className="text-[11px] text-pp-muted">Loading provenance…</div>;
   }
   if (q.error) {
     return <div className="text-[11px] text-destructive">Provenance unavailable.</div>;
@@ -73,20 +73,20 @@ export function WhyThisScorePanel({ parcelId }: { parcelId: string }) {
   const conf = d.score_confidence == null ? null : Number(d.score_confidence);
 
   return (
-    <section className="rounded-lg border border-border bg-surface-2/40 p-4">
+    <section className="rounded-lg border border-pp-border bg-pp-header/40 p-4">
       <div className="flex items-baseline justify-between">
         <div>
-          <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Why this score</div>
-          <div className="mt-1 text-[12px] text-muted-foreground">
+          <div className="text-[11px] uppercase tracking-wide text-pp-muted">Why this score</div>
+          <div className="mt-1 text-[12px] text-pp-muted">
             Every input that fed the underwrite, with its source and confidence.
           </div>
         </div>
         <div className="text-right">
-          <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Confidence</div>
-          <div className="flex items-center justify-end gap-2 text-[13px] font-semibold text-foreground">
+          <div className="text-[11px] uppercase tracking-wide text-pp-muted">Confidence</div>
+          <div className="flex items-center justify-end gap-2 text-[13px] font-semibold text-pp-text">
             {conf != null && <span className={`inline-block h-2.5 w-2.5 rounded-full ${confidenceColor(conf)}`} />}
             {conf != null ? conf.toFixed(2) : "—"}
-            <span className="text-[11px] font-normal text-muted-foreground">({confidenceBand(conf)})</span>
+            <span className="text-[11px] font-normal text-pp-muted">({confidenceBand(conf)})</span>
           </div>
         </div>
       </div>
@@ -101,20 +101,20 @@ export function WhyThisScorePanel({ parcelId }: { parcelId: string }) {
             <div key={f} className="py-2">
               <button
                 onClick={() => setOpenField(isOpen ? null : f)}
-                className="flex w-full items-center gap-3 text-left text-[12px] hover:bg-surface-2/40"
+                className="flex w-full items-center gap-3 text-left text-[12px] hover:bg-pp-header/40"
               >
-                {isOpen ? <CaretDown className="h-3 w-3 text-muted-foreground" /> : <CaretRight className="h-3 w-3 text-muted-foreground" />}
-                <span className="w-32 shrink-0 text-muted-foreground">{FIELD_LABEL[f] ?? f}</span>
-                <span className="w-28 shrink-0 font-medium text-foreground">{fmtValue(f, row.value)}</span>
+                {isOpen ? <CaretDown className="h-3 w-3 text-pp-muted" /> : <CaretRight className="h-3 w-3 text-pp-muted" />}
+                <span className="w-32 shrink-0 text-pp-muted">{FIELD_LABEL[f] ?? f}</span>
+                <span className="w-28 shrink-0 font-medium text-pp-text">{fmtValue(f, row.value)}</span>
                 <span className={`inline-block h-2 w-2 shrink-0 rounded-full ${confidenceColor(c)}`} />
-                <span className="w-10 shrink-0 num text-muted-foreground">{c.toFixed(2)}</span>
-                <span className="w-40 shrink-0 truncate text-muted-foreground">{row.source}</span>
-                <span className="ml-auto text-[11px] text-muted-foreground">
+                <span className="w-10 shrink-0 num text-pp-muted">{c.toFixed(2)}</span>
+                <span className="w-40 shrink-0 truncate text-pp-muted">{row.source}</span>
+                <span className="ml-auto text-[11px] text-pp-muted">
                   {row.observed_at ? new Date(row.observed_at).toISOString().slice(0, 10) : "—"}
                 </span>
               </button>
               {isOpen && hist.length > 1 && (
-                <div className="mt-2 ml-6 space-y-1 rounded-md border border-border/60 bg-background/40 p-2 text-[11px] text-muted-foreground">
+                <div className="mt-2 ml-6 space-y-1 rounded-md border border-pp-border/60 bg-pp-page/40 p-2 text-[11px] text-pp-muted">
                   {hist.map((h: any, i: number) => (
                     <div key={i} className="flex gap-2">
                       <span className="w-24 truncate">{h.source}</span>
@@ -129,7 +129,7 @@ export function WhyThisScorePanel({ parcelId }: { parcelId: string }) {
           );
         })}
         {d.fields.length === 0 && (
-          <div className="py-3 text-[12px] text-muted-foreground">
+          <div className="py-3 text-[12px] text-pp-muted">
             No per-field provenance yet — this parcel was scored before provenance tracking was enabled, or its inputs came from a legacy source.
           </div>
         )}

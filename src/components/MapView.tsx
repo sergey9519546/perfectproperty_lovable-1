@@ -1,5 +1,6 @@
-import { useEffect, useRef } from "react";
-import maplibregl from "maplibre-gl";
+import { useEffect } from "react";
+import { APIProvider, Map, AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
+import { GMP_ATTRIBUTION_ID, DEFAULT_MAP_ID, getGoogleMapsApiKey, DARK_MAP_STYLE } from "@/lib/google-maps";
 
 export interface MapParcel {
   parcel_id: string;
@@ -31,114 +32,80 @@ function tierColor(score: number): string {
   return "#5a6272";
 }
 
-export function MapView({ parcels, center = [-98, 36], zoom = 4, onSelect, selectedId, className }: Props) {
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const mapRef = useRef<maplibregl.Map | null>(null);
+function MapBoundsFitter({ parcels }: { parcels: MapParcel[] }) {
+  const map = useMap();
 
   useEffect(() => {
-    if (!containerRef.current || mapRef.current) return;
-    const map = new maplibregl.Map({
-      container: containerRef.current,
-      style: {
-        version: 8,
-        sources: {
-          "carto-dark": {
-            type: "raster",
-            tiles: [
-              "https://a.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}@2x.png",
-              "https://b.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}@2x.png",
-            ],
-            tileSize: 256,
-            attribution: "© OpenStreetMap © CARTO",
-          },
-          "carto-labels": {
-            type: "raster",
-            tiles: ["https://a.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}@2x.png"],
-            tileSize: 256,
-          },
-        },
-        layers: [
-          { id: "base", type: "raster", source: "carto-dark" },
-          { id: "labels", type: "raster", source: "carto-labels" },
-        ],
-      },
-      center,
-      zoom,
-      attributionControl: false,
-    });
-    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
-    mapRef.current = map;
-    return () => { map.remove(); mapRef.current = null; };
-  }, []);
-
-  // Render markers as a GeoJSON layer for scalability
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map) return;
-    const apply = () => {
-      const geojson = {
-        type: "FeatureCollection" as const,
-        features: parcels.map((p) => ({
-          type: "Feature" as const,
-          geometry: { type: "Point" as const, coordinates: [p.lng, p.lat] },
-          properties: {
-            parcel_id: p.parcel_id,
-            score: p.perfect_score,
-            ring: p.ring,
-            color: tierColor(p.perfect_score),
-            radius: Math.max(3, Math.min(14, 3 + (p.perfect_score / 100) * 12)),
-            selected: p.parcel_id === selectedId ? 1 : 0,
-          },
-        })),
-      };
-      const src = map.getSource("parcels") as maplibregl.GeoJSONSource | undefined;
-      if (src) {
-        src.setData(geojson as any);
-      } else {
-        map.addSource("parcels", { type: "geojson", data: geojson as any });
-        map.addLayer({
-          id: "parcels-glow",
-          type: "circle",
-          source: "parcels",
-          paint: {
-            "circle-radius": ["*", ["get", "radius"], 2.6],
-            "circle-color": ["get", "color"],
-            "circle-opacity": 0.18,
-            "circle-blur": 0.9,
-          },
-        });
-        map.addLayer({
-          id: "parcels-core",
-          type: "circle",
-          source: "parcels",
-          paint: {
-            "circle-radius": ["get", "radius"],
-            "circle-color": ["get", "color"],
-            "circle-opacity": 0.92,
-            "circle-stroke-width": ["case", ["==", ["get", "selected"], 1], 2.5, 0.5],
-            "circle-stroke-color": ["case", ["==", ["get", "selected"], 1], "#ffffff", "#0e1218"],
-          },
-        });
-        map.on("click", "parcels-core", (e) => {
-          const f = e.features?.[0];
-          if (f && onSelect) onSelect(String(f.properties?.parcel_id));
-        });
-        map.on("mouseenter", "parcels-core", () => { map.getCanvas().style.cursor = "pointer"; });
-        map.on("mouseleave", "parcels-core", () => { map.getCanvas().style.cursor = ""; });
-      }
-    };
-    if (map.isStyleLoaded()) apply();
-    else map.once("load", apply);
-  }, [parcels, selectedId, onSelect]);
-
-  // Fit bounds when parcel set changes materially
-  useEffect(() => {
-    const map = mapRef.current;
     if (!map || parcels.length === 0) return;
-    const bounds = new maplibregl.LngLatBounds();
-    parcels.forEach((p) => bounds.extend([p.lng, p.lat]));
-    map.fitBounds(bounds, { padding: 60, duration: 800, maxZoom: 11 });
-  }, [parcels.length]);
+    const bounds = new google.maps.LatLngBounds();
+    parcels.forEach((p) => {
+      bounds.extend({ lat: p.lat, lng: p.lng });
+    });
+    map.fitBounds(bounds, { top: 60, right: 60, bottom: 60, left: 60 });
+  }, [map, parcels]);
 
-  return <div ref={containerRef} className={className ?? "h-full w-full"} />;
+  return null;
 }
+
+export function MapView({ parcels, center = [-98, 36], zoom = 4, onSelect, selectedId, className }: Props) {
+  const apiKey = getGoogleMapsApiKey();
+
+  return (
+    <div className={className ?? "h-full w-full relative overflow-hidden"}>
+      <APIProvider apiKey={apiKey} libraries={["marker", "places", "geometry"]}>
+        <Map
+          mapId={DEFAULT_MAP_ID}
+          internalUsageAttributionIds={[GMP_ATTRIBUTION_ID]}
+          defaultCenter={{ lat: center[1], lng: center[0] }}
+          defaultZoom={zoom}
+          gestureHandling="greedy"
+          disableDefaultUI={true}
+          styles={DARK_MAP_STYLE}
+          style={{ width: "100%", height: "100%" }}
+        >
+          <MapBoundsFitter parcels={parcels} />
+          {parcels.map((p) => {
+            const isSelected = p.parcel_id === selectedId;
+            const color = tierColor(p.perfect_score);
+            const ringColor = RING_COLORS[p.ring] ?? color;
+
+            return (
+              <AdvancedMarker
+                key={p.parcel_id}
+                position={{ lat: p.lat, lng: p.lng }}
+                onClick={() => onSelect?.(p.parcel_id)}
+                title={`Score: ${p.perfect_score}`}
+              >
+                <div
+                  className="relative flex items-center justify-center cursor-pointer transition-transform duration-150 hover:scale-125"
+                  style={{
+                    width: isSelected ? 30 : 22,
+                    height: isSelected ? 30 : 22,
+                  }}
+                >
+                  <span
+                    className="absolute inset-0 rounded-full animate-ping opacity-30"
+                    style={{ backgroundColor: isSelected ? "#ffffff" : ringColor }}
+                  />
+                  <div
+                    className="relative flex items-center justify-center rounded-full font-mono text-[10px] font-bold text-white shadow-lg"
+                    style={{
+                      width: isSelected ? 26 : 20,
+                      height: isSelected ? 26 : 20,
+                      backgroundColor: color,
+                      border: isSelected ? "2.5px solid #ffffff" : `1.5px solid ${ringColor}`,
+                      boxShadow: `0 0 10px ${color}88`,
+                    }}
+                  >
+                    {Math.round(p.perfect_score)}
+                  </div>
+                </div>
+              </AdvancedMarker>
+            );
+          })}
+        </Map>
+      </APIProvider>
+    </div>
+  );
+}
+

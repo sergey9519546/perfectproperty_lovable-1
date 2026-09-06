@@ -10,10 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WorkspaceRouteImport } from './routes/workspace'
-import { Route as SourcesRouteImport } from './routes/sources'
 import { Route as ShadowRouteImport } from './routes/shadow'
 import { Route as ProphecyRouteImport } from './routes/prophecy'
-import { Route as NoticesRouteImport } from './routes/notices'
 import { Route as MonitoringRouteImport } from './routes/monitoring'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as DealsRouteImport } from './routes/deals'
@@ -47,11 +45,6 @@ const WorkspaceRoute = WorkspaceRouteImport.update({
   path: '/workspace',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SourcesRoute = SourcesRouteImport.update({
-  id: '/sources',
-  path: '/sources',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ShadowRoute = ShadowRouteImport.update({
   id: '/shadow',
   path: '/shadow',
@@ -60,11 +53,6 @@ const ShadowRoute = ShadowRouteImport.update({
 const ProphecyRoute = ProphecyRouteImport.update({
   id: '/prophecy',
   path: '/prophecy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const NoticesRoute = NoticesRouteImport.update({
-  id: '/notices',
-  path: '/notices',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MonitoringRoute = MonitoringRouteImport.update({
@@ -219,10 +207,8 @@ export interface FileRoutesByFullPath {
   '/deals': typeof DealsRoute
   '/mcp': typeof McpRoute
   '/monitoring': typeof MonitoringRoute
-  '/notices': typeof NoticesRoute
   '/prophecy': typeof ProphecyRoute
   '/shadow': typeof ShadowRoute
-  '/sources': typeof SourcesRoute
   '/workspace': typeof WorkspaceRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -252,10 +238,8 @@ export interface FileRoutesByTo {
   '/deals': typeof DealsRoute
   '/mcp': typeof McpRoute
   '/monitoring': typeof MonitoringRoute
-  '/notices': typeof NoticesRoute
   '/prophecy': typeof ProphecyRoute
   '/shadow': typeof ShadowRoute
-  '/sources': typeof SourcesRoute
   '/workspace': typeof WorkspaceRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -287,10 +271,8 @@ export interface FileRoutesById {
   '/deals': typeof DealsRoute
   '/mcp': typeof McpRoute
   '/monitoring': typeof MonitoringRoute
-  '/notices': typeof NoticesRoute
   '/prophecy': typeof ProphecyRoute
   '/shadow': typeof ShadowRoute
-  '/sources': typeof SourcesRoute
   '/workspace': typeof WorkspaceRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -323,10 +305,8 @@ export interface FileRouteTypes {
     | '/deals'
     | '/mcp'
     | '/monitoring'
-    | '/notices'
     | '/prophecy'
     | '/shadow'
-    | '/sources'
     | '/workspace'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
@@ -356,10 +336,8 @@ export interface FileRouteTypes {
     | '/deals'
     | '/mcp'
     | '/monitoring'
-    | '/notices'
     | '/prophecy'
     | '/shadow'
-    | '/sources'
     | '/workspace'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
@@ -390,10 +368,8 @@ export interface FileRouteTypes {
     | '/deals'
     | '/mcp'
     | '/monitoring'
-    | '/notices'
     | '/prophecy'
     | '/shadow'
-    | '/sources'
     | '/workspace'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
@@ -425,10 +401,8 @@ export interface RootRouteChildren {
   DealsRoute: typeof DealsRoute
   McpRoute: typeof McpRoute
   MonitoringRoute: typeof MonitoringRoute
-  NoticesRoute: typeof NoticesRoute
   ProphecyRoute: typeof ProphecyRoute
   ShadowRoute: typeof ShadowRoute
-  SourcesRoute: typeof SourcesRoute
   WorkspaceRoute: typeof WorkspaceRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -458,13 +432,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkspaceRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/sources': {
-      id: '/sources'
-      path: '/sources'
-      fullPath: '/sources'
-      preLoaderRoute: typeof SourcesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/shadow': {
       id: '/shadow'
       path: '/shadow'
@@ -477,13 +444,6 @@ declare module '@tanstack/react-router' {
       path: '/prophecy'
       fullPath: '/prophecy'
       preLoaderRoute: typeof ProphecyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/notices': {
-      id: '/notices'
-      path: '/notices'
-      fullPath: '/notices'
-      preLoaderRoute: typeof NoticesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/monitoring': {
@@ -700,10 +660,8 @@ const rootRouteChildren: RootRouteChildren = {
   DealsRoute: DealsRoute,
   McpRoute: McpRoute,
   MonitoringRoute: MonitoringRoute,
-  NoticesRoute: NoticesRoute,
   ProphecyRoute: ProphecyRoute,
   ShadowRoute: ShadowRoute,
-  SourcesRoute: SourcesRoute,
   WorkspaceRoute: WorkspaceRoute,
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:

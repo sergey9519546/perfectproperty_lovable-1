@@ -13,7 +13,7 @@ export function ScorePill({
   size?: "sm" | "md" | "lg";
 }) {
   if (score == null || isNaN(Number(score))) {
-    return <span className="num text-muted-foreground">—</span>;
+    return <span className="num text-pp-muted">—</span>;
   }
   const t = tierLabel(Number(score));
   const dims =

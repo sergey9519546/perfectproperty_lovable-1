@@ -15,10 +15,10 @@ function statusColor(s: string): string {
 
 function Card({ title, value, sub }: { title: string; value: React.ReactNode; sub?: string }) {
   return (
-    <div className="rounded-lg border border-border bg-surface p-4">
-      <div className="text-[11px] uppercase tracking-wide text-muted-foreground">{title}</div>
-      <div className="mt-2 text-2xl font-semibold num text-foreground">{value}</div>
-      {sub && <div className="mt-1 text-[11px] text-muted-foreground">{sub}</div>}
+    <div className="rounded-lg border border-pp-border bg-pp-page p-4">
+      <div className="text-[11px] uppercase tracking-wide text-pp-muted">{title}</div>
+      <div className="mt-2 text-2xl font-semibold num text-pp-text">{value}</div>
+      {sub && <div className="mt-1 text-[11px] text-pp-muted">{sub}</div>}
     </div>
   );
 }
@@ -31,7 +31,7 @@ function HealthView() {
     refetchInterval: 30_000,
   });
 
-  if (q.isLoading) return <div className="p-8 text-sm text-muted-foreground">Loading health…</div>;
+  if (q.isLoading) return <div className="p-8 text-sm text-pp-muted">Loading health…</div>;
   if (q.error) throw q.error;
   const d = q.data!;
 
@@ -40,7 +40,7 @@ function HealthView() {
       <div className="flex items-baseline justify-between">
         <div>
           <h1 className="text-2xl font-semibold">Ingestion health</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-1 text-sm text-pp-muted">
             Live view of every county source, ingest failures, and API activity.
           </p>
         </div>
@@ -70,19 +70,19 @@ function HealthView() {
         />
       </div>
 
-      <section className="rounded-lg border border-border bg-surface p-4">
+      <section className="rounded-lg border border-pp-border bg-pp-page p-4">
         <div className="flex items-baseline justify-between">
           <div>
             <h2 className="text-sm font-semibold">Enrichment pipeline (Realie)</h2>
-            <p className="mt-1 text-[11px] text-muted-foreground">
+            <p className="mt-1 text-[11px] text-pp-muted">
               Parcels queued for address enrichment because they gained a distress event or listing
               but are missing key attributes. The cron endpoint{" "}
-              <code className="rounded bg-surface-2 px-1">/api/public/run-realie-enrichment</code>{" "}
+              <code className="rounded bg-pp-header px-1">/api/public/run-realie-enrichment</code>{" "}
               drains this queue.
             </p>
           </div>
           {d.last_realie_run && (
-            <div className="text-[11px] text-muted-foreground">
+            <div className="text-[11px] text-pp-muted">
               last run <DataFreshness timestamp={d.last_realie_run} prefix="" />
             </div>
           )}
@@ -99,25 +99,25 @@ function HealthView() {
           {Object.entries(d.enrichment.by_reason).map(([reason, n]) => (
             <span
               key={reason}
-              className="rounded-full border border-border bg-surface-2 px-2 py-0.5 text-muted-foreground"
+              className="rounded-full border border-pp-border bg-pp-header px-2 py-0.5 text-pp-muted"
               title={`${n} pending or inflight items with reason "${reason}"`}
             >
-              {reason} <span className="num text-foreground">{n as number}</span>
+              {reason} <span className="num text-pp-text">{n as number}</span>
             </span>
           ))}
         </div>
         {(d.realie_usage_by_endpoint ?? []).length > 0 && (
-          <div className="mt-3 border-t border-border/50 pt-3">
-            <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
+          <div className="mt-3 border-t border-pp-border/50 pt-3">
+            <div className="text-[10px] uppercase tracking-wide text-pp-muted">
               Today by endpoint
             </div>
             <div className="mt-2 flex flex-wrap gap-2 text-[11px]">
               {d.realie_usage_by_endpoint.map((usage: any) => (
                 <span
                   key={usage.endpoint}
-                  className="rounded border border-border bg-surface-2 px-2 py-1 text-muted-foreground"
+                  className="rounded border border-pp-border bg-pp-header px-2 py-1 text-pp-muted"
                 >
-                  <span className="font-mono text-foreground">{usage.endpoint}</span>{" "}
+                  <span className="font-mono text-pp-text">{usage.endpoint}</span>{" "}
                   {Number(usage.request_count).toLocaleString()} requests ·{" "}
                   {Number(usage.property_count).toLocaleString()} properties ·{" "}
                   {Number(usage.failure_count).toLocaleString()} failed
@@ -128,27 +128,27 @@ function HealthView() {
         )}
       </section>
 
-      <section className="rounded-lg border border-border bg-surface p-4">
+      <section className="rounded-lg border border-pp-border bg-pp-page p-4">
         <h2 className="text-sm font-semibold">Source health</h2>
-        <p className="mt-1 text-[11px] text-muted-foreground">
+        <p className="mt-1 text-[11px] text-pp-muted">
           Circuit breaker state. Red means the ingest cron skips the source until it recovers.
         </p>
         <div className="mt-3 grid grid-cols-1 gap-2 md:grid-cols-2">
           {d.sources.length === 0 && (
-            <div className="text-[12px] text-muted-foreground">
+            <div className="text-[12px] text-pp-muted">
               No health data yet — run an ingest.
             </div>
           )}
           {d.sources.map((s: any) => (
             <div
               key={s.source_key}
-              className="flex items-center justify-between rounded-md border border-border/60 bg-background/40 px-3 py-2"
+              className="flex items-center justify-between rounded-md border border-pp-border/60 bg-pp-page/40 px-3 py-2"
             >
               <div className="flex items-center gap-3">
                 <span className={`h-2.5 w-2.5 rounded-full ${statusColor(s.status)}`} />
                 <div>
                   <div className="text-[13px] font-medium">{s.source_key}</div>
-                  <div className="text-[10px] text-muted-foreground">
+                  <div className="text-[10px] text-pp-muted">
                     {s.consecutive_failures > 0
                       ? `${s.consecutive_failures} recent failure(s)`
                       : "healthy"}
@@ -156,7 +156,7 @@ function HealthView() {
                   </div>
                 </div>
               </div>
-              <div className="text-right text-[10px] text-muted-foreground">
+              <div className="text-right text-[10px] text-pp-muted">
                 {s.tripped_until && (
                   <div>tripped until {new Date(s.tripped_until).toLocaleTimeString()}</div>
                 )}
@@ -171,14 +171,14 @@ function HealthView() {
         </div>
       </section>
 
-      <section className="rounded-lg border border-border bg-surface p-4">
+      <section className="rounded-lg border border-pp-border bg-pp-page p-4">
         <h2 className="text-sm font-semibold">Recent failures</h2>
-        <p className="mt-1 text-[11px] text-muted-foreground">
+        <p className="mt-1 text-[11px] text-pp-muted">
           Every parcel/source that couldn't be scored, fetched, or underwritten.
         </p>
         <div className="mt-3 overflow-x-auto">
           <table className="w-full text-[12px]">
-            <thead className="text-left text-muted-foreground">
+            <thead className="text-left text-pp-muted">
               <tr>
                 <th className="pb-2">When</th>
                 <th className="pb-2">Source</th>
@@ -190,20 +190,20 @@ function HealthView() {
             <tbody>
               {d.recent_failures.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="py-4 text-center text-muted-foreground">
+                  <td colSpan={5} className="py-4 text-center text-pp-muted">
                     No failures — clean pipeline.
                   </td>
                 </tr>
               )}
               {d.recent_failures.map((f: any) => (
-                <tr key={f.id} className="border-t border-border/40">
+                <tr key={f.id} className="border-t border-pp-border/40">
                   <td className="py-2 whitespace-nowrap">
                     <DataFreshness timestamp={f.created_at} prefix="" />
                   </td>
                   <td className="py-2 font-mono text-[11px]">{f.source}</td>
                   <td className="py-2">{f.stage}</td>
                   <td className="py-2 font-mono text-[11px]">{f.county_fips ?? "—"}</td>
-                  <td className="py-2 text-muted-foreground">{f.error_message}</td>
+                  <td className="py-2 text-pp-muted">{f.error_message}</td>
                 </tr>
               ))}
             </tbody>
@@ -238,15 +238,15 @@ function OrchestratorPanel() {
   ).sort();
 
   return (
-    <section className="rounded-lg border border-border bg-surface p-4">
+    <section className="rounded-lg border border-pp-border bg-pp-page p-4">
       <div className="flex items-baseline justify-between">
         <div>
           <h2 className="text-sm font-semibold">Scrapy orchestrator</h2>
-          <p className="mt-1 text-[11px] text-muted-foreground">
+          <p className="mt-1 text-[11px] text-pp-muted">
             Priority-weighted target queue. Scrapy pulls from{" "}
-            <code className="rounded bg-surface-2 px-1">/api/public/next-scrape-targets</code> and
+            <code className="rounded bg-pp-header px-1">/api/public/next-scrape-targets</code> and
             reports back to{" "}
-            <code className="rounded bg-surface-2 px-1">/api/public/scrape-run-complete</code>.
+            <code className="rounded bg-pp-header px-1">/api/public/scrape-run-complete</code>.
           </p>
         </div>
       </div>
@@ -265,7 +265,7 @@ function OrchestratorPanel() {
         <Card title="Blocked runs" value={Number(today.blocks ?? 0).toLocaleString()} />
         <Card title="Targets tracked" value={(d.targets ?? []).length.toLocaleString()} />
       </div>
-      <div className="mt-3 h-1.5 w-full overflow-hidden rounded bg-surface-2">
+      <div className="mt-3 h-1.5 w-full overflow-hidden rounded bg-pp-header">
         <div
           className={`h-full ${pctUsed >= 90 ? "bg-destructive" : pctUsed >= 60 ? "bg-amber-400" : "bg-profit-strong"}`}
           style={{ width: `${pctUsed}%` }}
@@ -274,12 +274,12 @@ function OrchestratorPanel() {
 
       {counties.length > 0 && (
         <div className="mt-4">
-          <div className="text-[11px] uppercase tracking-wide text-muted-foreground">
+          <div className="text-[11px] uppercase tracking-wide text-pp-muted">
             Coverage matrix — hours since last success (blank = never)
           </div>
           <div className="mt-2 overflow-x-auto">
             <table className="w-full text-[11px]">
-              <thead className="text-left text-muted-foreground">
+              <thead className="text-left text-pp-muted">
                 <tr>
                   <th className="pb-2 pr-3">County</th>
                   {sourceKinds.map((k) => (
@@ -291,7 +291,7 @@ function OrchestratorPanel() {
               </thead>
               <tbody>
                 {counties.slice(0, 20).map((c) => (
-                  <tr key={c} className="border-t border-border/40">
+                  <tr key={c} className="border-t border-pp-border/40">
                     <td className="py-1.5 pr-3 font-mono">{c}</td>
                     {sourceKinds.map((k) => {
                       const h = d.coverage_matrix[c]?.[k];
@@ -299,7 +299,7 @@ function OrchestratorPanel() {
                         h == null
                           ? "text-destructive"
                           : h < 24
-                            ? "text-profit-strong"
+                            ? "text-pp-live"
                             : h < 168
                               ? "text-amber-400"
                               : "text-destructive";
@@ -322,7 +322,7 @@ function OrchestratorPanel() {
       )}
 
       {(d.targets ?? []).length === 0 && (
-        <div className="mt-4 rounded-md border border-amber-400/30 bg-amber-400/5 p-3 text-[11px] text-muted-foreground">
+        <div className="mt-4 rounded-md border border-amber-400/30 bg-amber-400/5 p-3 text-[11px] text-pp-muted">
           No scrape targets configured yet. Seed <code>public.scrape_targets</code> with county ×
           source_kind rows so the orchestrator has something to hand out.
         </div>
@@ -350,11 +350,11 @@ function ZytePanel() {
   if (!d) return null;
 
   return (
-    <section className="rounded-lg border border-border bg-surface p-4">
+    <section className="rounded-lg border border-pp-border bg-pp-page p-4">
       <div className="flex items-baseline justify-between">
         <div>
           <h2 className="text-sm font-semibold">Zyte / Scrapy Cloud</h2>
-          <p className="mt-1 text-[11px] text-muted-foreground">
+          <p className="mt-1 text-[11px] text-pp-muted">
             {d.enabled ? (
               <>
                 Project <span className="font-mono">{d.project}</span> · fallback fetcher active for
@@ -384,13 +384,13 @@ function ZytePanel() {
         </div>
       )}
       {m.data && (
-        <div className="mt-2 text-[11px] text-muted-foreground">Scheduled job {m.data.jobid}</div>
+        <div className="mt-2 text-[11px] text-pp-muted">Scheduled job {m.data.jobid}</div>
       )}
 
       {d.enabled && (
         <div className="mt-3 overflow-x-auto">
           <table className="w-full text-[12px]">
-            <thead className="text-left text-muted-foreground">
+            <thead className="text-left text-pp-muted">
               <tr>
                 <th className="pb-2">Job</th>
                 <th className="pb-2">Spider</th>
@@ -403,13 +403,13 @@ function ZytePanel() {
             <tbody>
               {d.jobs.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="py-4 text-center text-muted-foreground">
+                  <td colSpan={6} className="py-4 text-center text-pp-muted">
                     No recent Scrapy Cloud jobs.
                   </td>
                 </tr>
               )}
               {d.jobs.map((j: any) => (
-                <tr key={j.id} className="border-t border-border/40">
+                <tr key={j.id} className="border-t border-pp-border/40">
                   <td className="py-2 font-mono text-[11px]">{j.id}</td>
                   <td className="py-2">{j.spider}</td>
                   <td className="py-2">
@@ -421,7 +421,7 @@ function ZytePanel() {
                             ? "bg-amber-400"
                             : j.close_reason && j.close_reason !== "finished"
                               ? "bg-destructive"
-                              : "bg-muted-foreground"
+                              : "bg-pp-faint"
                       }`}
                     />
                     {j.state}
@@ -468,7 +468,7 @@ function ScheduleButton({
           ) ?? undefined;
         onSchedule(spider.trim(), recipe?.trim() || undefined);
       }}
-      className="rounded-md border border-border px-3 py-1 text-[11px] hover:bg-muted/40 disabled:opacity-50"
+      className="rounded-md border border-pp-border px-3 py-1 text-[11px] hover:bg-pp-surface disabled:opacity-50"
     >
       {pending ? "Scheduling…" : "Schedule job"}
     </button>
@@ -493,7 +493,7 @@ function HealthError({ error, reset }: { error: Error; reset: () => void }) {
           router.invalidate();
           reset();
         }}
-        className="mt-3 rounded-md border border-border px-3 py-1"
+        className="mt-3 rounded-md border border-pp-border px-3 py-1"
       >
         Retry
       </button>

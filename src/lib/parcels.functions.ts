@@ -39,7 +39,7 @@ export const listRankedParcels = createServerFn({ method: "POST" })
     let q = supabase
       .from("parcel_scores")
       .select(
-        "parcel_id, perfect_score, gross_profit, risk_adjusted_profit, modeled_offer, acquisition_probability, exit_days, ring, confidence_grade, skeptic_flags, recommended_scope, reno_cost, data_source, computed_at, mc_profit_p5, mc_profit_p50, mc_p_loss, cosmetic_arv, full_reno_arv, expanded_arv, as_is_value, carry_cost, selling_cost, ead, pd_credit, lgd, risk_adjusted_profit_credit, parcels!inner(id, address, city, state, zip, lat, lng, living_sqft, year_built, bedrooms, bathrooms, condition_grade, owner_is_absentee, is_listed, is_vacant, county_fips, data_source)",
+        "parcel_id, perfect_score, gross_profit, risk_adjusted_profit, modeled_offer, acquisition_probability, exit_days, ring, confidence_grade, skeptic_flags, recommended_scope, reno_cost, data_source, computed_at, mc_profit_p5, mc_profit_p50, mc_p_loss, cosmetic_arv, full_reno_arv, expanded_arv, as_is_value, carry_cost, selling_cost, ead, pd_credit, lgd, risk_adjusted_profit_credit, parcels!inner(id, address, apn, city, state, zip, lat, lng, living_sqft, year_built, bedrooms, bathrooms, condition_grade, owner_is_absentee, is_listed, is_vacant, county_fips, data_source)",
       )
       .eq("data_source", "LIVE")
       .not("parcels.living_sqft", "is", null)
@@ -124,7 +124,7 @@ const LookupInput = z.object({
 });
 
 export const lookupParcelByAddress = createServerFn({ method: "POST" })
-  .middleware([requireAdmin])
+  .middleware([requireSupabaseAuth])
   .validator((data: unknown) => LookupInput.parse(data))
   .handler(async ({ data }) => {
     const { lookupParcelByAddressCore } = await import("@/lib/parcels-core");

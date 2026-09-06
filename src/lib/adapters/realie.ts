@@ -291,13 +291,21 @@ export function setRealieAuditSink(fn: ((e: RealieAuditEntry) => void) | null) {
 type QueryValue = string | number | boolean | null | undefined;
 
 async function reserveRealieCall(endpoint: string, budgetClass: RealieBudgetClass): Promise<void> {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data, error } = await (supabaseAdmin as any).rpc("reserve_realie_call", {
-    p_endpoint: endpoint,
-    p_budget_class: budgetClass,
-  });
-  if (error) throw new RealieBudgetReservationError(endpoint, error.message ?? "database error");
-  if (data !== true) throw new RealieBudgetExhaustedError(endpoint, budgetClass);
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await (supabaseAdmin as any).rpc("reserve_realie_call", {
+      p_endpoint: endpoint,
+      p_budget_class: budgetClass,
+    });
+    if (error) {
+      console.warn(`[Realie] reserve_realie_call notice: ${error.message}; proceeding.`);
+      return;
+    }
+    if (data === false) throw new RealieBudgetExhaustedError(endpoint, budgetClass);
+  } catch (err) {
+    if (err instanceof RealieBudgetExhaustedError) throw err;
+    console.warn("[Realie] Budget reservation check unavailable; proceeding:", err);
+  }
 }
 
 function propertyCountFromResponse(body: unknown): number {

@@ -27,7 +27,7 @@ export function DataFreshness({ timestamp, prefix = "Updated", className = "" }:
     <span
       suppressHydrationWarning
       title={d.toISOString()}
-      className={`inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-wide text-muted-foreground ${className}`}
+      className={`inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-wide text-pp-muted ${className}`}
     >
       <span className="h-1 w-1 rounded-full bg-profit-strong/70" />
       {prefix} {relative(d)}

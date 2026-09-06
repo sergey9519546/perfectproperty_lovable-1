@@ -13,6 +13,8 @@ import { MapCanvas } from "./components/MapCanvas";
 import { DossierPanel } from "@/components/DossierPanel";
 import { listRankedParcels } from "@/lib/parcels.functions";
 import { supabase } from "@/integrations/supabase/client";
+import { useFirebaseAuth } from "@/integrations/firebase";
+import { BRAND_CONFIG } from "@/lib/brand";
 import {
   observeProductExperience,
   recordWorkflowAction,
@@ -32,6 +34,7 @@ import type { RankedParcelRow } from "./live-types";
 
 const routeByNavigationId: Record<string, string> = {
   deals: "/deals",
+  sheriff: "/sheriff-sales",
   assets: "/shadow",
   models: "/accuracy",
   targets: "/prophecy",
@@ -61,12 +64,18 @@ function organizationFromUser(user: {
   if (domain && !["gmail", "yahoo", "outlook", "hotmail", "icloud"].includes(domain)) {
     return domain.charAt(0).toUpperCase() + domain.slice(1);
   }
-  return "Perfect Property";
+  return BRAND_CONFIG.name;
 }
 
-export function MarketWorkspace() {
+export type MarketWorkspaceProps = {
+  initialQuery?: string;
+  initialParcelId?: string;
+};
+
+export function MarketWorkspace({ initialQuery, initialParcelId }: MarketWorkspaceProps = {}) {
   const navigate = useNavigate();
   const listFn = useServerFn(listRankedParcels);
+  const { user: firebaseUser, signOutUser } = useFirebaseAuth();
   const [activeNav, setActiveNav] = useState("map");
   const [region, setRegion] = useState<LiveRegionFilter>("All regions");
   const [layer, setLayer] = useState<LiveLayerMode>("Opportunity score");
@@ -75,11 +84,26 @@ export function MarketWorkspace() {
   const [dossierId, setDossierId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [pendingAction, setPendingAction] = useState<WorkflowActionType | null>(null);
-  const [organizationName, setOrganizationName] = useState("Perfect Property");
+  const [organizationName, setOrganizationName] = useState(BRAND_CONFIG.name);
   const [userInitials, setUserInitials] = useState("PP");
   const toastTimerRef = useRef<number | null>(null);
   const pendingActionRef = useRef(false);
   const userSelectedRef = useRef(false);
+  const initialHandledRef = useRef(false);
+
+  const handleSignOut = async () => {
+    try {
+      await signOutUser();
+    } catch (error) {
+      console.warn("Firebase sign out issue:", error);
+    }
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.warn("Supabase sign out issue:", error);
+    }
+    window.location.assign("/auth");
+  };
 
   const rankedQuery = useQuery({
     queryKey: ["ranked-all"],
@@ -100,6 +124,41 @@ export function MarketWorkspace() {
   const coverage = useMemo(() => coverageFromParcels(parcels), [parcels]);
 
   useEffect(() => {
+    if (initialHandledRef.current || !parcels.length) return;
+    if (initialParcelId) {
+      const match = parcels.find((p) => p.id === initialParcelId);
+      if (match) {
+        initialHandledRef.current = true;
+        userSelectedRef.current = true;
+        setRegion("All regions");
+        setSelected(match);
+        return;
+      }
+    }
+    if (initialQuery) {
+      const q = initialQuery.trim().toLowerCase();
+      if (q.includes("california") || q === "ca") {
+        setRegion("California");
+      } else if (q.includes("florida") || q === "fl") {
+        setRegion("Florida");
+      }
+      const match = parcels.find((p) =>
+        `${p.address} ${p.city} ${p.state} ${p.zip ?? ""} ${p.apn ?? ""}`
+          .toLowerCase()
+          .includes(q),
+      );
+      if (match) {
+        initialHandledRef.current = true;
+        userSelectedRef.current = true;
+        setRegion("All regions");
+        setSelected(match);
+        return;
+      }
+      initialHandledRef.current = true;
+    }
+  }, [parcels, initialParcelId, initialQuery]);
+
+  useEffect(() => {
     if (!filteredParcels.length) {
       setSelected(null);
       return;
@@ -116,6 +175,21 @@ export function MarketWorkspace() {
   }, []);
 
   useEffect(() => {
+    if (firebaseUser) {
+      const displayName =
+        firebaseUser.displayName ||
+        firebaseUser.email?.split("@")[0] ||
+        "Analyst";
+      setUserInitials(initialsFromIdentity(displayName, firebaseUser.email));
+      if (firebaseUser.email) {
+        const domain = firebaseUser.email.split("@")[1]?.split(".")[0];
+        if (domain && !["gmail", "yahoo", "outlook", "hotmail", "icloud"].includes(domain)) {
+          setOrganizationName(domain.charAt(0).toUpperCase() + domain.slice(1));
+        }
+      }
+      return;
+    }
+
     let cancelled = false;
     void supabase.auth.getUser().then(({ data }) => {
       if (cancelled || !data.user) return;
@@ -131,7 +205,7 @@ export function MarketWorkspace() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [firebaseUser]);
 
   useEffect(() => {
     if (!selected) return;
@@ -299,18 +373,19 @@ export function MarketWorkspace() {
     <div className="perfect-property-ui app-shell min-h-[100dvh] bg-pp-page text-pp-text">
       <TopBar
         onHome={() => void navigate({ to: "/" })}
-        onAccount={() => void navigate({ to: "/auth", search: { next: "/workspace" } })}
         onOpenPalette={() => setPaletteOpen(true)}
         onExport={() => void runWorkflowAction("brief_export")}
+        onSignOut={handleSignOut}
         organizationName={organizationName}
         userInitials={userInitials}
+        userEmail={firebaseUser?.email || null}
         coverage={coverage}
         exporting={pendingAction === "brief_export"}
       />
-      <div className="app-body grid min-h-0 grid-cols-[64px_minmax(0,1fr)] max-md:grid-cols-1">
+      <div className="app-body grid min-h-0 grid-cols-[72px_minmax(0,1fr)] max-md:grid-cols-1">
         <NavigationRail active={activeNav} onChange={handleNavigation} />
-        <div className="product-grid grid min-h-0 grid-cols-[minmax(0,1fr)_350px] max-xl:grid-cols-[minmax(0,1fr)_320px] max-lg:grid-cols-1">
-          <div className="center-workspace grid min-h-0 grid-rows-[minmax(0,1fr)_258px] max-lg:grid-rows-[620px_auto] max-md:grid-rows-[62dvh_auto]">
+        <div className="product-grid grid min-h-0 grid-cols-[minmax(0,1fr)_420px] max-xl:grid-cols-[minmax(0,1fr)_380px] max-lg:grid-cols-1">
+          <div className="center-workspace grid min-h-0 grid-rows-[minmax(0,1fr)_320px] max-lg:grid-rows-[620px_auto] max-md:grid-rows-[62dvh_auto]">
             <MapCanvas
               parcels={filteredParcels}
               selected={selected}

@@ -82,12 +82,12 @@ export function BulkLookupPanel() {
 
 
   return (
-    <div className="mt-6 rounded-lg border border-border bg-surface p-4">
+    <div className="mt-6 rounded-lg border border-pp-border bg-pp-page p-4">
       <div className="flex items-center justify-between">
         <div>
-          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Bulk address import</div>
-          <div className="mt-0.5 text-[13px] text-foreground">
-            Paste one address per line. Format: <code className="rounded bg-surface-2 px-1">address, state[, city]</code>.
+          <div className="text-[10px] uppercase tracking-widest text-pp-muted">Bulk address import</div>
+          <div className="mt-0.5 text-[13px] text-pp-text">
+            Paste one address per line. Format: <code className="rounded bg-pp-header px-1">address, state[, city]</code>.
             The overnight worker underwrites them via Realie.
           </div>
         </div>
@@ -96,7 +96,7 @@ export function BulkLookupPanel() {
           onClick={resumeLatest}
           disabled={resuming || !latestJob || latestFailed === 0}
           title={!latestJob ? "No jobs yet" : latestFailed === 0 ? "Latest job has no failed items" : `Requeue ${latestFailed} failed`}
-          className="rounded-md border border-border bg-surface-2 px-3 py-1.5 text-[12px] hover:bg-surface disabled:opacity-40"
+          className="rounded-md border border-pp-border bg-pp-header px-3 py-1.5 text-[12px] hover:bg-pp-page disabled:opacity-40"
         >
           {resuming ? "Resuming…" : `Resume failed (${latestFailed})`}
         </button>
@@ -109,12 +109,12 @@ export function BulkLookupPanel() {
             onChange={(e) => setText(e.target.value)}
             rows={6}
             placeholder={"123 Main St, TX, Austin\n456 Oak Ave, TX, Dallas\n789 Elm Dr | CA | San Diego"}
-            className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-[12px] font-mono outline-none focus:border-foreground"
+            className="w-full rounded-md border border-pp-border bg-pp-header px-3 py-2 text-[12px] font-mono outline-none focus:border-foreground"
           />
-          <div className="mt-1 flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground">
+          <div className="mt-1 flex flex-wrap items-center gap-3 text-[11px] text-pp-muted">
             <span>{parsed.rows.length} valid</span>
-            {parsed.errors.length > 0 && <span className="text-skeptic">{parsed.errors.length} invalid</span>}
-            {parsed.errors.slice(0, 2).map((e, i) => <span key={i} className="text-skeptic">· {e}</span>)}
+            {parsed.errors.length > 0 && <span className="text-rose-500">{parsed.errors.length} invalid</span>}
+            {parsed.errors.slice(0, 2).map((e, i) => <span key={i} className="text-rose-500">· {e}</span>)}
           </div>
         </div>
         <div className="flex flex-col gap-2">
@@ -122,23 +122,23 @@ export function BulkLookupPanel() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Job name (optional)"
-            className="rounded-md border border-border bg-surface-2 px-2 py-1.5 text-[13px] outline-none focus:border-foreground"
+            className="rounded-md border border-pp-border bg-pp-header px-2 py-1.5 text-[13px] outline-none focus:border-foreground"
           />
           <button
             type="submit"
             disabled={busy || !parsed.rows.length}
-            className="rounded-md border border-border bg-surface-2 px-3 py-1.5 text-[12px] hover:bg-surface disabled:opacity-50"
+            className="rounded-md border border-pp-border bg-pp-header px-3 py-1.5 text-[12px] hover:bg-pp-page disabled:opacity-50"
           >
             {busy ? "Enqueuing…" : `Enqueue ${parsed.rows.length} for overnight`}
           </button>
-          {msg && <div className="text-[11px] text-muted-foreground">{msg}</div>}
+          {msg && <div className="text-[11px] text-pp-muted">{msg}</div>}
         </div>
       </form>
 
       {(jobs.data?.length ?? 0) > 0 && (
-        <div className="mt-4 overflow-hidden rounded-md border border-border">
+        <div className="mt-4 overflow-hidden rounded-md border border-pp-border">
           <table className="w-full text-[12px]">
-            <thead className="bg-surface-2 text-[10px] uppercase tracking-widest text-muted-foreground">
+            <thead className="bg-pp-header text-[10px] uppercase tracking-widest text-pp-muted">
               <tr>
                 <th className="px-3 py-2 text-left">Job</th>
                 <th className="px-3 py-2 text-left">Status</th>
@@ -172,43 +172,43 @@ function JobRow({ job }: { job: any }) {
   const failedItems = ((detail.data?.items ?? []) as any[]).filter((i) => i.status === "failed");
   return (
     <>
-      <tr className="border-t border-border">
+      <tr className="border-t border-pp-border">
         <td className="px-3 py-2">{job.name || job.id.slice(0, 8)}</td>
         <td className="px-3 py-2">{job.status}</td>
         <td className="num px-3 py-2 text-right">{job.processed} / {job.total}</td>
         <td className="num px-3 py-2 text-right">
-          <span className="text-profit-strong">{job.succeeded}</span>{" · "}
-          <span className="text-skeptic">{job.failed}</span>
+          <span className="text-pp-live">{job.succeeded}</span>{" · "}
+          <span className="text-rose-500">{job.failed}</span>
         </td>
-        <td className="px-3 py-2 text-right text-muted-foreground">
+        <td className="px-3 py-2 text-right text-pp-muted">
           {new Date(job.created_at).toLocaleString()}
         </td>
         <td className="px-3 py-2 text-right">
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}
-            className="text-[11px] text-muted-foreground underline hover:text-foreground"
+            className="text-[11px] text-pp-muted underline hover:text-pp-text"
           >
             {open ? "Hide" : "Details"}
           </button>
         </td>
       </tr>
       {open && (
-        <tr className="border-t border-border bg-surface-2">
+        <tr className="border-t border-pp-border bg-pp-header">
           <td colSpan={6} className="px-3 py-2">
             {detail.isLoading ? (
-              <div className="text-[11px] text-muted-foreground">Loading…</div>
+              <div className="text-[11px] text-pp-muted">Loading…</div>
             ) : failedItems.length === 0 ? (
-              <div className="text-[11px] text-muted-foreground">
+              <div className="text-[11px] text-pp-muted">
                 No failed items ({(detail.data?.items ?? []).length} total).
               </div>
             ) : (
               <div>
-                <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                <div className="text-[10px] uppercase tracking-widest text-pp-muted">
                   {failedItems.length} failed
                 </div>
                 <table className="mt-1 w-full text-[11px]">
-                  <thead className="text-muted-foreground">
+                  <thead className="text-pp-muted">
                     <tr>
                       <th className="px-2 py-1 text-left">Address</th>
                       <th className="px-2 py-1 text-left">State</th>
@@ -218,19 +218,19 @@ function JobRow({ job }: { job: any }) {
                   </thead>
                   <tbody>
                     {failedItems.slice(0, 100).map((it: any) => (
-                      <tr key={it.id} className="border-t border-border">
+                      <tr key={it.id} className="border-t border-pp-border">
                         <td className="px-2 py-1">{it.address}{it.city ? `, ${it.city}` : ""}</td>
                         <td className="px-2 py-1">{it.state}</td>
                         <td className="num px-2 py-1 text-right">
                           {it.attempts ?? 0}/{it.max_attempts ?? 3}
                         </td>
-                        <td className="px-2 py-1 text-skeptic">{it.error ?? "—"}</td>
+                        <td className="px-2 py-1 text-rose-500">{it.error ?? "—"}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
                 {failedItems.length > 100 && (
-                  <div className="mt-1 text-[10px] text-muted-foreground">
+                  <div className="mt-1 text-[10px] text-pp-muted">
                     Showing 100 of {failedItems.length} failed items.
                   </div>
                 )}

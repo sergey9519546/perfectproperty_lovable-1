@@ -25,16 +25,18 @@ import {
 import { CaretDown } from "@phosphor-icons/react";
 import { supabase } from "@/integrations/supabase/client";
 import { Brand } from "@/features/perfect-property/components/Brand";
+import { BRAND_CONFIG } from "@/lib/brand";
+import { FirebaseAuthProvider, useFirebaseAuth } from "@/integrations/firebase";
 
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-[100dvh] items-center justify-center bg-background px-4 dark">
+    <div className="flex min-h-[100dvh] items-center justify-center bg-pp-page px-4 dark">
       <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-foreground num">404</h1>
-        <p className="mt-4 text-sm text-muted-foreground">This parcel isn't in the genome.</p>
+        <h1 className="text-7xl font-bold text-pp-text num">404</h1>
+        <p className="mt-4 text-sm text-pp-muted">This parcel isn't in the genome.</p>
         <Link
           to="/"
-          className="mt-6 inline-flex rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+          className="mt-6 inline-flex rounded-md primary-button"
         >
           Return to the map
         </Link>
@@ -50,23 +52,23 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
   }, [error]);
   return (
-    <div className="flex min-h-[100dvh] items-center justify-center bg-background px-4 dark">
+    <div className="flex min-h-[100dvh] items-center justify-center bg-pp-page px-4 dark">
       <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold text-foreground">The engine hit an exception</h1>
-        <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
+        <h1 className="text-xl font-semibold text-pp-text">The engine hit an exception</h1>
+        <p className="mt-2 text-sm text-pp-muted">{error.message}</p>
         <div className="mt-6 flex justify-center gap-2">
           <button
             onClick={() => {
               router.invalidate();
               reset();
             }}
-            className="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground"
+            className="rounded-md primary-button"
           >
             Retry
           </button>
           <a
             href="/"
-            className="rounded-md border border-border bg-surface px-4 py-2 text-sm text-foreground"
+            className="rounded-md border border-pp-border bg-pp-page px-4 py-2 text-sm text-pp-text"
           >
             Home
           </a>
@@ -81,31 +83,28 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Perfect Property Engine — every parcel, underwritten every night" },
+      { title: BRAND_CONFIG.meta.defaultTitle },
       {
         name: "description",
-        content:
-          "The county glows where profit lives. Nightly underwriting for every parcel, listed or not, across CA and FL.",
+        content: BRAND_CONFIG.meta.description,
       },
       {
         property: "og:title",
-        content: "Perfect Property Engine — every parcel, underwritten every night",
+        content: BRAND_CONFIG.meta.defaultTitle,
       },
       {
         property: "og:description",
-        content:
-          "The county glows where profit lives. Nightly underwriting for every parcel, listed or not, across CA and FL.",
+        content: BRAND_CONFIG.meta.description,
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       {
         name: "twitter:title",
-        content: "Perfect Property Engine — every parcel, underwritten every night",
+        content: BRAND_CONFIG.meta.defaultTitle,
       },
       {
         name: "twitter:description",
-        content:
-          "The county glows where profit lives. Nightly underwriting for every parcel, listed or not, across CA and FL.",
+        content: BRAND_CONFIG.meta.description,
       },
       {
         property: "og:image",
@@ -121,7 +120,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     links: [
       { rel: "stylesheet", href: appCss },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
-      { rel: "stylesheet", href: "/maplibre-gl.css" },
     ],
   }),
   shellComponent: RootShell,
@@ -151,23 +149,37 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="dark min-h-[100dvh] bg-background text-foreground">
-        {pathname === "/auth" || pathname === "/" || pathname === "/workspace" ? null : <TopNav />}
-        <Outlet />
-        <Toaster theme="dark" position="bottom-right" />
-      </div>
+      <FirebaseAuthProvider>
+        <div className="dark min-h-[100dvh] bg-pp-page text-pp-text">
+          {pathname === "/auth" || pathname === "/" || pathname === "/workspace" ? null : <TopNav />}
+          <Outlet />
+          <Toaster theme="dark" position="bottom-right" />
+        </div>
+      </FirebaseAuthProvider>
     </QueryClientProvider>
   );
 }
 
 function TopNav() {
-  async function signOut() {
-    await supabase.auth.signOut();
+  const { user, signOutUser } = useFirebaseAuth();
+
+  async function handleSignOut() {
+    try {
+      await signOutUser();
+    } catch {
+      // fallback
+    }
+    try {
+      await supabase.auth.signOut();
+    } catch {
+      // fallback
+    }
     window.location.assign("/auth");
   }
   const primary: { to: string; label: string; hint: string }[] = [
     { to: "/workspace", label: "Map", hint: "Every scored property on a live map" },
     { to: "/deals", label: "Deals", hint: "Ranked list of the best properties to buy" },
+    { to: "/sheriff-sales", label: "Sheriff & Gov Sales", hint: "AI workforce scored auctions & public legal intelligence" },
   ];
   const more: {
     to: string;
@@ -213,11 +225,15 @@ function TopNav() {
     },
   ];
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-pp-border bg-pp-page/85 backdrop-blur">
       <div className="mx-auto flex h-14 max-w-[1600px] items-center gap-2 px-3 sm:gap-6 sm:px-6">
-        <Link to="/" className="perfect-property-ui flex items-center gap-2.5 text-foreground">
-          <Brand compact />
-          <span className="hidden text-[12px] font-semibold tracking-[0.13em] xl:inline">PERFECT PROPERTY</span>
+        <Link to="/" className="perfect-property-ui flex items-center text-pp-text hover:opacity-90 transition-opacity">
+          <Brand
+            id="header-nav-brand"
+            compact={false}
+            iconClassName="h-7 w-7 shrink-0"
+            textClassName="hidden text-[12px] font-bold tracking-[0.14em] text-pp-text xl:inline"
+          />
         </Link>
         <nav className="flex items-center gap-1 text-[14px]">
           {primary.map((l) => (
@@ -225,9 +241,9 @@ function TopNav() {
               key={l.to}
               to={l.to}
               title={l.hint}
-              className="rounded-md px-3 py-1.5 text-muted-foreground transition-colors hover:bg-surface hover:text-foreground"
+              className="rounded-md px-3 py-1.5 text-pp-muted transition-colors hover:bg-pp-surface hover:text-pp-text"
               activeProps={{
-                className: "rounded-md px-3 py-1.5 bg-surface text-foreground font-medium",
+                className: "rounded-md px-3 py-1.5 bg-pp-surface text-pp-text font-medium",
               }}
               activeOptions={{ exact: l.to === "/" }}
             >
@@ -235,11 +251,11 @@ function TopNav() {
             </Link>
           ))}
           <DropdownMenu>
-            <DropdownMenuTrigger className="inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-muted-foreground transition-colors hover:bg-surface hover:text-foreground data-[state=open]:bg-surface data-[state=open]:text-foreground">
+            <DropdownMenuTrigger className="inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-pp-muted transition-colors hover:bg-pp-surface hover:text-pp-text data-[state=open]:bg-pp-surface data-[state=open]:text-pp-text">
               More <CaretDown className="h-3.5 w-3.5" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-64">
-              <DropdownMenuLabel className="text-[11px] font-normal uppercase tracking-wider text-muted-foreground">
+              <DropdownMenuLabel className="text-[11px] font-normal uppercase tracking-wider text-pp-muted">
                 Signals
               </DropdownMenuLabel>
               {more
@@ -248,12 +264,12 @@ function TopNav() {
                   <DropdownMenuItem key={m.to} asChild>
                     <Link to={m.to} className="flex flex-col items-start">
                       <span className="text-sm">{m.label}</span>
-                      <span className="text-[11px] text-muted-foreground">{m.hint}</span>
+                      <span className="text-[11px] text-pp-muted">{m.hint}</span>
                     </Link>
                   </DropdownMenuItem>
                 ))}
               <DropdownMenuSeparator />
-              <DropdownMenuLabel className="text-[11px] font-normal uppercase tracking-wider text-muted-foreground">
+              <DropdownMenuLabel className="text-[11px] font-normal uppercase tracking-wider text-pp-muted">
                 Insight
               </DropdownMenuLabel>
               {more
@@ -262,12 +278,12 @@ function TopNav() {
                   <DropdownMenuItem key={m.to} asChild>
                     <Link to={m.to} className="flex flex-col items-start">
                       <span className="text-sm">{m.label}</span>
-                      <span className="text-[11px] text-muted-foreground">{m.hint}</span>
+                      <span className="text-[11px] text-pp-muted">{m.hint}</span>
                     </Link>
                   </DropdownMenuItem>
                 ))}
               <DropdownMenuSeparator />
-              <DropdownMenuLabel className="text-[11px] font-normal uppercase tracking-wider text-muted-foreground">
+              <DropdownMenuLabel className="text-[11px] font-normal uppercase tracking-wider text-pp-muted">
                 Operator
               </DropdownMenuLabel>
               {more
@@ -276,23 +292,28 @@ function TopNav() {
                   <DropdownMenuItem key={m.to} asChild>
                     <Link to={m.to} className="flex flex-col items-start">
                       <span className="text-sm">{m.label}</span>
-                      <span className="text-[11px] text-muted-foreground">{m.hint}</span>
+                      <span className="text-[11px] text-pp-muted">{m.hint}</span>
                     </Link>
                   </DropdownMenuItem>
                 ))}
             </DropdownMenuContent>
           </DropdownMenu>
         </nav>
-        <div className="ml-auto hidden items-center gap-2 text-[12px] text-muted-foreground md:flex">
+        <div className="ml-auto hidden items-center gap-3 text-[12px] text-pp-muted md:flex">
+          {user && (
+            <span className="text-[11px] text-pp-text/80 bg-pp-page px-2 py-0.5 rounded border border-pp-border">
+              {user.email}
+            </span>
+          )}
           <span className="h-1.5 w-1.5 rounded-full bg-profit-strong" />
           <span>Updated nightly</span>
         </div>
         <button
           type="button"
-          onClick={signOut}
-          className="ml-auto rounded-md border border-border px-2 py-1 text-[12px] text-muted-foreground hover:bg-surface hover:text-foreground md:ml-0"
+          onClick={handleSignOut}
+          className="ml-auto rounded-md border border-pp-border px-2 py-1 text-[12px] text-pp-muted hover:bg-pp-surface hover:text-pp-text md:ml-0"
         >
-          Sign out
+          {user ? "Sign out" : "Sign in"}
         </button>
       </div>
     </header>

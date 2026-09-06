@@ -1,0 +1,6 @@
+{
+  "name": "Perfect Property",
+  "description": "Real estate deal analysis and property discovery platform with cartographic workspace, underwriting engines, and AI workforce sheriff & government property sales intelligence.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

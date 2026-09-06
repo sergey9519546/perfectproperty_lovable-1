@@ -1,11 +1,20 @@
-import { useEffect, useLayoutEffect, useRef } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getDossier } from "@/lib/parcels.functions";
 import { fmt$, pct, tierLabel } from "@/lib/format";
-import { X, TrendUp, Warning, Buildings, Scroll, Lightning, Pulse, ShieldCheck, Lock, Check } from "@phosphor-icons/react";
+import { X, TrendUp, Warning, Buildings, Scroll, Lightning, Pulse, ShieldCheck, Lock, Check, Bookmark } from "@phosphor-icons/react";
 import { DataFreshness } from "@/components/DataFreshness";
 import { WhyThisScorePanel } from "@/components/WhyThisScorePanel";
+import { ParcelMiniMap } from "@/components/ParcelMiniMap";
+import { GroundedIntelligenceSection } from "@/components/GroundedIntelligenceSection";
+import {
+  useFirebaseAuth,
+  saveDealToFirestore,
+  removeSavedDealFromFirestore,
+  getSavedDealsFromFirestore,
+} from "@/integrations/firebase";
+import { toast } from "sonner";
 
 
 interface Props {
@@ -15,6 +24,9 @@ interface Props {
 
 export function DossierPanel({ parcelId, onClose }: Props) {
   const fetchDossier = useServerFn(getDossier);
+  const { user } = useFirebaseAuth();
+  const queryClient = useQueryClient();
+  const [isSaving, setIsSaving] = useState(false);
   const panelRef = useRef<HTMLElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const q = useQuery({
@@ -22,6 +34,51 @@ export function DossierPanel({ parcelId, onClose }: Props) {
     queryFn: () => fetchDossier({ data: { parcel_id: parcelId! } }),
     enabled: !!parcelId,
   });
+
+  const savedQ = useQuery({
+    queryKey: ["saved-deals", user?.uid],
+    queryFn: () => (user ? getSavedDealsFromFirestore(user.uid) : Promise.resolve([])),
+    enabled: !!user,
+  });
+
+  const isSaved = !!(parcelId && savedQ.data?.some((d) => d.parcelId === parcelId));
+
+  const handleToggleSave = async () => {
+    if (!user) {
+      toast.error("Please sign in to save this property to your portfolio.");
+      return;
+    }
+    if (!parcelId || !q.data?.parcel) return;
+
+    setIsSaving(true);
+    try {
+      if (isSaved) {
+        await removeSavedDealFromFirestore(user.uid, parcelId);
+        toast.success("Removed from portfolio");
+      } else {
+        const p = q.data.parcel;
+        const s = q.data.score;
+        await saveDealToFirestore(user.uid, {
+          id: parcelId,
+          parcelId,
+          address: p.address,
+          county: p.county_fips || undefined,
+          state: p.state || undefined,
+          arv: s?.full_reno_arv ? Number(s.full_reno_arv) : undefined,
+          maxBid: s?.max_allowable_offer ? Number(s.max_allowable_offer) : undefined,
+          predictedSpread: s?.gross_profit ? Number(s.gross_profit) : undefined,
+          underwriteStatus: "underwritten",
+          starred: true,
+        });
+        toast.success("Saved to portfolio");
+      }
+      await queryClient.invalidateQueries({ queryKey: ["saved-deals", user.uid] });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to update portfolio");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   // Focus management + ESC handler — the panel is a modal dialog while open.
   useLayoutEffect(() => {
@@ -84,11 +141,29 @@ export function DossierPanel({ parcelId, onClose }: Props) {
       aria-modal="true"
       aria-labelledby="dossier-heading"
       tabIndex={-1}
-      className="pointer-events-auto fixed top-0 bottom-0 right-0 z-50 flex w-full max-w-[520px] flex-col overflow-hidden border-l border-border-strong bg-surface shadow-[0_24px_80px_-20px_rgba(0,0,0,0.6)] animate-in slide-in-from-right duration-300 max-md:max-w-none"
+      className="pointer-events-auto fixed top-0 bottom-0 right-0 z-50 flex w-full max-w-[520px] flex-col overflow-hidden border-l border-pp-border-strong bg-pp-page shadow-[0_24px_80px_-20px_rgba(0,0,0,0.6)] animate-in slide-in-from-right duration-300 max-md:max-w-none"
     >
-      <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-surface px-5 py-3">
-        <h2 id="dossier-heading" className="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">Dossier</h2>
-        <button ref={closeRef} onClick={onClose} aria-label="Close dossier" className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-surface-2 hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
+      <div className="sticky top-0 z-10 flex items-center justify-between border-b border-pp-border bg-pp-page px-5 py-3">
+        <div className="flex items-center gap-3">
+          <h2 id="dossier-heading" className="text-[11px] font-medium uppercase tracking-widest text-pp-muted">Dossier</h2>
+          {q.data?.parcel && (
+            <button
+              type="button"
+              onClick={handleToggleSave}
+              disabled={isSaving}
+              aria-label={isSaved ? "Remove from saved portfolio" : "Save property to portfolio"}
+              className={`inline-flex items-center gap-1.5 rounded border px-2.5 py-1 text-[11px] font-semibold tracking-wider uppercase transition-colors ${
+                isSaved
+                  ? "border-amber-500/50 bg-amber-950/40 text-amber-300 hover:bg-amber-950/60"
+                  : "border-pp-border bg-pp-surface text-pp-muted hover:border-pp-border-strong hover:text-pp-text"
+              }`}
+            >
+              <Bookmark size={13} weight={isSaved ? "fill" : "bold"} />
+              <span>{isSaving ? "Saving..." : isSaved ? "In Portfolio" : "Save to Portfolio"}</span>
+            </button>
+          )}
+        </div>
+        <button ref={closeRef} onClick={onClose} aria-label="Close dossier" className="rounded-md p-1.5 text-pp-muted transition-colors hover:bg-pp-header hover:text-pp-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
           <X className="h-4 w-4" />
         </button>
       </div>
@@ -106,9 +181,28 @@ export function DossierPanel({ parcelId, onClose }: Props) {
 
       {q.data && (
         <div className="space-y-6 overflow-y-auto p-5">
-          <Header d={q.data} />
+          <Header
+            d={q.data}
+            isSaved={isSaved}
+            onToggleSave={handleToggleSave}
+            isSaving={isSaving}
+          />
           <ScoreStrip d={q.data} />
           {parcelId && <WhyThisScorePanel parcelId={parcelId} />}
+          {parcelId && q.data.parcel && (
+            <GroundedIntelligenceSection
+              parcelId={parcelId}
+              address={q.data.parcel.address || ""}
+              city={q.data.parcel.city || undefined}
+              county={q.data.parcel.county_fips || undefined}
+              state={q.data.parcel.state || undefined}
+              lat={q.data.parcel.lat ?? undefined}
+              lng={q.data.parcel.lng ?? undefined}
+              apn={q.data.parcel.apn || undefined}
+              arv={q.data.score ? Number(q.data.score.full_reno_arv) : undefined}
+              maxBid={q.data.score ? Number(q.data.score.max_allowable_offer) : undefined}
+            />
+          )}
           <ValueLadder d={q.data} />
           <MonteCarloBlock d={q.data} />
           <V12RiskBlock d={q.data} />
@@ -129,57 +223,91 @@ export function DossierPanel({ parcelId, onClose }: Props) {
 
 type D = Awaited<ReturnType<typeof getDossier>>;
 
-function Header({ d }: { d: D }) {
+function Header({
+  d,
+  isSaved,
+  onToggleSave,
+  isSaving,
+}: {
+  d: D;
+  isSaved?: boolean;
+  onToggleSave?: () => void;
+  isSaving?: boolean;
+}) {
   const p = d.parcel;
   return (
     <div>
-      <div className="text-lg font-semibold leading-tight">{p.address}</div>
-      <div className="text-sm text-muted-foreground">{p.city}, {p.state} {p.zip}</div>
-      <DataFreshness timestamp={d.score?.computed_at} prefix="Underwritten" className="mt-1" />
-      <div className="mt-3 grid grid-cols-4 gap-2 text-[11px] text-muted-foreground">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <div className="text-lg font-semibold leading-tight">{p.address}</div>
+          <div className="text-sm text-pp-muted">{p.city}, {p.state} {p.zip}</div>
+          <DataFreshness timestamp={d.score?.computed_at} prefix="Underwritten" className="mt-1" />
+        </div>
+        {onToggleSave && (
+          <button
+            type="button"
+            onClick={onToggleSave}
+            disabled={isSaving}
+            className={`inline-flex shrink-0 items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-semibold uppercase tracking-wider transition-colors ${
+              isSaved
+                ? "border-amber-500/50 bg-amber-950/40 text-amber-300 hover:bg-amber-950/60"
+                : "border-pp-border bg-pp-surface text-pp-text hover:bg-pp-surface-raised hover:border-pp-border-strong"
+            }`}
+          >
+            <Bookmark size={14} weight={isSaved ? "fill" : "bold"} />
+            <span>{isSaving ? "Saving..." : isSaved ? "In Portfolio" : "Save to Portfolio"}</span>
+          </button>
+        )}
+      </div>
+      <div className="mt-3 grid grid-cols-4 gap-2 text-[11px] text-pp-muted">
 
         <Cell label="Beds/Ba" value={`${p.bedrooms ?? "—"}/${p.bathrooms ?? "—"}`} />
         <Cell label="Sqft" value={<span className="num">{p.living_sqft?.toLocaleString() ?? "—"}</span>} />
         <Cell label="Built" value={<span className="num">{p.year_built ?? "—"}</span>} />
         <Cell label="Cond" value={p.condition_grade ?? "—"} />
       </div>
+      {p.lat != null && p.lng != null && (
+        <div className="mt-3">
+          <ParcelMiniMap lat={p.lat} lng={p.lng} address={p.address} />
+        </div>
+      )}
     </div>
   );
 }
 
 function Cell({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="rounded-md border border-border bg-surface-2 px-2 py-1.5">
+    <div className="rounded-md border border-pp-border bg-pp-header px-2 py-1.5">
       <div className="text-[10px] uppercase tracking-wider">{label}</div>
-      <div className="text-[13px] text-foreground">{value}</div>
+      <div className="text-[13px] text-pp-text">{value}</div>
     </div>
   );
 }
 
 function ScoreStrip({ d }: { d: D }) {
   const s = d.score;
-  if (!s) return <div className="text-sm text-muted-foreground">No score computed yet.</div>;
+  if (!s) return <div className="text-sm text-pp-muted">No score computed yet.</div>;
   const tier = tierLabel(Number(s.perfect_score));
   return (
     <div className="grid grid-cols-3 gap-3">
-      <div className="col-span-2 rounded-lg border border-border bg-surface-2 p-4">
-        <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Perfect Score</div>
+      <div className="col-span-2 rounded-lg border border-pp-border bg-pp-header p-4">
+        <div className="text-[10px] uppercase tracking-widest text-pp-muted">Perfect Score</div>
         <div className="mt-1 flex items-baseline gap-2">
           <div className="num text-4xl font-semibold" style={{ color: tier.color }}>{s.perfect_score}</div>
           <div className="text-xs" style={{ color: tier.color }}>{tier.label}</div>
         </div>
-        <div className="mt-2 flex items-center gap-3 text-[11px] text-muted-foreground">
-          <span>Confidence <span className="num text-foreground">{s.confidence_grade}</span></span>
+        <div className="mt-2 flex items-center gap-3 text-[11px] text-pp-muted">
+          <span>Confidence <span className="num text-pp-text">{s.confidence_grade}</span></span>
           <span>·</span>
-          <span>Ring <span className="num text-foreground">{s.ring}</span></span>
+          <span>Ring <span className="num text-pp-text">{s.ring}</span></span>
           <span>·</span>
-          <span>Scope <span className="text-foreground">{s.recommended_scope}</span></span>
+          <span>Scope <span className="text-pp-text">{s.recommended_scope}</span></span>
         </div>
       </div>
-      <div className="rounded-lg border border-border bg-surface-2 p-4">
-        <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Risk-Adj. Profit</div>
-        <div className="num mt-1 text-2xl font-semibold text-profit-strong">{fmt$(Number(s.risk_adjusted_profit))}</div>
-        <div className="mt-1 text-[11px] text-muted-foreground">Gross <span className="num text-foreground">{fmt$(Number(s.gross_profit))}</span></div>
+      <div className="rounded-lg border border-pp-border bg-pp-header p-4">
+        <div className="text-[10px] uppercase tracking-widest text-pp-muted">Risk-Adj. Profit</div>
+        <div className="num mt-1 text-2xl font-semibold text-pp-live">{fmt$(Number(s.risk_adjusted_profit))}</div>
+        <div className="mt-1 text-[11px] text-pp-muted">Gross <span className="num text-pp-text">{fmt$(Number(s.gross_profit))}</span></div>
       </div>
     </div>
   );
@@ -202,8 +330,8 @@ function ValueLadder({ d }: { d: D }) {
       <SectionHead icon={<Buildings className="h-3.5 w-3.5" />} title="Value Ladder" />
       <div className="mt-1 flex items-center gap-2 text-[10px] uppercase tracking-widest">
         <span className="rounded-full px-2 py-0.5" style={{
-          color: arvSource === "COMPS" ? "var(--profit-strong)" : "var(--muted-foreground)",
-          backgroundColor: arvSource === "COMPS" ? "color-mix(in oklab, var(--profit-strong) 15%, transparent)" : "var(--surface-2)",
+          color: arvSource === "COMPS" ? "#05d680" : "var(--pp-muted)",
+          backgroundColor: arvSource === "COMPS" ? "color-mix(in oklab, #05d680 15%, transparent)" : "var(--pp-header)",
         }}>
           {arvSource === "COMPS" ? `ARV from ${compCount} real comps` : "ARV from heuristic (no comps yet)"}
         </span>
@@ -215,11 +343,11 @@ function ValueLadder({ d }: { d: D }) {
             (s.recommended_scope === "EXPANDED" && r.label === "Expanded ARV");
           return (
             <div key={r.label} className="flex items-center gap-3">
-              <div className="w-28 text-[11px] text-muted-foreground">{r.label}</div>
-              <div className="relative h-6 flex-1 overflow-hidden rounded-sm bg-surface-2">
+              <div className="w-28 text-[11px] text-pp-muted">{r.label}</div>
+              <div className="relative h-6 flex-1 overflow-hidden rounded-sm bg-pp-header">
                 <div className="h-full" style={{
                   width: `${(r.value / max) * 100}%`,
-                  background: isRec ? "var(--opportunity)" : "var(--surface-3)",
+                  background: isRec ? "var(--opportunity)" : "var(--pp-surface)",
                 }} />
               </div>
               <div className="num w-24 text-right text-[12px]">{fmt$(r.value)}</div>
@@ -234,10 +362,10 @@ function ValueLadder({ d }: { d: D }) {
       </div>
       {comps.length > 0 && (
         <div className="mt-4">
-          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Comps used</div>
-          <div className="mt-1 overflow-hidden rounded-md border border-border">
+          <div className="text-[10px] uppercase tracking-widest text-pp-muted">Comps used</div>
+          <div className="mt-1 overflow-hidden rounded-md border border-pp-border">
             <table className="w-full text-[11px]">
-              <thead className="bg-surface-2 text-muted-foreground">
+              <thead className="bg-pp-header text-pp-muted">
                 <tr>
                   <th className="px-2 py-1 text-left">Address</th>
                   <th className="px-2 py-1 text-right">Sold</th>
@@ -248,12 +376,12 @@ function ValueLadder({ d }: { d: D }) {
               </thead>
               <tbody>
                 {comps.slice(0, 8).map((c: any, i: number) => (
-                  <tr key={c.sale_id ?? i} className="border-t border-border">
+                  <tr key={c.sale_id ?? i} className="border-t border-pp-border">
                     <td className="truncate px-2 py-1">{c.address ?? "—"}</td>
-                    <td className="num px-2 py-1 text-right text-muted-foreground">{String(c.sold_at ?? "").slice(0, 7)}</td>
+                    <td className="num px-2 py-1 text-right text-pp-muted">{String(c.sold_at ?? "").slice(0, 7)}</td>
                     <td className="num px-2 py-1 text-right">{fmt$(Number(c.sale_price))}</td>
                     <td className="num px-2 py-1 text-right">${Math.round(Number(c.ppsf))}</td>
-                    <td className="num px-2 py-1 text-right text-muted-foreground">{Number(c.distance_km).toFixed(2)}km</td>
+                    <td className="num px-2 py-1 text-right text-pp-muted">{Number(c.distance_km).toFixed(2)}km</td>
                   </tr>
                 ))}
               </tbody>
@@ -281,9 +409,9 @@ function OfferCurve({ d }: { d: D }) {
   return (
     <section>
       <SectionHead icon={<TrendUp className="h-3.5 w-3.5" />} title="Offer Curve — where three curves cross" />
-      <div className="mt-2 overflow-hidden rounded-md border border-border">
+      <div className="mt-2 overflow-hidden rounded-md border border-pp-border">
         <table className="w-full text-[12px]">
-          <thead className="bg-surface-2 text-[10px] uppercase tracking-wider text-muted-foreground">
+          <thead className="bg-pp-header text-[10px] uppercase tracking-wider text-pp-muted">
             <tr>
               <th className="px-3 py-2 text-left">Offer</th>
               <th className="px-3 py-2 text-right">Profit</th>
@@ -292,10 +420,10 @@ function OfferCurve({ d }: { d: D }) {
           </thead>
           <tbody>
             {rows.map((r, i) => (
-              <tr key={i} className={r.delta === 0 ? "bg-surface-2/60" : ""}>
-                <td className="num border-t border-border px-3 py-2">{fmt$(r.offer)}</td>
-                <td className="num border-t border-border px-3 py-2 text-right" style={{ color: r.profit > 0 ? "var(--profit-strong)" : "var(--skeptic)" }}>{fmt$(r.profit)}</td>
-                <td className="num border-t border-border px-3 py-2 text-right">{pct(r.prob)}</td>
+              <tr key={i} className={r.delta === 0 ? "bg-pp-header/60" : ""}>
+                <td className="num border-t border-pp-border px-3 py-2">{fmt$(r.offer)}</td>
+                <td className="num border-t border-pp-border px-3 py-2 text-right" style={{ color: r.profit > 0 ? "#05d680" : "#f43f5e" }}>{fmt$(r.profit)}</td>
+                <td className="num border-t border-pp-border px-3 py-2 text-right">{pct(r.prob)}</td>
               </tr>
             ))}
           </tbody>
@@ -324,29 +452,29 @@ function MonteCarloBlock({ d }: { d: D }) {
   const barL = ((p5 - min) / span) * 100;
   const barR = ((p95 - min) / span) * 100;
   const medX = ((p50 - min) / span) * 100;
-  const lossColor = pLoss > 0.35 ? "var(--skeptic)" : pLoss > 0.15 ? "var(--opportunity)" : "var(--profit-strong)";
+  const lossColor = pLoss > 0.35 ? "#f43f5e" : pLoss > 0.15 ? "var(--opportunity)" : "#05d680";
 
   return (
     <section>
       <SectionHead icon={<Pulse className="h-3.5 w-3.5" />} title="Monte Carlo — 800 draws" />
-      <div className="mt-2 rounded-lg border border-border bg-surface-2 p-3">
-        <div className="relative h-8 rounded bg-surface-3" style={{ backgroundColor: "var(--surface-3)" }}>
+      <div className="mt-2 rounded-lg border border-pp-border bg-pp-header p-3">
+        <div className="relative h-8 rounded bg-pp-surface" style={{ backgroundColor: "var(--pp-surface)" }}>
           <div className="absolute h-full opacity-60" style={{
             left: `${barL}%`, width: `${Math.max(barR - barL, 1)}%`,
-            background: "linear-gradient(90deg, var(--skeptic), var(--opportunity), var(--profit-strong))",
+            background: "linear-gradient(90deg, #f43f5e, var(--opportunity), #05d680)",
             borderRadius: 3,
           }} />
           <div className="absolute top-0 h-full w-px bg-foreground/70" style={{ left: `${zero}%` }} title="break-even" />
           <div className="absolute -top-1 h-10 w-0.5 bg-foreground" style={{ left: `${medX}%` }} title={`P50 ${fmt$(p50)}`} />
         </div>
         <div className="mt-2 grid grid-cols-3 gap-2 text-[11px]">
-          <MiniStat label="P5" v={<span className="num" style={{ color: p5 < 0 ? "var(--skeptic)" : "var(--foreground)" }}>{fmt$(p5)}</span>} />
+          <MiniStat label="P5" v={<span className="num" style={{ color: p5 < 0 ? "#f43f5e" : "var(--foreground)" }}>{fmt$(p5)}</span>} />
           <MiniStat label="P50" v={<span className="num">{fmt$(p50)}</span>} />
-          <MiniStat label="P95" v={<span className="num text-profit-strong">{fmt$(p95)}</span>} />
+          <MiniStat label="P95" v={<span className="num text-pp-live">{fmt$(p95)}</span>} />
         </div>
         <div className="mt-2 grid grid-cols-3 gap-2 text-[11px]">
           <MiniStat label="P(loss)" v={<span className="num" style={{ color: lossColor }}>{Number.isFinite(pLoss) ? pct(pLoss) : "—"}</span>} />
-          <MiniStat label="CVaR(5%)" v={<span className="num" style={{ color: cvar > 0 ? "var(--skeptic)" : "var(--foreground)" }}>{Number.isFinite(cvar) ? fmt$(cvar) : "—"}</span>} />
+          <MiniStat label="CVaR(5%)" v={<span className="num" style={{ color: cvar > 0 ? "#f43f5e" : "var(--foreground)" }}>{Number.isFinite(cvar) ? fmt$(cvar) : "—"}</span>} />
           <MiniStat label="Exceed. rank" v={<span className="num">{Number.isFinite(er) ? pct(er) : "—"}</span>} />
         </div>
         <div className="mt-2 grid grid-cols-3 gap-2 text-[11px]">
@@ -378,7 +506,7 @@ function SkepticBlock({ d }: { d: D }) {
   if (flags.length === 0) return (
     <section>
       <SectionHead icon={<Warning className="h-3.5 w-3.5" />} title="Skeptic report" />
-      <div className="mt-2 rounded-md border border-border bg-surface-2 px-3 py-2 text-[12px] text-muted-foreground">No red flags surfaced. Standard due diligence still required.</div>
+      <div className="mt-2 rounded-md border border-pp-border bg-pp-header px-3 py-2 text-[12px] text-pp-muted">No red flags surfaced. Standard due diligence still required.</div>
     </section>
   );
   return (
@@ -386,8 +514,8 @@ function SkepticBlock({ d }: { d: D }) {
       <SectionHead icon={<Warning className="h-3.5 w-3.5" />} title="Skeptic report" />
       <ul className="mt-2 space-y-1.5">
         {flags.map((f, i) => (
-          <li key={i} className="flex items-start gap-2 rounded-md border border-skeptic/30 bg-skeptic/8 px-3 py-2 text-[12px] text-foreground" style={{ backgroundColor: "color-mix(in oklab, var(--skeptic) 10%, transparent)", borderColor: "color-mix(in oklab, var(--skeptic) 40%, transparent)" }}>
-            <Warning className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-skeptic" />
+          <li key={i} className="flex items-start gap-2 rounded-md border border-rose-500/30 bg-rose-500/8 px-3 py-2 text-[12px] text-pp-text" style={{ backgroundColor: "color-mix(in oklab, #f43f5e 10%, transparent)", borderColor: "color-mix(in oklab, #f43f5e 40%, transparent)" }}>
+            <Warning className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-rose-500" />
             <span>{f}</span>
           </li>
         ))}
@@ -401,12 +529,12 @@ function TransactionHistory({ d }: { d: D }) {
     <section>
       <SectionHead icon={<Scroll className="h-3.5 w-3.5" />} title={`Transaction bloodline (${d.deeds.length})`} />
       <div className="mt-2 space-y-1">
-        {d.deeds.length === 0 && <div className="text-[12px] text-muted-foreground">No recorded deeds in the genome.</div>}
+        {d.deeds.length === 0 && <div className="text-[12px] text-pp-muted">No recorded deeds in the genome.</div>}
         {d.deeds.map((x: any) => (
-          <div key={x.id} className="flex items-center justify-between rounded-md border border-border bg-surface-2 px-3 py-2 text-[12px]">
-            <span className="num text-muted-foreground">{x.recorded_at}</span>
-            <span className="text-[11px] uppercase text-muted-foreground">{x.deed_type}</span>
-            <span className="num text-foreground">{x.sale_price ? fmt$(Number(x.sale_price)) : "—"}</span>
+          <div key={x.id} className="flex items-center justify-between rounded-md border border-pp-border bg-pp-header px-3 py-2 text-[12px]">
+            <span className="num text-pp-muted">{x.recorded_at}</span>
+            <span className="text-[11px] uppercase text-pp-muted">{x.deed_type}</span>
+            <span className="num text-pp-text">{x.sale_price ? fmt$(Number(x.sale_price)) : "—"}</span>
           </div>
         ))}
       </div>
@@ -423,11 +551,11 @@ function DistressLog({ d }: { d: D }) {
         {d.distress.map((x: any) => (
           <div key={x.id} className="rounded-md border px-3 py-2 text-[12px]" style={{ backgroundColor: "color-mix(in oklab, var(--shadow-ring) 8%, transparent)", borderColor: "color-mix(in oklab, var(--shadow-ring) 30%, transparent)" }}>
             <div className="flex items-center justify-between">
-              <span className="font-medium text-foreground">{x.event_type.replace(/_/g, " ")}</span>
-              <span className="num text-muted-foreground">{x.event_date}</span>
+              <span className="font-medium text-pp-text">{x.event_type.replace(/_/g, " ")}</span>
+              <span className="num text-pp-muted">{x.event_date}</span>
             </div>
-            {x.amount && <div className="num mt-1 text-[11px] text-muted-foreground">Amount {fmt$(Number(x.amount))}</div>}
-            {x.auction_date && <div className="num mt-1 text-[11px] text-opportunity">Auction {x.auction_date}</div>}
+            {x.amount && <div className="num mt-1 text-[11px] text-pp-muted">Amount {fmt$(Number(x.amount))}</div>}
+            {x.auction_date && <div className="num mt-1 text-[11px] text-pp-gold">Auction {x.auction_date}</div>}
           </div>
         ))}
       </div>
@@ -444,8 +572,8 @@ function Verdict({ d }: { d: D }) {
       ? `Marginal deal at ${fmt$(Number(s.modeled_offer))}. Only if operator has efficient ${s.recommended_scope.toLowerCase()} crew.`
       : `Pass. Numbers do not survive pessimism.`;
   return (
-    <div className="rounded-lg border border-border-strong bg-surface-2 p-4">
-      <div className="text-[10px] uppercase tracking-widest text-muted-foreground">One-line verdict</div>
+    <div className="rounded-lg border border-pp-border-strong bg-pp-header p-4">
+      <div className="text-[10px] uppercase tracking-widest text-pp-muted">One-line verdict</div>
       <div className="mt-1 text-[14px] font-medium leading-snug">{line}</div>
     </div>
   );
@@ -453,7 +581,7 @@ function Verdict({ d }: { d: D }) {
 
 function SectionHead({ icon, title }: { icon: React.ReactNode; title: string }) {
   return (
-    <div className="flex items-center gap-2 text-[11px] uppercase tracking-widest text-muted-foreground">
+    <div className="flex items-center gap-2 text-[11px] uppercase tracking-widest text-pp-muted">
       {icon}
       <span>{title}</span>
     </div>
@@ -462,9 +590,9 @@ function SectionHead({ icon, title }: { icon: React.ReactNode; title: string }) 
 
 function MiniStat({ label, v }: { label: string; v: React.ReactNode }) {
   return (
-    <div className="rounded-md border border-border bg-surface-2 px-3 py-2">
-      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
-      <div className="mt-0.5 text-[13px] text-foreground">{v}</div>
+    <div className="rounded-md border border-pp-border bg-pp-header px-3 py-2">
+      <div className="text-[10px] uppercase tracking-wider text-pp-muted">{label}</div>
+      <div className="mt-0.5 text-[13px] text-pp-text">{v}</div>
     </div>
   );
 }
@@ -490,7 +618,7 @@ function V12RiskBlock({ d }: { d: D }) {
       </div>
       <div className="mt-2 grid grid-cols-3 gap-2 text-[11px]">
         <MiniStat label="ARV exit P5" v={<span className="num">{Number.isFinite(p5) ? fmt$(p5) : "—"}</span>} />
-        <MiniStat label="ARV exit P95" v={<span className="num text-profit-strong">{Number.isFinite(p95) ? fmt$(p95) : "—"}</span>} />
+        <MiniStat label="ARV exit P95" v={<span className="num text-pp-live">{Number.isFinite(p95) ? fmt$(p95) : "—"}</span>} />
         <MiniStat label="Survival" v={<span className="num">{Number.isFinite(surv) ? surv.toFixed(2) : "—"}</span>} />
       </div>
       <div className="mt-2 grid grid-cols-2 gap-2 text-[11px]">
@@ -523,10 +651,10 @@ function CreditBlock({ d }: { d: D }) {
       <div className="mt-2 grid grid-cols-3 gap-2 text-[11px]">
         <MiniStat label="EAD" v={<span className="num">{Number.isFinite(ead) ? fmt$(ead) : "—"}</span>} />
         <MiniStat label="LGD" v={<span className="num">{Number.isFinite(lgd) ? pct(lgd) : "—"}</span>} />
-        <MiniStat label="Expected loss" v={<span className="num" style={{ color: "var(--skeptic)" }}>{Number.isFinite(el) ? fmt$(el) : "—"}</span>} />
+        <MiniStat label="Expected loss" v={<span className="num" style={{ color: "#f43f5e" }}>{Number.isFinite(el) ? fmt$(el) : "—"}</span>} />
       </div>
       <div className="mt-2 grid grid-cols-2 gap-2 text-[11px]">
-        <MiniStat label="Risk-adj profit (credit)" v={<span className="num" style={{ color: rap > 0 ? "var(--profit-strong)" : "var(--skeptic)" }}>{Number.isFinite(rap) ? fmt$(rap) : "—"}</span>} />
+        <MiniStat label="Risk-adj profit (credit)" v={<span className="num" style={{ color: rap > 0 ? "#05d680" : "#f43f5e" }}>{Number.isFinite(rap) ? fmt$(rap) : "—"}</span>} />
         <MiniStat label="RAROC" v={<span className="num">{Number.isFinite(raroc) ? `${(raroc * 100).toFixed(1)}%` : "—"}</span>} />
       </div>
     </section>
@@ -556,12 +684,12 @@ function GatesBlock({ d }: { d: D }) {
               key={n}
               className="rounded-md px-2 py-1 text-[11px]"
               style={{
-                border: `1px solid ${ok ? "color-mix(in oklab, var(--profit-strong) 40%, transparent)" : "var(--border)"}`,
-                backgroundColor: ok ? "color-mix(in oklab, var(--profit-strong) 12%, transparent)" : "var(--surface-2)",
-                color: ok ? "var(--profit-strong)" : "var(--muted-foreground)",
+                border: `1px solid ${ok ? "color-mix(in oklab, #05d680 40%, transparent)" : "var(--pp-border)"}`,
+                backgroundColor: ok ? "color-mix(in oklab, #05d680 12%, transparent)" : "var(--pp-header)",
+                color: ok ? "#05d680" : "var(--pp-muted)",
               }}
             >
-              G{n}{ok ? <Check size={11} className="inline-block text-profit-strong" aria-label="passed" /> : ""}
+              G{n}{ok ? <Check size={11} className="inline-block text-pp-live" aria-label="passed" /> : ""}
             </span>
           );
         })}
@@ -572,12 +700,12 @@ function GatesBlock({ d }: { d: D }) {
             key={label}
             className="rounded-md border px-3 py-2"
             style={{
-              borderColor: on ? "color-mix(in oklab, var(--profit-strong) 30%, transparent)" : "var(--border)",
-              backgroundColor: on ? "color-mix(in oklab, var(--profit-strong) 8%, transparent)" : "var(--surface-2)",
+              borderColor: on ? "color-mix(in oklab, #05d680 30%, transparent)" : "var(--pp-border)",
+              backgroundColor: on ? "color-mix(in oklab, #05d680 8%, transparent)" : "var(--pp-header)",
             }}
           >
-            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
-            <div className="mt-0.5 text-[12px]" style={{ color: on ? "var(--profit-strong)" : "var(--muted-foreground)" }}>
+            <div className="text-[10px] uppercase tracking-wider text-pp-muted">{label}</div>
+            <div className="mt-0.5 text-[12px]" style={{ color: on ? "#05d680" : "var(--pp-muted)" }}>
               {on ? "unlocked" : "locked"}
             </div>
           </div>

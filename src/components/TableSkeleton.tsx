@@ -13,7 +13,7 @@ export function TableSkeleton({
   return (
     <>
       {Array.from({ length: rows }).map((_, i) => (
-        <tr key={i} className="border-t border-border" aria-hidden="true">
+        <tr key={i} className="border-t border-pp-border" aria-hidden="true">
           {Array.from({ length: columns }).map((_, j) => (
             <td key={j} className="px-4 py-3">
               <div

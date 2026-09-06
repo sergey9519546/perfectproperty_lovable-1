@@ -28,35 +28,46 @@ export function DealTable({
   )
 
   return (
-    <section className="deal-table min-h-0 overflow-hidden border-t border-pp-border/18 bg-pp-surface">
-      <div className="flex h-12 items-center gap-3 border-b border-pp-border/18 bg-pp-surface px-4 max-sm:gap-2 max-sm:px-3">
-        <strong className="flex items-center gap-2 whitespace-nowrap text-md font-medium">
-          <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-pp-gold" />
-          <span className="max-sm:hidden">
-            {loading ? 'Loading…' : `${filtered.length.toLocaleString()} live scored parcels`}
-          </span>
-          <span className="hidden max-sm:inline">
-            {loading ? '…' : filtered.length.toLocaleString()}
+    <section className="deal-table flex flex-col min-h-0 overflow-hidden border-t border-pp-border bg-pp-surface shadow-none">
+      <div className="flex h-14 shrink-0 items-center gap-4 border-b border-pp-border bg-pp-surface px-6 max-sm:px-4">
+        <strong className="flex items-center gap-2.5 whitespace-nowrap text-sm font-semibold tracking-tight text-pp-text">
+          <span aria-hidden="true" className="h-2 w-2 rounded-full bg-pp-live shadow-none" />
+          <span>
+            {loading ? 'Loading…' : `${filtered.length.toLocaleString()} Live Opportunities`}
           </span>
         </strong>
-        <label className="relative ml-auto max-w-[240px] flex-1">
-          <MagnifyingGlass className="absolute left-2.5 top-1/2 -translate-y-1/2 text-pp-faint" size={15} />
+        <label className="relative ml-auto w-[280px]">
+          <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-pp-muted" size={16} />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="h-8 w-full rounded-[4px] border border-pp-border/18 bg-pp-surface-soft pl-8 pr-3 text-sm text-pp-text outline-none placeholder:text-pp-faint focus:border-pp-gold/60"
+            className="h-9 w-full rounded-full border border-pp-border bg-pp-surface-soft pl-9 pr-4 text-xs font-medium text-pp-text outline-none placeholder:text-pp-faint focus:border-pp-text focus:bg-pp-surface transition-colors"
             aria-label="Search parcels"
             placeholder="Search address or market…"
           />
         </label>
       </div>
-      <div className="overflow-auto">
+      <div className="flex-1 overflow-auto bg-pp-surface">
         <table className="w-full min-w-[920px] border-collapse text-left text-sm">
-          <thead className="sticky top-0 bg-pp-header text-pp-faint">
+          <thead className="sticky top-0 z-10 bg-pp-surface-raised/95 backdrop-blur-sm shadow-[0_1px_0_0_var(--pp-border)]">
             <tr>
-              {['Address', 'Market', 'Source', 'Offer', 'Profit', 'Score', 'Loss risk', 'Updated'].map((name) => (
-                <th scope="col" className="border-b border-pp-border/18 px-4 py-2 font-normal" key={name}>
-                  {name}
+              {[
+                { label: 'Address', align: 'left', width: '25%' },
+                { label: 'Market', align: 'left', width: '15%' },
+                { label: 'Source', align: 'left', width: '10%' },
+                { label: 'Offer', align: 'right', width: '10%' },
+                { label: 'Profit', align: 'right', width: '10%' },
+                { label: 'Score', align: 'right', width: '10%' },
+                { label: 'Loss risk', align: 'right', width: '10%' },
+                { label: 'Updated', align: 'right', width: '10%' }
+              ].map((col) => (
+                <th 
+                  scope="col" 
+                  className={`px-6 py-3 text-[11px] font-bold tracking-widest uppercase text-pp-muted ${col.align === 'right' ? 'text-right' : 'text-left'}`} 
+                  style={{ width: col.width }}
+                  key={col.label}
+                >
+                  {col.label}
                 </th>
               ))}
             </tr>
@@ -67,19 +78,20 @@ export function DealTable({
               return (
                 <tr
                   key={parcel.id}
-                  className={`group cursor-pointer border-b border-pp-border/12 text-pp-muted transition-colors hover:bg-pp-surface-soft/40 ${active ? 'bg-pp-gold/[.035]' : ''}`}
+                  className={`group cursor-pointer border-b border-pp-border/50 text-sm transition-colors ${active ? 'bg-pp-surface-soft' : 'hover:bg-pp-surface-soft/50'}`}
                   onClick={() => onSelect(parcel)}
                 >
-                  <td className={`border-l-2 px-4 py-2 font-medium text-pp-text ${active ? 'border-l-pp-gold' : 'border-l-transparent'}`}>
+                  <td className={`relative px-6 py-4 font-semibold text-pp-text`}>
+                    {active && <span className="absolute left-0 top-0 bottom-0 w-1 bg-pp-text" />}
                     {parcel.address}
                   </td>
-                  <td className="px-4 py-2">{parcel.marketLabel}</td>
-                  <td className="px-4 py-2">{parcel.ringLabel}</td>
-                  <td className="px-4 py-2 font-mono">{formatMoney(parcel.offer)}</td>
-                  <td className="px-4 py-2 font-mono text-profit-strong">{formatMoney(parcel.profit)}</td>
-                  <td className="px-4 py-2 font-mono text-pp-gold">{parcel.score.toFixed(1)}</td>
-                  <td className="px-4 py-2 font-mono">{pct(parcel.lossRisk)}</td>
-                  <td className="px-4 py-2">
+                  <td className="px-6 py-4 text-pp-muted font-medium">{parcel.marketLabel}</td>
+                  <td className="px-6 py-4 text-pp-muted font-medium">{parcel.ringLabel}</td>
+                  <td className="px-6 py-4 font-mono text-right text-pp-text">{formatMoney(parcel.offer)}</td>
+                  <td className="px-6 py-4 font-mono text-right font-medium text-profit-strong">{formatMoney(parcel.profit)}</td>
+                  <td className="px-6 py-4 font-mono text-right font-bold text-pp-text">{parcel.score.toFixed(1)}</td>
+                  <td className="px-6 py-4 font-mono text-right text-pp-text">{pct(parcel.lossRisk)}</td>
+                  <td className="px-6 py-4 text-right text-xs text-pp-faint font-medium">
                     {parcel.computedAt ? (
                       <time dateTime={parcel.computedAt}>{formatShortDate(parcel.computedAt)}</time>
                     ) : (
@@ -92,15 +104,16 @@ export function DealTable({
           </tbody>
         </table>
         {!loading && filtered.length === 0 && (
-          <div className="grid h-32 place-items-center text-center text-sm text-pp-faint">
+          <div className="flex h-32 flex-col items-center justify-center gap-2 text-sm text-pp-faint">
+            <MagnifyingGlass size={24} className="text-pp-border-strong" />
             No parcels match this search or region filter.
           </div>
         )}
         {loading && (
-          <div className="space-y-2 p-4" aria-busy="true">
-            <div className="skeleton h-8 w-full" />
-            <div className="skeleton h-8 w-full" />
-            <div className="skeleton h-8 w-4/5" />
+          <div className="space-y-4 p-6" aria-busy="true">
+            <div className="skeleton h-10 w-full" />
+            <div className="skeleton h-10 w-full" />
+            <div className="skeleton h-10 w-3/4" />
           </div>
         )}
       </div>

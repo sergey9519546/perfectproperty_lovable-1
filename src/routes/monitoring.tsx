@@ -6,6 +6,8 @@ import { fmt$ } from "@/lib/format";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabase as browserSupabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/PageHeader";
+import { ProtectedLayout } from "@/components/ProtectedLayout";
+import { getAuthenticatedFirebaseUser } from "@/integrations/firebase";
 
 const getLatestMetrics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -23,8 +25,11 @@ const getLatestMetrics = createServerFn({ method: "GET" })
 export const Route = createFileRoute("/monitoring")({
   ssr: false,
   beforeLoad: async () => {
-    const { data } = await browserSupabase.auth.getUser();
-    if (!data.user) throw redirect({ to: "/auth", search: { next: "/monitoring" } });
+    const firebaseUser = await getAuthenticatedFirebaseUser();
+    if (!firebaseUser) {
+      const { data } = await browserSupabase.auth.getUser();
+      if (!data.user) throw redirect({ to: "/auth", search: { next: "/monitoring" } });
+    }
   },
   head: () => ({
     meta: [
@@ -36,7 +41,11 @@ export const Route = createFileRoute("/monitoring")({
       },
     ],
   }),
-  component: MonitoringPage,
+  component: () => (
+    <ProtectedLayout>
+      <MonitoringPage />
+    </ProtectedLayout>
+  ),
 });
 
 function MonitoringPage() {
@@ -57,7 +66,7 @@ function MonitoringPage() {
       {q.isLoading && (
         <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4">
           {Array.from({length:4}).map((_,i)=>(
-            <div key={i} className="rounded-lg border border-border bg-surface p-4">
+            <div key={i} className="rounded-lg border border-pp-border bg-pp-page p-4">
               <div className="skeleton h-3 w-1/2 rounded-sm" />
               <div className="skeleton mt-2 h-6 w-3/4 rounded-sm" />
             </div>
@@ -65,16 +74,16 @@ function MonitoringPage() {
         </div>
       )}
       {!q.isLoading && !latest && (
-        <div className="mt-6 rounded-md border border-border bg-surface px-4 py-3 text-sm text-muted-foreground">
+        <div className="mt-6 rounded-md border border-pp-border bg-pp-page px-4 py-3 text-sm text-pp-muted">
           No monitoring snapshot yet. The nightly cron will populate this after its first run.
         </div>
       )}
 
       {latest && (
         <>
-          <div className="mt-4 text-[11px] text-muted-foreground">
+          <div className="mt-4 text-[11px] text-pp-muted">
             Latest snapshot{" "}
-            <span className="num text-foreground">
+            <span className="num text-pp-text">
               {new Date(latest.computed_at).toLocaleString()}
             </span>
             {" · "}
@@ -82,15 +91,15 @@ function MonitoringPage() {
           </div>
 
           {latest.risk_appetite_breached && (
-            <div className="mt-4 rounded-lg border border-skeptic/40 bg-skeptic/10 p-4">
-              <div className="text-[11px] uppercase tracking-widest text-skeptic">
+            <div className="mt-4 rounded-lg border border-rose-500/40 bg-rose-500/10 p-4">
+              <div className="text-[11px] uppercase tracking-widest text-rose-500">
                 Risk limits exceeded
               </div>
               <div className="mt-2 flex flex-wrap gap-2 text-[12px]">
                 {(latest.breach_reasons as string[]).map((r) => (
                   <span
                     key={r}
-                    className="rounded-full border border-skeptic/40 bg-skeptic/15 px-2 py-0.5 text-skeptic"
+                    className="rounded-full border border-rose-500/40 bg-rose-500/15 px-2 py-0.5 text-rose-500"
                   >
                     {r}
                   </span>
@@ -113,13 +122,13 @@ function MonitoringPage() {
             <Metric label="Cash to hold back" v={fmt$(Number(latest.ec ?? 0))} />
             <Metric label="Deals in portfolio" v={<span className="num">{latest.n_deals}</span>} />
           </div>
-          <p className="mt-2 text-[12px] text-muted-foreground">
+          <p className="mt-2 text-[12px] text-pp-muted">
             Expected loss is the typical hit across all open deals. Bad-month loss is what the worst
             5% of outcomes cost. Cash to hold back is the buffer that covers it.
           </p>
 
-          <details className="mt-6 rounded-lg border border-border bg-surface p-4">
-            <summary className="cursor-pointer text-[13px] font-medium text-foreground">
+          <details className="mt-6 rounded-lg border border-pp-border bg-pp-page p-4">
+            <summary className="cursor-pointer text-[13px] font-medium text-pp-text">
               Detailed risk model numbers
             </summary>
             <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
@@ -156,12 +165,12 @@ function MonitoringPage() {
 
 
           <div className="mt-8">
-            <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+            <div className="text-[10px] uppercase tracking-widest text-pp-muted">
               Recent nightly checks
             </div>
-            <div className="mt-2 overflow-hidden rounded-lg border border-border bg-surface">
+            <div className="mt-2 overflow-hidden rounded-lg border border-pp-border bg-pp-page">
               <table className="w-full text-[12px]">
-                <thead className="bg-surface-2 text-[10px] uppercase tracking-widest text-muted-foreground">
+                <thead className="bg-pp-header text-[10px] uppercase tracking-widest text-pp-muted">
                   <tr>
                     <th className="px-3 py-2 text-left">Timestamp</th>
                     <th className="px-3 py-2 text-right">Deals</th>
@@ -175,8 +184,8 @@ function MonitoringPage() {
                 </thead>
                 <tbody>
                   {history.map((h) => (
-                    <tr key={h.id} className="border-t border-border">
-                      <td className="num px-3 py-2 text-muted-foreground">
+                    <tr key={h.id} className="border-t border-pp-border">
+                      <td className="num px-3 py-2 text-pp-muted">
                         {new Date(h.computed_at).toLocaleString()}
                       </td>
                       <td className="num px-3 py-2 text-right">{h.n_deals}</td>
@@ -196,8 +205,8 @@ function MonitoringPage() {
                         className="px-3 py-2 text-[11px]"
                         style={{
                           color: h.risk_appetite_breached
-                            ? "var(--skeptic)"
-                            : "var(--muted-foreground)",
+                            ? "#f43f5e"
+                            : "var(--pp-muted)",
                         }}
                       >
                         {h.risk_appetite_breached ? (h.breach_reasons as string[]).join(", ") : "—"}
@@ -225,13 +234,13 @@ function Metric({
 }) {
   const color =
     tone === "skeptic"
-      ? "var(--skeptic)"
+      ? "#f43f5e"
       : tone === "opportunity"
         ? "var(--opportunity)"
         : undefined;
   return (
-    <div className="rounded-lg border border-border bg-surface p-4">
-      <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{label}</div>
+    <div className="rounded-lg border border-pp-border bg-pp-page p-4">
+      <div className="text-[10px] uppercase tracking-widest text-pp-muted">{label}</div>
       <div className="num mt-1 text-xl font-semibold" style={{ color }}>
         {v}
       </div>
@@ -246,14 +255,14 @@ function fmtPct(x: number) {
 function bandColor(band: string | null): string {
   switch (band) {
     case "green":
-      return "var(--profit-strong)";
+      return "#05d680";
     case "yellow":
       return "var(--opportunity)";
     case "orange":
       return "var(--opportunity)";
     case "red":
-      return "var(--skeptic)";
+      return "#f43f5e";
     default:
-      return "var(--muted-foreground)";
+      return "var(--pp-muted)";
   }
 }

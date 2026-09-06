@@ -75,12 +75,12 @@ export function ProbePanel({ onDiscoverUrl }: { onDiscoverUrl: (url: string) => 
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="https://recorder.county.gov/foreclosure-calendar"
-            className="flex-1 min-w-[280px] rounded-md border border-border bg-background px-3 py-2 text-[13px] outline-none focus:border-primary"
+            className="flex-1 min-w-[280px] rounded-md border border-border bg-pp-page px-3 py-2 text-[13px] outline-none focus:border-primary"
           />
           <select
             value={tier}
             onChange={(e) => setTier(e.target.value as ProbeTier)}
-            className="rounded-md border border-border bg-background px-2 py-2 text-[12px]"
+            className="rounded-md border border-border bg-pp-page px-2 py-2 text-[12px]"
           >
             <option value="auto">auto (plain to zyte to browser)</option>
             <option value="plain">plain fetch (free)</option>
@@ -90,7 +90,7 @@ export function ProbePanel({ onDiscoverUrl }: { onDiscoverUrl: (url: string) => 
           <button
             onClick={() => input && probe.mutate({ url: input, tier })}
             disabled={!input || probe.isPending}
-            className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-[13px] font-medium text-primary-foreground disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-md primary-button disabled:opacity-50"
           >
             <MagnifyingGlass className="h-4 w-4" />
             {probe.isPending ? "Fetching…" : "Probe URL"}
@@ -144,10 +144,10 @@ export function ProbePanel({ onDiscoverUrl }: { onDiscoverUrl: (url: string) => 
                 <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Dates / Currency</div>
                 <div className="mt-1 flex flex-wrap gap-1">
                   {(result.hints?.dates ?? []).map((d, i) => (
-                    <span key={"d" + i} className="rounded bg-background px-1.5 py-0.5 text-[10px] font-mono">{d}</span>
+                    <span key={"d" + i} className="rounded bg-pp-page px-1.5 py-0.5 text-[10px] font-mono">{d}</span>
                   ))}
                   {(result.hints?.dollars ?? []).map((d, i) => (
-                    <span key={"s" + i} className="rounded bg-background px-1.5 py-0.5 text-[10px] font-mono text-profit">{d}</span>
+                    <span key={"s" + i} className="rounded bg-pp-page px-1.5 py-0.5 text-[10px] font-mono text-profit">{d}</span>
                   ))}
                 </div>
                 <div className="mt-2 text-[10px] uppercase tracking-widest text-muted-foreground">Structure</div>
@@ -160,7 +160,7 @@ export function ProbePanel({ onDiscoverUrl }: { onDiscoverUrl: (url: string) => 
                 <ul className="mt-1 space-y-0.5">
                   {(result.hints?.links ?? []).slice(0, 8).map((l, i) => (
                     <li key={i} className="truncate text-[11px]">
-                      <a href={l.href} target="_blank" rel="noreferrer" className="text-primary hover:underline">
+                      <a href={l.href} target="_blank" rel="noreferrer" className="text-pp-gold hover:underline">
                         {l.text}
                       </a>
                     </li>
@@ -172,7 +172,7 @@ export function ProbePanel({ onDiscoverUrl }: { onDiscoverUrl: (url: string) => 
               <summary className="cursor-pointer text-[11px] text-muted-foreground">
                 Text preview (first 4KB)
               </summary>
-              <pre className="mt-2 max-h-64 overflow-auto whitespace-pre-wrap rounded bg-background p-2 text-[10px]">
+              <pre className="mt-2 max-h-64 overflow-auto whitespace-pre-wrap rounded bg-pp-page p-2 text-[10px]">
                 {result.text_preview}
               </pre>
             </details>

@@ -19,12 +19,25 @@ import { DataFreshness } from "@/components/DataFreshness";
 import { ScorePill } from "@/components/ScorePill";
 import { TableSkeleton } from "@/components/TableSkeleton";
 import { PageHeader } from "@/components/PageHeader";
+import { ProtectedLayout } from "@/components/ProtectedLayout";
+import {
+  useFirebaseAuth,
+  getSavedDealsFromFirestore,
+  saveDealToFirestore,
+  removeSavedDealFromFirestore,
+  getAuthenticatedFirebaseUser,
+} from "@/integrations/firebase";
+import { Bookmark, Sparkles } from "lucide-react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/deals")({
   ssr: false,
   beforeLoad: async () => {
-    const { data } = await supabase.auth.getUser();
-    if (!data.user) throw redirect({ to: "/auth", search: { next: "/deals" } });
+    const firebaseUser = await getAuthenticatedFirebaseUser();
+    if (!firebaseUser) {
+      const { data } = await supabase.auth.getUser();
+      if (!data.user) throw redirect({ to: "/auth", search: { next: "/deals" } });
+    }
   },
   head: () => ({
     meta: [
@@ -36,37 +49,124 @@ export const Route = createFileRoute("/deals")({
     ],
   }),
   component: () => (
-    <SectionBoundary label="Deals unavailable" minHeight={400}>
-      <DealsPage />
-    </SectionBoundary>
+    <ProtectedLayout>
+      <SectionBoundary label="Deals unavailable" minHeight={400}>
+        <DealsPage />
+      </SectionBoundary>
+    </ProtectedLayout>
   ),
 });
 
 function DealsPage() {
   const listFn = useServerFn(listRankedParcels);
+  const { user } = useFirebaseAuth();
+  const queryClient = useQueryClient();
   const [selected, setSelected] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<"all" | "saved">("all");
+
   const q = useQuery({
     queryKey: ["ranked-all"],
     queryFn: () => listFn({ data: { limit: 500 } }),
   });
+
+  const savedQ = useQuery({
+    queryKey: ["saved-deals", user?.uid],
+    queryFn: () => (user ? getSavedDealsFromFirestore(user.uid) : Promise.resolve([])),
+    enabled: !!user,
+  });
+
+  const savedIds = useMemo(
+    () => new Set(savedQ.data?.map((d) => d.parcelId) || []),
+    [savedQ.data],
+  );
+
+  const toggleSaveDeal = async (r: any) => {
+    if (!user) {
+      toast.error("Please sign in to save deals to your portfolio.");
+      return;
+    }
+    const parcelId = r.parcel_id;
+    const isSaved = savedIds.has(parcelId);
+
+    try {
+      if (isSaved) {
+        await removeSavedDealFromFirestore(user.uid, parcelId);
+        toast.success("Removed from portfolio");
+      } else {
+        await saveDealToFirestore(user.uid, {
+          id: parcelId,
+          parcelId,
+          address: r.parcels?.address || "",
+          county: r.parcels?.county_fips || undefined,
+          state: r.parcels?.state || undefined,
+          arv: r.full_reno_arv ? Number(r.full_reno_arv) : undefined,
+          maxBid: r.max_allowable_offer ? Number(r.max_allowable_offer) : undefined,
+          predictedSpread: r.gross_profit ? Number(r.gross_profit) : undefined,
+          underwriteStatus: "underwritten",
+          starred: true,
+        });
+        toast.success("Saved to portfolio");
+      }
+      await queryClient.invalidateQueries({ queryKey: ["saved-deals", user.uid] });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to update portfolio");
+    }
+  };
+
+  const displayData = useMemo(() => {
+    if (viewMode === "saved" && user) {
+      return (q.data || []).filter((item: any) => savedIds.has(item.parcel_id));
+    }
+    return q.data || [];
+  }, [viewMode, user, q.data, savedIds]);
+
   return (
     <>
       <div className="mx-auto max-w-[1400px] px-6 py-8">
         <PageHeader
           title="Ranked deals"
-          sub="Every property we've scored, sorted by our overall buy score (0–100). Click any row to see the full breakdown — offer, profit, risks, and comps."
+          sub="Every property we've scored, sorted by our overall buy score (0–100). Click any row to see the full breakdown — offer, profit, risks, comps, and AI Maps/Search Grounding."
         />
 
         <HelpStrip />
 
-        <div className="mt-4 text-[13px] text-muted-foreground">
-          Showing <span className="font-semibold text-foreground">{q.data?.length ?? 0}</span> live
-          scored properties
+        {/* View mode toggle */}
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-4 border-b border-pp-border pb-3">
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setViewMode("all")}
+              className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+                viewMode === "all"
+                  ? "bg-pp-header text-pp-text border border-pp-border"
+                  : "text-pp-muted hover:text-pp-text"
+              }`}
+            >
+              All Ranked Deals ({q.data?.length ?? 0})
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode("saved")}
+              className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+                viewMode === "saved"
+                  ? "bg-amber-950/40 text-amber-300 border border-amber-500/30"
+                  : "text-pp-muted hover:text-pp-text"
+              }`}
+            >
+              <Bookmark className="h-3.5 w-3.5" />
+              <span>Saved Portfolio ({savedQ.data?.length ?? 0})</span>
+            </button>
+          </div>
+
+          <div className="text-[13px] text-pp-muted">
+            Showing <span className="font-semibold text-pp-text">{displayData.length}</span>{" "}
+            {viewMode === "saved" ? "saved watchlist properties" : "live scored properties"}
+          </div>
         </div>
 
-        <div className="mt-6 overflow-x-auto rounded-lg border border-border bg-surface">
+        <div className="mt-6 overflow-x-auto rounded-lg border border-pp-border bg-pp-page">
           <table className="w-full text-[14px]">
-            <thead className="bg-surface-2 text-[11px] uppercase tracking-wider text-muted-foreground">
+            <thead className="bg-pp-header text-[11px] uppercase tracking-wider text-pp-muted">
               <tr>
                 <th className="px-4 py-3 text-left">Property</th>
 
@@ -85,7 +185,7 @@ function DealsPage() {
                 <th className="px-4 py-3 text-left" title="Recommended renovation plan.">
                   Plan
                 </th>
-                <th className="border-l border-border/50 px-4 py-3 text-right" title="What we'd offer the seller today.">
+                <th className="border-l border-pp-border/50 px-4 py-3 text-right" title="What we'd offer the seller today.">
                   Our offer
                 </th>
                 <th
@@ -100,7 +200,7 @@ function DealsPage() {
                 >
                   Typical · Worst case
                 </th>
-                <th className="border-l border-border/50 px-4 py-3 text-right" title="Chance the deal loses money.">
+                <th className="border-l border-pp-border/50 px-4 py-3 text-right" title="Chance the deal loses money.">
                   Loss risk
                 </th>
                 <th className="px-4 py-3 text-right" title="Chance the seller accepts our offer.">
@@ -122,7 +222,16 @@ function DealsPage() {
             </thead>
             <tbody>
               {q.isLoading && <TableSkeleton rows={10} columns={11} />}
-              {!q.isLoading && (q.data ?? []).map((r: any, i: number) => {
+              {!q.isLoading && displayData.length === 0 && (
+                <tr>
+                  <td colSpan={11} className="px-4 py-8 text-center text-sm text-pp-muted">
+                    {viewMode === "saved"
+                      ? "No deals saved in your Firestore portfolio yet. Click any property in the workspace or ranked list, open its Dossier, and click 'Save to Portfolio'."
+                      : "No properties found matching current criteria."}
+                  </td>
+                </tr>
+              )}
+              {!q.isLoading && displayData.map((r: any, i: number) => {
                 const flags = (r.skeptic_flags as string[]) ?? [];
                 const pLoss = Number(r.mc_p_loss);
                 return (
@@ -130,19 +239,41 @@ function DealsPage() {
                     key={r.parcel_id}
                     onClick={() => setSelected(r.parcel_id)}
                     style={{ animationDelay: `${Math.min(i * 35, 600)}ms` }}
-                    className="group cursor-pointer border-t border-border transition-colors hover:bg-surface-2 animate-in fade-in slide-in-from-bottom-1 duration-300 fill-mode-backwards"
+                    className="group cursor-pointer border-t border-pp-border transition-colors hover:bg-pp-header animate-in fade-in slide-in-from-bottom-1 duration-300 fill-mode-backwards"
                   >
                     
-                    <td className="sticky left-0 z-10 bg-surface px-4 py-3 group-hover:bg-surface-2">
-                      <div className="font-medium">{r.parcels.address}</div>
-                      <div className="text-[12px] text-muted-foreground">
-                        {r.parcels.city}, {r.parcels.state}
+                    <td className="sticky left-0 z-10 bg-pp-page px-4 py-3 group-hover:bg-pp-header">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          <div className="font-medium truncate">{r.parcels.address}</div>
+                          <div className="text-[12px] text-pp-muted">
+                            {r.parcels.city}, {r.parcels.state}
+                          </div>
+                          <DataFreshness
+                            timestamp={r.computed_at}
+                            prefix="Underwritten"
+                            className="mt-1"
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            void toggleSaveDeal(r);
+                          }}
+                          aria-label={savedIds.has(r.parcel_id) ? "Remove from portfolio" : "Save to portfolio"}
+                          title={savedIds.has(r.parcel_id) ? "In your portfolio" : "Save to portfolio"}
+                          className={`rounded p-1.5 transition-colors shrink-0 ${
+                            savedIds.has(r.parcel_id)
+                              ? "text-amber-400 hover:bg-amber-950/40"
+                              : "text-pp-faint hover:text-pp-text hover:bg-pp-surface"
+                          }`}
+                        >
+                          <Bookmark
+                            className={`h-4 w-4 ${savedIds.has(r.parcel_id) ? "fill-amber-400" : ""}`}
+                          />
+                        </button>
                       </div>
-                      <DataFreshness
-                        timestamp={r.computed_at}
-                        prefix="Underwritten"
-                        className="mt-1"
-                      />
                     </td>
 
                     <td className="px-4 py-3 text-right">
@@ -150,13 +281,13 @@ function DealsPage() {
                     </td>
                     <td className="px-4 py-3 text-[13px]">{ringLabel(r.ring)}</td>
                     <td className="px-4 py-3 text-[13px]">{r.recommended_scope}</td>
-                    <td className="num border-l border-border/50 px-4 py-3 text-right">{fmt$(Number(r.modeled_offer))}</td>
-                    <td className="num px-4 py-3 text-right text-profit-strong font-medium">
+                    <td className="num border-l border-pp-border/50 px-4 py-3 text-right">{fmt$(Number(r.modeled_offer))}</td>
+                    <td className="num px-4 py-3 text-right text-pp-live font-medium">
                       {fmt$(Number(r.gross_profit))}
                     </td>
                     <td className="num px-4 py-3 text-right text-[13px]">
                       {r.mc_profit_p50 != null ? fmt$(Number(r.mc_profit_p50)) : "—"}
-                      <div className="text-[11px] text-muted-foreground">
+                      <div className="text-[11px] text-pp-muted">
                         {r.mc_profit_p5 != null ? `worst ${fmt$(Number(r.mc_profit_p5))}` : ""}
                       </div>
                     </td>
@@ -165,10 +296,10 @@ function DealsPage() {
                       style={{
                         color:
                           pLoss > 0.35
-                            ? "var(--skeptic)"
+                            ? "#f43f5e"
                             : pLoss > 0.15
                               ? "var(--opportunity)"
-                              : "var(--profit-strong)",
+                              : "#05d680",
                       }}
                     >
                       {r.mc_p_loss != null ? `${Math.round(pLoss * 100)}%` : "—"}
@@ -177,7 +308,7 @@ function DealsPage() {
                       {Math.round(Number(r.acquisition_probability) * 100)}%
                     </td>
                     <td className="num px-4 py-3 text-right">{r.exit_days}d</td>
-                    <td className="px-4 py-3 text-[12px] text-skeptic">
+                    <td className="px-4 py-3 text-[12px] text-rose-500">
                       {flags.length ? `${flags.length} warning${flags.length > 1 ? "s" : ""}` : "—"}
                     </td>
                   </tr>
@@ -185,7 +316,7 @@ function DealsPage() {
               })}
               {!q.isLoading && (q.data ?? []).length === 0 && (
                 <tr>
-                  <td colSpan={11} className="px-4 py-12 text-center text-sm text-muted-foreground">
+                  <td colSpan={11} className="px-4 py-12 text-center text-sm text-pp-muted">
                     No scored properties yet. Run the underwriter from the admin panel to generate deals.
                   </td>
                 </tr>
@@ -194,9 +325,9 @@ function DealsPage() {
           </table>
         </div>
 
-        <section className="mt-10 border-t border-border pt-8">
-          <h2 className="text-[15px] font-semibold text-foreground">Tools</h2>
-          <p className="mt-1 text-[13px] text-muted-foreground">
+        <section className="mt-10 border-t border-pp-border pt-8">
+          <h2 className="text-[15px] font-semibold text-pp-text">Tools</h2>
+          <p className="mt-1 text-[13px] text-pp-muted">
             Add properties to the list, or test how the whole portfolio holds up in a downturn.
           </p>
           <RealieLookup onCreated={(id) => setSelected(id)} />
@@ -218,15 +349,15 @@ function HelpStrip() {
     { k: "Deal odds", v: "How likely the seller says yes at our offer." },
   ];
   return (
-    <div className="mt-4 rounded-lg border border-border bg-surface/60 p-3">
-      <div className="mb-2 text-[11px] uppercase tracking-wider text-muted-foreground">
+    <div className="mt-4 rounded-lg border border-pp-border bg-pp-page/60 p-3">
+      <div className="mb-2 text-[11px] uppercase tracking-wider text-pp-muted">
         How to read this
       </div>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
         {items.map((it) => (
           <div key={it.k} className="text-[13px]">
-            <span className="font-medium text-foreground">{it.k}: </span>
-            <span className="text-muted-foreground">{it.v}</span>
+            <span className="font-medium text-pp-text">{it.k}: </span>
+            <span className="text-pp-muted">{it.v}</span>
           </div>
         ))}
       </div>
@@ -352,13 +483,13 @@ function StressPanel({ rows }: { rows: any[] }) {
   ];
 
   return (
-    <div className="mt-6 rounded-lg border border-border bg-surface p-4">
+    <div className="mt-6 rounded-lg border border-pp-border bg-pp-page p-4">
       <div className="flex items-center justify-between">
         <div>
-          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+          <div className="text-[10px] uppercase tracking-widest text-pp-muted">
             Portfolio stress test
           </div>
-          <div className="mt-0.5 text-[13px] text-foreground">
+          <div className="mt-0.5 text-[13px] text-pp-text">
             Applied across {deals.length} deals.
           </div>
         </div>
@@ -372,11 +503,11 @@ function StressPanel({ rows }: { rows: any[] }) {
                 borderColor:
                   key === b.k
                     ? "color-mix(in oklab, var(--opportunity) 45%, transparent)"
-                    : "var(--border)",
+                    : "var(--pp-border)",
                 background:
                   key === b.k
                     ? "color-mix(in oklab, var(--opportunity) 12%, transparent)"
-                    : "var(--surface-2)",
+                    : "var(--pp-header)",
                 color: key === b.k ? "var(--opportunity)" : "var(--foreground)",
               }}
             >
@@ -404,10 +535,10 @@ function StressPanel({ rows }: { rows: any[] }) {
 
 function MiniBox({ label, v, tone }: { label: string; v: string; tone?: "skeptic" | "profit" }) {
   const color =
-    tone === "skeptic" ? "var(--skeptic)" : tone === "profit" ? "var(--profit-strong)" : undefined;
+    tone === "skeptic" ? "#f43f5e" : tone === "profit" ? "#05d680" : undefined;
   return (
-    <div className="rounded-md border border-border bg-surface-2 px-3 py-2">
-      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
+    <div className="rounded-md border border-pp-border bg-pp-header px-3 py-2">
+      <div className="text-[10px] uppercase tracking-wider text-pp-muted">{label}</div>
       <div className="num mt-0.5 text-[14px] font-semibold" style={{ color }}>
         {v}
       </div>
@@ -450,47 +581,47 @@ function RealieLookup({ onCreated }: { onCreated: (id: string) => void }) {
   return (
     <form
       onSubmit={submit}
-      className="mt-6 flex flex-wrap items-end gap-2 rounded-lg border border-border bg-surface p-4"
+      className="mt-6 flex flex-wrap items-end gap-2 rounded-lg border border-pp-border bg-pp-page p-4"
     >
       <div className="flex-1 min-w-[220px]">
-        <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+        <div className="text-[10px] uppercase tracking-widest text-pp-muted">
           Add parcel by address (Realie)
         </div>
         <input
           value={address}
           onChange={(e) => setAddress(e.target.value)}
           placeholder="123 Main St"
-          className="mt-1 w-full rounded-md border border-border bg-surface-2 px-3 py-1.5 text-[13px] outline-none focus:border-foreground"
+          className="mt-1 w-full rounded-md border border-pp-border bg-pp-header px-3 py-1.5 text-[13px] outline-none focus:border-foreground"
         />
       </div>
       <div>
-        <div className="text-[10px] uppercase tracking-widest text-muted-foreground">State</div>
+        <div className="text-[10px] uppercase tracking-widest text-pp-muted">State</div>
         <input
           value={state}
           onChange={(e) => setState(e.target.value)}
           maxLength={2}
-          className="mt-1 w-16 rounded-md border border-border bg-surface-2 px-2 py-1.5 text-[13px] uppercase outline-none focus:border-foreground"
+          className="mt-1 w-16 rounded-md border border-pp-border bg-pp-header px-2 py-1.5 text-[13px] uppercase outline-none focus:border-foreground"
         />
       </div>
       <div>
-        <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+        <div className="text-[10px] uppercase tracking-widest text-pp-muted">
           City (optional)
         </div>
         <input
           value={city}
           onChange={(e) => setCity(e.target.value)}
           placeholder="Austin"
-          className="mt-1 w-40 rounded-md border border-border bg-surface-2 px-2 py-1.5 text-[13px] outline-none focus:border-foreground"
+          className="mt-1 w-40 rounded-md border border-pp-border bg-pp-header px-2 py-1.5 text-[13px] outline-none focus:border-foreground"
         />
       </div>
       <button
         type="submit"
         disabled={busy}
-        className="rounded-md border border-border bg-surface-2 px-3 py-1.5 text-[12px] hover:bg-surface disabled:opacity-50"
+        className="rounded-md border border-pp-border bg-pp-header px-3 py-1.5 text-[12px] hover:bg-pp-page disabled:opacity-50"
       >
         {busy ? "Underwriting…" : "Lookup + underwrite"}
       </button>
-      {err && <div className="w-full text-[12px] text-skeptic">{err}</div>}
+      {err && <div className="w-full text-[12px] text-rose-500">{err}</div>}
     </form>
   );
 }

@@ -194,25 +194,153 @@
       }
       .map-topbar strong { font-size: 19px; }
       .map-topbar span { color: #05d680; font-size: 15px; letter-spacing: 0.08em; }
+
+      /* Floating Asset Class Control Panel */
+      .map-floating-controls {
+        position: absolute;
+        top: 86px;
+        left: 20px;
+        right: 20px;
+        z-index: 5;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 14px;
+        background: rgba(6, 16, 24, 0.92);
+        border: 1px solid rgba(120, 147, 165, 0.3);
+        border-radius: 8px;
+        box-shadow: 0 16px 36px rgba(0, 5, 9, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+        pointer-events: auto;
+      }
+      .controls-header {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+      }
+      .controls-indicator {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #efaa2d;
+        box-shadow: 0 0 10px rgba(239, 170, 45, 0.75);
+      }
+      .controls-label {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        color: #9ba9b4;
+        text-transform: uppercase;
+      }
+      .filter-group {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .filter-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        height: 32px;
+        padding: 0 11px;
+        border: 1px solid rgba(120, 147, 165, 0.22);
+        border-radius: 6px;
+        background: rgba(9, 23, 33, 0.6);
+        color: #9ba9b4;
+        font-family: "Geist", sans-serif;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        outline: none;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        user-select: none;
+      }
+      .filter-btn:hover {
+        border-color: rgba(120, 147, 165, 0.55);
+        background: rgba(15, 34, 48, 0.85);
+        color: #f3f6f8;
+      }
+      .filter-btn.active {
+        border-color: #efaa2d;
+        background: rgba(239, 170, 45, 0.16);
+        color: #f3f6f8;
+        font-weight: 700;
+        box-shadow: 0 0 16px rgba(239, 170, 45, 0.18);
+      }
+      .filter-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 18px;
+        height: 18px;
+        padding: 0 4px;
+        border-radius: 9999px;
+        font-size: 11px;
+        font-weight: 700;
+        background: #1b2d39;
+        color: #f3f6f8;
+        transition: all 0.2s ease;
+      }
+      .filter-btn:hover .filter-count {
+        background: #2b4557;
+        color: #ffffff;
+      }
+      .filter-btn.active .filter-count {
+        background: #ffd16f;
+        color: #061018;
+      }
+
+      /* Property Markers */
       .map-marker {
         position: absolute;
         z-index: 2;
-        display: grid;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
         width: 66px;
         height: 66px;
-        place-items: center;
         border: 2px solid #ffd16f;
         border-radius: 50%;
         background: #efaa2d;
         color: #111616;
+        cursor: pointer;
+        user-select: none;
+        box-shadow: 0 0 0 15px rgba(239,170,45,0.11), 0 0 42px rgba(239,170,45,0.26);
+        transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.26s ease, box-shadow 0.25s ease;
+      }
+      .map-marker:hover {
+        box-shadow: 0 0 0 20px rgba(239,170,45,0.2), 0 0 56px rgba(239,170,45,0.45);
+      }
+      .map-marker .marker-score {
         font-size: 18px;
         font-weight: 800;
-        box-shadow: 0 0 0 15px rgba(239,170,45,0.11), 0 0 42px rgba(239,170,45,0.26);
+        line-height: 1.05;
       }
-      .m1 { left: 105px; top: 335px; }
-      .m2 { left: 184px; top: 450px; width: 82px; height: 82px; }
-      .m3 { right: 94px; top: 405px; }
-      .m4 { right: 142px; top: 520px; width: 76px; height: 76px; }
+      .map-marker .marker-class {
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #382402;
+        line-height: 1;
+        margin-top: 2px;
+      }
+      .map-marker.is-filtered-out {
+        opacity: 0 !important;
+        transform: scale(0.25) !important;
+        visibility: hidden !important;
+      }
+      .m1 { left: 105px; top: 320px; }
+      .m2 { left: 184px; top: 435px; width: 82px; height: 82px; }
+      .m2 .marker-score { font-size: 23px; }
+      .m2 .marker-class { font-size: 11px; }
+      .m3 { right: 88px; top: 385px; }
+      .m4 { right: 136px; top: 510px; width: 76px; height: 76px; }
+      .m4 .marker-score { font-size: 21px; }
+      .m4 .marker-class { font-size: 11px; }
+      .m5 { left: 320px; top: 295px; width: 70px; height: 70px; }
+      .m5 .marker-score { font-size: 20px; }
+      .m5 .marker-class { font-size: 10.5px; }
       .scan-line {
         position: absolute;
         z-index: 1;
@@ -404,7 +532,7 @@
         <div class="scene-glow" data-layout-ignore></div>
         <div class="scene-content">
           <div class="brand s1-brand">
-            <svg viewBox="0 0 64 64" aria-hidden="true"><path fill="currentColor" d="M32 8 60 33v21l-9-8v-9L32 20 13 37v9l-9 8V33L32 8Z"/><g fill="#efaa2d"><rect x="22" y="37" width="8" height="8"/><rect x="34" y="37" width="8" height="8"/><rect x="22" y="49" width="8" height="8"/><rect x="34" y="49" width="8" height="8"/></g></svg>
+            <svg viewBox="0 0 64 64" aria-hidden="true"><defs><filter id="pp-motion-softness" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="1.15" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><path fill="currentColor" d="M32 8 60 33v21l-9-8v-9L32 20 13 37v9l-9 8V33L32 8Z"/><g fill="#efaa2d" filter="url(#pp-motion-softness)"><rect x="22" y="37" width="8" height="8"/><rect x="34" y="37" width="8" height="8"/><rect x="22" y="49" width="8" height="8"/><rect x="34" y="49" width="8" height="8"/></g></svg>
             <span class="brand-name">PERFECT PROPERTY</span>
           </div>
           <div class="top-rule s1-rule"></div>
@@ -422,10 +550,54 @@
                 <path d="M127 72 152 430M254 58l-6 344M382 95l-9 310M65 201l480 12M89 326l418-20" fill="none" stroke="#263a47" stroke-width="1.5"/>
               </svg>
               <div class="scan-line"></div>
-              <div class="map-marker m1 mono s1-marker">40</div>
-              <div class="map-marker m2 mono s1-marker">69</div>
-              <div class="map-marker m3 mono s1-marker">64</div>
-              <div class="map-marker m4 mono s1-marker">51</div>
+
+              <!-- Floating Asset Class Control Panel -->
+              <div id="map-asset-controls" class="map-floating-controls s1-control-panel" role="toolbar" aria-label="Asset Class Filter">
+                <div class="controls-header">
+                  <span class="controls-indicator" aria-hidden="true"></span>
+                  <span class="controls-label mono">ASSET CLASS</span>
+                </div>
+                <div class="filter-group" role="radiogroup" aria-label="Filter property markers by asset class">
+                  <button type="button" class="filter-btn active" data-filter="all" role="radio" aria-checked="true">
+                    <span>All</span>
+                    <span class="filter-count mono">5</span>
+                  </button>
+                  <button type="button" class="filter-btn" data-filter="multifamily" role="radio" aria-checked="false">
+                    <span>Multifamily</span>
+                    <span class="filter-count mono">2</span>
+                  </button>
+                  <button type="button" class="filter-btn" data-filter="industrial" role="radio" aria-checked="false">
+                    <span>Industrial</span>
+                    <span class="filter-count mono">2</span>
+                  </button>
+                  <button type="button" class="filter-btn" data-filter="office" role="radio" aria-checked="false">
+                    <span>Office</span>
+                    <span class="filter-count mono">1</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Property Markers with Asset Class Metadata -->
+              <div class="map-marker m1 mono s1-marker" data-asset-class="multifamily" data-score="74" title="Multifamily · Score 74">
+                <span class="marker-score">74</span>
+                <span class="marker-class">MF</span>
+              </div>
+              <div class="map-marker m2 mono s1-marker" data-asset-class="industrial" data-score="94" title="Industrial · Score 94">
+                <span class="marker-score">94</span>
+                <span class="marker-class">IND</span>
+              </div>
+              <div class="map-marker m3 mono s1-marker" data-asset-class="office" data-score="68" title="Office · Score 68">
+                <span class="marker-score">68</span>
+                <span class="marker-class">OFF</span>
+              </div>
+              <div class="map-marker m4 mono s1-marker" data-asset-class="industrial" data-score="82" title="Industrial · Score 82">
+                <span class="marker-score">82</span>
+                <span class="marker-class">IND</span>
+              </div>
+              <div class="map-marker m5 mono s1-marker" data-asset-class="multifamily" data-score="88" title="Multifamily · Score 88">
+                <span class="marker-score">88</span>
+                <span class="marker-class">MF</span>
+              </div>
             </div>
           </div>
         </div>
@@ -435,7 +607,7 @@
         <div class="scene-grid" data-layout-ignore></div>
         <div class="scene-glow" data-layout-ignore></div>
         <div class="scene-content">
-          <div class="scene-header s2-header"><div class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><path fill="currentColor" d="M32 8 60 33v21l-9-8v-9L32 20 13 37v9l-9 8V33L32 8Z"/><g fill="#efaa2d"><rect x="22" y="37" width="8" height="8"/><rect x="34" y="37" width="8" height="8"/><rect x="22" y="49" width="8" height="8"/><rect x="34" y="49" width="8" height="8"/></g></svg><span class="brand-name">PERFECT PROPERTY</span></div><span class="scene-index mono">01 / MARKET SIGNAL</span></div>
+          <div class="scene-header s2-header"><div class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><path fill="currentColor" d="M32 8 60 33v21l-9-8v-9L32 20 13 37v9l-9 8V33L32 8Z"/><g fill="#efaa2d" filter="url(#pp-motion-softness)"><rect x="22" y="37" width="8" height="8"/><rect x="34" y="37" width="8" height="8"/><rect x="22" y="49" width="8" height="8"/><rect x="34" y="49" width="8" height="8"/></g></svg><span class="brand-name">PERFECT PROPERTY</span></div><span class="scene-index mono">01 / MARKET SIGNAL</span></div>
           <div class="top-rule s2-rule"></div>
           <div class="signal-layout">
             <div class="score-block">
@@ -462,7 +634,7 @@
         <div class="scene-grid" data-layout-ignore></div>
         <div class="scene-glow" data-layout-ignore></div>
         <div class="scene-content">
-          <div class="scene-header s3-header"><div class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><path fill="currentColor" d="M32 8 60 33v21l-9-8v-9L32 20 13 37v9l-9 8V33L32 8Z"/><g fill="#efaa2d"><rect x="22" y="37" width="8" height="8"/><rect x="34" y="37" width="8" height="8"/><rect x="22" y="49" width="8" height="8"/><rect x="34" y="49" width="8" height="8"/></g></svg><span class="brand-name">PERFECT PROPERTY</span></div><span class="scene-index mono">02 / SOURCE EVIDENCE</span></div>
+          <div class="scene-header s3-header"><div class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><path fill="currentColor" d="M32 8 60 33v21l-9-8v-9L32 20 13 37v9l-9 8V33L32 8Z"/><g fill="#efaa2d" filter="url(#pp-motion-softness)"><rect x="22" y="37" width="8" height="8"/><rect x="34" y="37" width="8" height="8"/><rect x="22" y="49" width="8" height="8"/><rect x="34" y="49" width="8" height="8"/></g></svg><span class="brand-name">PERFECT PROPERTY</span></div><span class="scene-index mono">02 / SOURCE EVIDENCE</span></div>
           <div class="top-rule s3-rule"></div>
           <div class="evidence-layout">
             <div class="evidence-copy">
@@ -488,7 +660,7 @@
         <div class="scene-grid" data-layout-ignore></div>
         <div class="scene-glow" data-layout-ignore></div>
         <div class="final-content">
-          <div class="brand s4-brand"><svg viewBox="0 0 64 64" aria-hidden="true"><path fill="currentColor" d="M32 8 60 33v21l-9-8v-9L32 20 13 37v9l-9 8V33L32 8Z"/><g fill="#efaa2d"><rect x="22" y="37" width="8" height="8"/><rect x="34" y="37" width="8" height="8"/><rect x="22" y="49" width="8" height="8"/><rect x="34" y="49" width="8" height="8"/></g></svg><span class="brand-name">PERFECT PROPERTY</span></div>
+          <div class="brand s4-brand"><svg viewBox="0 0 64 64" aria-hidden="true"><path fill="currentColor" d="M32 8 60 33v21l-9-8v-9L32 20 13 37v9l-9 8V33L32 8Z"/><g fill="#efaa2d" filter="url(#pp-motion-softness)"><rect x="22" y="37" width="8" height="8"/><rect x="34" y="37" width="8" height="8"/><rect x="22" y="49" width="8" height="8"/><rect x="34" y="49" width="8" height="8"/></g></svg><span class="brand-name">PERFECT PROPERTY</span></div>
           <div class="top-rule s4-rule"></div>
           <div class="final-layout">
             <div class="final-copy">
@@ -505,7 +677,7 @@
               <div class="cta"><span>Open interactive workspace</span><span class="cta-arrow">→</span></div>
             </div>
           </div>
-          <div class="footer-note s4-footer"><span>Evaluate markets · Rank opportunities · Trace every signal</span><span class="mono">PERFECTPROPERTY.APP</span></div>
+          <div class="footer-note s4-footer"><span>Evaluate markets · Rank opportunities · Trace every signal</span><span class="mono">PERFECT PROPERTY</span></div>
         </div>
       </section>
     </div>
@@ -524,7 +696,8 @@
       tl.from(".s1-body", { x: -32, opacity: 0, duration: 0.54, ease: "circ.out" }, 0.82);
       tl.from(".s1-status", { opacity: 0, scale: 0.96, duration: 0.42, ease: "back.out(1.25)" }, 1.06);
       tl.from(".s1-panel", { x: 70, scale: 0.965, opacity: 0, duration: 0.86, ease: "expo.out" }, 0.44);
-      tl.from(".s1-marker", { scale: 0.25, opacity: 0, duration: 0.5, stagger: 0.1, ease: "back.out(1.45)" }, 1.05);
+      tl.from(".s1-control-panel", { y: -16, opacity: 0, duration: 0.4, ease: "power2.out" }, 0.55);
+      tl.from(".s1-marker", { scale: 0.25, opacity: 0, duration: 0.5, stagger: 0.08, ease: "back.out(1.45)" }, 1.05);
       tl.from(".scan-line", { scaleX: 0, transformOrigin: "left center", duration: 0.66, ease: "power3.out" }, 1.22);
       tl.to(".scan-line", { y: 390, duration: 2.1, repeat: 1, yoyo: true, ease: "sine.inOut" }, 1.65);
       tl.to(".s1-marker", { scale: 1.08, duration: 0.62, repeat: 3, yoyo: true, stagger: 0.08, ease: "sine.inOut" }, 1.72);
@@ -585,6 +758,52 @@
       tl.to(".final-content", { opacity: 0, duration: 0.55, ease: "power2.in" }, 17.35);
       tl.to("#scene-4 .scene-grid", { opacity: 0, duration: 0.45, ease: "power1.in" }, 17.45);
       tl.to("#scene-4 .scene-glow", { opacity: 0, duration: 0.45, ease: "power1.in" }, 17.45);
+
+      /* Interactive Asset Class Filter */
+      function initAssetClassFilter() {
+        const panel = document.getElementById("map-asset-controls");
+        if (!panel) return;
+        const buttons = panel.querySelectorAll(".filter-btn");
+        const markers = document.querySelectorAll("#scene-1 .map-marker");
+
+        buttons.forEach((btn) => {
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const filter = btn.getAttribute("data-filter");
+
+            buttons.forEach((b) => {
+              const isActive = b === btn;
+              b.classList.toggle("active", isActive);
+              b.setAttribute("aria-checked", isActive ? "true" : "false");
+            });
+
+            markers.forEach((marker) => {
+              const markerClass = marker.getAttribute("data-asset-class");
+              const isMatch = filter === "all" || markerClass === filter;
+              if (isMatch) {
+                marker.classList.remove("is-filtered-out");
+                gsap.to(marker, {
+                  scale: 1,
+                  opacity: 1,
+                  duration: 0.35,
+                  ease: "back.out(1.35)",
+                  overwrite: "auto",
+                });
+              } else {
+                marker.classList.add("is-filtered-out");
+                gsap.to(marker, {
+                  scale: 0.25,
+                  opacity: 0,
+                  duration: 0.22,
+                  ease: "power2.in",
+                  overwrite: "auto",
+                });
+              }
+            });
+          });
+        });
+      }
+      initAssetClassFilter();
 
       window.__timelines["main"] = tl;
     </script>

@@ -154,7 +154,7 @@ export function RecipeManager({
                     <button
                       onClick={() => runRec.mutate({ id: r.id, name: r.name })}
                       disabled={runRec.isPending}
-                      className="mr-1 inline-flex items-center gap-1 rounded bg-primary/90 px-2 py-1 text-[11px] text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+                      className="mr-1 inline-flex items-center gap-1 rounded bg-pp-gold px-2 py-1 text-[11px] text-[#01070c] transition-opacity hover:opacity-90 disabled:opacity-50"
                     >
                       <Play className="h-3 w-3" /> Run
                     </button>
@@ -278,12 +278,12 @@ function RecipeWizard({
                   <input
                     value={f.name}
                     onChange={(e) => updateField(i, { name: e.target.value })}
-                    className="w-28 rounded border border-border bg-background px-1 py-0.5 font-mono outline-none focus:border-primary"
+                    className="w-28 rounded border border-border bg-pp-page px-1 py-0.5 font-mono outline-none focus:border-primary"
                   />
                   <select
                     value={f.type}
                     onChange={(e) => updateField(i, { type: e.target.value })}
-                    className="rounded border border-border bg-background px-1 py-0.5 outline-none"
+                    className="rounded border border-border bg-pp-page px-1 py-0.5 outline-none"
                   >
                     <option value="text">text</option>
                     <option value="date">date</option>
@@ -315,13 +315,13 @@ function RecipeWizard({
           <input
             value={wizard.name}
             onChange={(e) => setWizard({ ...wizard, name: e.target.value })}
-            className="w-64 rounded-md border border-border bg-background px-2 py-1 text-[12px] outline-none focus:border-primary"
+            className="w-64 rounded-md border border-border bg-pp-page px-2 py-1 text-[12px] outline-none focus:border-primary"
             placeholder="Recipe name"
           />
           <select
             value={wizard.target}
             onChange={(e) => setWizard({ ...wizard, target: e.target.value as WizardState["target"] })}
-            className="rounded-md border border-border bg-background px-2 py-1 text-[12px] outline-none"
+            className="rounded-md border border-border bg-pp-page px-2 py-1 text-[12px] outline-none"
           >
             <option value="distress_events">distress_events</option>
             <option value="sales">sales</option>
@@ -338,7 +338,7 @@ function RecipeWizard({
               })
             }
             disabled={saveRec.isPending}
-            className="rounded-md bg-primary px-3 py-1 text-[12px] font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+            className="rounded-md bg-pp-gold px-3 py-1 text-[12px] font-medium text-[#01070c] transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             {saveRec.isPending ? "Saving…" : "Save recipe"}
           </button>
@@ -391,14 +391,14 @@ function RunReport({ report, onDismiss }: { report: RunReportState; onDismiss: (
               <div className="mt-2 overflow-hidden rounded border border-border">
                 <div className="flex h-6 w-full text-[10px]">
                   <ConfBar label={`APN+County ${mb.apn_county}`} pct={pctOf(mb.apn_county)} className="bg-emerald-500/80 text-white" title="Highest confidence: exact APN match within county" />
-                  <ConfBar label={`Addr+County ${mb.addr_county}`} pct={pctOf(mb.addr_county)} className="bg-primary/80 text-primary-foreground" title="High confidence: normalized address + county" />
+                  <ConfBar label={`Addr+County ${mb.addr_county}`} pct={pctOf(mb.addr_county)} className="bg-pp-gold text-[#01070c]" title="High confidence: normalized address + county" />
                   <ConfBar label={`Addr+City ${mb.addr_city}`} pct={pctOf(mb.addr_city)} className="bg-amber-500/80 text-white" title="Medium confidence: normalized address + city" />
                   <ConfBar label={`Unmatched ${res.unmatched}`} pct={pctOf(res.unmatched)} className="bg-skeptic/70 text-white" title="No parcel resolved" />
                 </div>
               </div>
               <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-muted-foreground">
                 <span><span aria-hidden="true" className="mr-1 inline-block h-2 w-2 rounded bg-emerald-500/80" />APN+County (highest)</span>
-                <span><span aria-hidden="true" className="mr-1 inline-block h-2 w-2 rounded bg-primary/80" />Addr+County (high)</span>
+                <span><span aria-hidden="true" className="mr-1 inline-block h-2 w-2 rounded bg-pp-gold" />Addr+County (high)</span>
                 <span><span aria-hidden="true" className="mr-1 inline-block h-2 w-2 rounded bg-amber-500/80" />Addr+City (medium)</span>
                 <span><span aria-hidden="true" className="mr-1 inline-block h-2 w-2 rounded bg-skeptic/70" />Unmatched</span>
               </div>

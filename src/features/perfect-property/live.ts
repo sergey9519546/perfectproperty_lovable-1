@@ -7,6 +7,7 @@ export type LiveRegionFilter = 'All regions' | 'California' | 'Florida'
 export type WorkspaceParcel = {
   id: string
   address: string
+  apn?: string | null
   city: string
   state: string
   zip: string | null
@@ -51,6 +52,7 @@ export function toWorkspaceParcel(row: RankedParcelRow): WorkspaceParcel | null 
   return {
     id: row.parcel_id,
     address: p.address ?? 'Unknown address',
+    apn: p.apn ?? null,
     city,
     state,
     zip: p.zip ?? null,

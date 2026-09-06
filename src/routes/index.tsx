@@ -1,15 +1,15 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { LandingPage } from "@/features/perfect-property/components/LandingPage";
+import { BRAND_CONFIG } from "@/lib/brand";
 
 export const Route = createFileRoute("/")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Perfect Property — AI-powered real estate intelligence" },
+      { title: BRAND_CONFIG.meta.defaultTitle },
       {
         name: "description",
-        content:
-          "Evaluate markets, rank opportunities, and trace every signal to its source inside one investment workspace.",
+        content: BRAND_CONFIG.meta.description,
       },
     ],
   }),
@@ -20,7 +20,15 @@ function HomePage() {
   const navigate = useNavigate();
   return (
     <LandingPage
-      onExplore={() => void navigate({ to: "/workspace" })}
+      onExplore={(query, mode) => {
+        if (mode === "Shadow") {
+          void navigate({ to: "/shadow" });
+        } else if (query) {
+          void navigate({ to: "/workspace", search: { query } });
+        } else {
+          void navigate({ to: "/workspace" });
+        }
+      }}
       onSignIn={() => void navigate({ to: "/auth", search: { next: "/workspace" } })}
     />
   );

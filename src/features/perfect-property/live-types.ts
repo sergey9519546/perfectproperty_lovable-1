@@ -45,5 +45,6 @@ export type RankedParcelRow = {
     is_vacant: boolean | null
     county_fips: string | null
     data_source: string | null
+    apn: string | null
   } | null
 }

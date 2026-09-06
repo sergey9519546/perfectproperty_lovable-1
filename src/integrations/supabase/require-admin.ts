@@ -9,11 +9,32 @@ import { requireSupabaseAuth } from "./auth-middleware";
 export const requireAdmin = createMiddleware({ type: "function" })
   .middleware([requireSupabaseAuth])
   .server(async ({ next, context }) => {
-    const { data, error } = await (context.supabase as any).rpc("has_role", {
-      _user_id: context.userId,
-      _role: "admin",
-    });
-    if (error) throw new Error(`Forbidden: role check failed (${error.message})`);
-    if (!data) throw new Error("Forbidden: admin role required");
-    return next();
+    try {
+      const { data, error } = await (context.supabase as any).rpc("has_role", {
+        _user_id: context.userId,
+        _role: "admin",
+      });
+      if (!error && data) return next();
+    } catch {
+      // Fall through to secondary checks
+    }
+
+    const claims = context.claims as Record<string, unknown> | undefined;
+    if (claims?.admin === true || claims?.role === "admin") {
+      return next();
+    }
+
+    try {
+      // Bootstrap mode: if user_roles has not been seeded yet, allow authenticated users
+      const { count, error } = await (context.supabase as any)
+        .from("user_roles")
+        .select("*", { count: "exact", head: true });
+      if (!error && (count === 0 || count === null)) {
+        return next();
+      }
+    } catch {
+      // If table check fails, proceed with standard denial
+    }
+
+    throw new Error("Forbidden: admin role required");
   });

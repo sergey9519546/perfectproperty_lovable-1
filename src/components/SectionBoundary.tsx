@@ -25,20 +25,20 @@ export class SectionBoundary extends React.Component<Props, State> {
       <div
         role="alert"
         style={{ minHeight: this.props.minHeight ?? 200 }}
-        className="flex flex-col items-center justify-center gap-2 rounded-md border border-dashed border-border bg-surface/40 p-6 text-center"
+        className="flex flex-col items-center justify-center gap-2 rounded-md border border-dashed border-pp-border bg-pp-page/40 p-6 text-center"
       >
         <div className="grid w-full max-w-xs grid-cols-6 gap-1 opacity-40">
           {Array.from({ length: 24 }).map((_, i) => (
-            <div key={i} className="h-2 rounded-sm bg-muted-foreground/30" />
+            <div key={i} className="h-2 rounded-sm bg-pp-surface-soft-foreground/30" />
           ))}
         </div>
-        <div className="mt-3 text-[13px] font-medium text-foreground">
+        <div className="mt-3 text-[13px] font-medium text-pp-text">
           {this.props.label ?? "Data unavailable"}
         </div>
-        <div className="text-[11px] text-muted-foreground">This section couldn't render. The rest of the page still works.</div>
+        <div className="text-[11px] text-pp-muted">This section couldn't render. The rest of the page still works.</div>
         <button
           onClick={this.reset}
-          className="mt-2 rounded-md border border-border bg-background px-3 py-1 text-[11px] text-muted-foreground hover:text-foreground"
+          className="mt-2 rounded-md border border-pp-border bg-pp-page px-3 py-1 text-[11px] text-pp-muted hover:text-pp-text"
         >
           Try again
         </button>

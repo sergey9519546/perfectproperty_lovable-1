@@ -1,0 +1,71 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile with authentication details and tier",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "User unique identifier matching auth UID" },
+        "email": { "type": "string", "format": "email", "description": "User email address" },
+        "displayName": { "type": "string", "description": "Display name of the user" },
+        "photoURL": { "type": "string", "description": "Profile avatar URL" },
+        "tier": { "type": "string", "enum": ["free", "pro", "enterprise"], "description": "Subscription tier" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Last updated timestamp" }
+      },
+      "required": ["id", "email", "createdAt", "updatedAt"]
+    },
+    "SavedDeal": {
+      "title": "SavedDeal",
+      "description": "A saved real estate deal or parcel watchlisted by a user",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the saved deal" },
+        "userId": { "type": "string", "description": "Owner user UID" },
+        "parcelId": { "type": "string", "description": "Identifier of the parcel" },
+        "address": { "type": "string", "description": "Physical address" },
+        "county": { "type": "string", "description": "County name" },
+        "state": { "type": "string", "description": "Two-letter state code" },
+        "arv": { "type": "number", "description": "After repair value estimate" },
+        "maxBid": { "type": "number", "description": "Maximum allowable purchase bid" },
+        "predictedSpread": { "type": "number", "description": "Predicted profit margin or spread" },
+        "underwriteStatus": { "type": "string", "description": "Deal status (watch, active, underwritten, passed)" },
+        "notes": { "type": "string", "description": "User custom underwriting notes" },
+        "starred": { "type": "boolean", "description": "Whether pinned to high priority" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Last updated timestamp" }
+      },
+      "required": ["id", "userId", "parcelId", "address", "createdAt", "updatedAt"]
+    },
+    "UserFilterPreset": {
+      "title": "UserFilterPreset",
+      "description": "Saved filter preset for deal sourcing and scanning",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique preset ID" },
+        "userId": { "type": "string", "description": "Owner user UID" },
+        "name": { "type": "string", "description": "Preset name" },
+        "county": { "type": "string", "description": "Target county" },
+        "minScore": { "type": "number", "description": "Minimum underwriting score" },
+        "maxPrice": { "type": "number", "description": "Maximum price cap" },
+        "isShadowOnly": { "type": "boolean", "description": "Filter for off-market shadow parcels only" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" }
+      },
+      "required": ["id", "userId", "name", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "User private profile and preferences"
+    },
+    "/users/{userId}/savedDeals/{dealId}": {
+      "schema": { "$ref": "#/entities/SavedDeal" },
+      "description": "User saved parcel analyses and deal watchlists"
+    },
+    "/users/{userId}/filterPresets/{presetId}": {
+      "schema": { "$ref": "#/entities/UserFilterPreset" },
+      "description": "User saved search and underwriting filter presets"
+    }
+  }
+}

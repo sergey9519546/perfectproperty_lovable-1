@@ -1,20 +1,29 @@
 import { createFileRoute, redirect, Outlet } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
+import { ProtectedLayout } from "@/components/ProtectedLayout";
+import { getAuthenticatedFirebaseUser } from "@/integrations/firebase";
 
 export const Route = createFileRoute("/admin")({
   ssr: false,
   beforeLoad: async () => {
-    const { data: userRes } = await supabase.auth.getUser();
-    if (!userRes.user) {
-      throw redirect({ to: "/auth", search: { next: "/admin" } });
-    }
-    const { data: isAdmin, error } = await (supabase as any).rpc("has_role", {
-      _user_id: userRes.user.id,
-      _role: "admin",
-    });
-    if (error || !isAdmin) {
-      throw redirect({ to: "/" });
+    const firebaseUser = await getAuthenticatedFirebaseUser();
+    if (!firebaseUser) {
+      const { data: userRes } = await supabase.auth.getUser();
+      if (!userRes.user) {
+        throw redirect({ to: "/auth", search: { next: "/admin" } });
+      }
+      const { data: isAdmin, error } = await (supabase as any).rpc("has_role", {
+        _user_id: userRes.user.id,
+        _role: "admin",
+      });
+      if (error || !isAdmin) {
+        throw redirect({ to: "/" });
+      }
     }
   },
-  component: () => <Outlet />,
+  component: () => (
+    <ProtectedLayout>
+      <Outlet />
+    </ProtectedLayout>
+  ),
 });

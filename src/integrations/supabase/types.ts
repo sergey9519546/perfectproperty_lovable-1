@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.17"
+    PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
@@ -355,42 +355,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      distress_sources: {
-        Row: {
-          category: string
-          created_at: string
-          enabled: boolean
-          key: string
-          label: string
-          notes: string | null
-          spider: string | null
-          tier: string
-          url: string
-        }
-        Insert: {
-          category: string
-          created_at?: string
-          enabled?: boolean
-          key: string
-          label: string
-          notes?: string | null
-          spider?: string | null
-          tier?: string
-          url: string
-        }
-        Update: {
-          category?: string
-          created_at?: string
-          enabled?: boolean
-          key?: string
-          label?: string
-          notes?: string | null
-          spider?: string | null
-          tier?: string
-          url?: string
-        }
-        Relationships: []
       }
       enrichment_queue: {
         Row: {
