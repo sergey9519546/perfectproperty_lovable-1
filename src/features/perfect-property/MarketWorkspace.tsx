@@ -84,7 +84,7 @@ export function MarketWorkspace({ initialQuery, initialParcelId }: MarketWorkspa
   const [dossierId, setDossierId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [pendingAction, setPendingAction] = useState<WorkflowActionType | null>(null);
-  const [organizationName, setOrganizationName] = useState(BRAND_CONFIG.name);
+  const [organizationName, setOrganizationName] = useState<string>(BRAND_CONFIG.name);
   const [userInitials, setUserInitials] = useState("PP");
   const toastTimerRef = useRef<number | null>(null);
   const pendingActionRef = useRef(false);

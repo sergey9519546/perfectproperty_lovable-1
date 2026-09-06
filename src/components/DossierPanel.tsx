@@ -61,11 +61,11 @@ export function DossierPanel({ parcelId, onClose }: Props) {
         await saveDealToFirestore(user.uid, {
           id: parcelId,
           parcelId,
-          address: p.address,
+          address: p.address ?? "",
           county: p.county_fips || undefined,
           state: p.state || undefined,
           arv: s?.full_reno_arv ? Number(s.full_reno_arv) : undefined,
-          maxBid: s?.max_allowable_offer ? Number(s.max_allowable_offer) : undefined,
+          maxBid: s?.modeled_offer ? Number(s.modeled_offer) : undefined,
           predictedSpread: s?.gross_profit ? Number(s.gross_profit) : undefined,
           underwriteStatus: "underwritten",
           starred: true,
@@ -200,7 +200,7 @@ export function DossierPanel({ parcelId, onClose }: Props) {
               lng={q.data.parcel.lng ?? undefined}
               apn={q.data.parcel.apn || undefined}
               arv={q.data.score ? Number(q.data.score.full_reno_arv) : undefined}
-              maxBid={q.data.score ? Number(q.data.score.max_allowable_offer) : undefined}
+              maxBid={q.data.score ? Number(q.data.score.modeled_offer) : undefined}
             />
           )}
           <ValueLadder d={q.data} />
@@ -268,7 +268,7 @@ function Header({
       </div>
       {p.lat != null && p.lng != null && (
         <div className="mt-3">
-          <ParcelMiniMap lat={p.lat} lng={p.lng} address={p.address} />
+          <ParcelMiniMap lat={p.lat} lng={p.lng} address={p.address ?? undefined} />
         </div>
       )}
     </div>

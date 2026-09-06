@@ -107,7 +107,6 @@ export const Features = () => {
             badge="GIS Engine"
             title="Cadastral Polygon & Parcel Attributes"
             description="Sub-meter boundary coordinates, county GIS layers, deed book & page, and dimensional setback calculations automatically extracted for every US property."
-            className="p-6"
           />
 
           {/* Card 2: Monte Carlo ARV Skepticism (col-span-1) */}
@@ -162,7 +161,6 @@ export const Features = () => {
             badge="Risk Engine"
             title="Monte Carlo ARV Skepticism"
             description="Simulates 10,000 downside volatility scenarios to calculate deterministic offer ceilings and risk-adjusted margins before you commit capital."
-            className="p-6"
           />
 
           {/* Card 3: Pre-Foreclosure Shadow Distress (col-span-1) */}
@@ -210,7 +208,6 @@ export const Features = () => {
             badge="AI Workforce & Ledger"
             title="Sheriff & Government Sales Intelligence"
             description="Turns public legal prose, open GIS cadastre, and USDA NAIP imagery into deal intelligence. Verified August 2026 statutes with weekly self-calibrating Outcomes Ledger on a $240/mo open-source stack."
-            className="p-6"
           />
 
           {/* Card 4: Institutional Deal Memo Synthesis (col-span-2) */}
@@ -260,7 +257,6 @@ export const Features = () => {
             badge="IC Ready"
             title="Instant Institutional Deal Memos"
             description="Eliminate multi-day analyst turnaround. Generate board-grade investment memos with verified comps, sensitivity matrices, and modeled offer caps in seconds."
-            className="p-6"
           />
 
           {/* Card 5: Continuous Accuracy & Backtesting Pipeline (col-span-3) */}
@@ -305,7 +301,6 @@ export const Features = () => {
             badge="Empirical Proof"
             title="Continuous Accuracy & Deed Reconciliation"
             description="Every predicted ARV is audited against recorded county deed transfers upon close. Machine learning models continuously self-calibrate to protect capital from market drift."
-            className="p-6"
           />
         </BentoGrid>
       </div>
