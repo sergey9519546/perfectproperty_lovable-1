@@ -36,87 +36,152 @@ function AccuracyPage() {
   const q = useQuery({ queryKey: ["coverage"], queryFn: () => fn() });
   const c = q.data;
   return (
-    <div className="mx-auto max-w-[1400px] px-6 py-8">
-      <PageHeader title="Prediction accuracy" sub="How our forecasts compared to what actually happened. Checked automatically every night and published as-is." />
+    <div id="accuracy-page-container" className="mx-auto max-w-[1400px] px-6 py-8 space-y-6">
+      <PageHeader
+        title="Prediction accuracy"
+        badge="Backtested"
+        sub="How our forecasts compared to what actually happened. Checked automatically every night and published as-is."
+      />
+
+      {q.isError && (
+        <div id="accuracy-error-banner" className="rounded-xl border border-rose-200 bg-rose-50 p-6 text-center text-sm text-rose-700">
+          Unable to load prediction accuracy metrics: {q.error instanceof Error ? q.error.message : "Query failed"}
+          <button
+            id="accuracy-retry-btn"
+            type="button"
+            onClick={() => q.refetch()}
+            className="ml-3 font-semibold text-rose-800 underline hover:text-rose-900 cursor-pointer"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
       {q.isLoading && (
         <>
-          <div className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-4">
-            {Array.from({length:4}).map((_,i)=>(
-              <div key={i} className="rounded-lg border border-pp-border bg-pp-page p-4">
-
-                <div className="skeleton h-3 w-1/2 rounded-sm" />
-                <div className="skeleton mt-2 h-7 w-2/3 rounded-sm" />
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="rounded-xl border border-[#E2E8F0] bg-white p-5 space-y-2 shadow-sm">
+                <div className="skeleton h-3 w-1/2 rounded bg-[#F1F5F9]" />
+                <div className="skeleton h-7 w-2/3 rounded bg-[#F1F5F9]" />
               </div>
             ))}
           </div>
-          <div className="mt-8 overflow-hidden rounded-lg border border-pp-border bg-pp-page">
-            <table className="w-full text-[13px]">
-              <thead className="bg-pp-header text-[10px] uppercase tracking-widest text-pp-muted">
-                <tr>{["","","","","","",""].map((_,j)=><th key={j} className="px-4 py-2" />)}</tr>
+          <div className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white shadow-sm">
+            <table className="w-full text-xs">
+              <thead className="bg-[#F8FAFC] border-b border-[#E2E8F0] text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
+                <tr>
+                  {["", "", "", "", "", "", ""].map((_, j) => (
+                    <th key={j} className="px-4 py-3" />
+                  ))}
+                </tr>
               </thead>
-              <tbody><TableSkeleton rows={6} columns={7} /></tbody>
+              <tbody>
+                <TableSkeleton rows={6} columns={7} />
+              </tbody>
             </table>
           </div>
         </>
       )}
+
       {c && (
         <>
-          <div className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-4">
-            <BigStat label="Outcomes recorded" v={c.accuracy.total.toString()} />
-            <BigStat label="Win rate" v={`${Math.round(c.accuracy.win_rate * 100)}%`} color="#05d680" />
-            <BigStat label="Losses" v={c.accuracy.losses.toString()} color="#f43f5e" />
-            <BigStat label="Average value error" v={`${c.accuracy.mean_abs_error_pct.toFixed(1)}%`} />
+          <div id="accuracy-stats-bar" className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            <BigStat id="accuracy-stat-total" label="Outcomes recorded" v={c.accuracy.total.toString()} />
+            <BigStat
+              id="accuracy-stat-winrate"
+              label="Win rate"
+              v={`${Math.round(c.accuracy.win_rate * 100)}%`}
+              colorClass="text-emerald-600"
+            />
+            <BigStat
+              id="accuracy-stat-losses"
+              label="Losses"
+              v={c.accuracy.losses.toString()}
+              colorClass="text-rose-600"
+            />
+            <BigStat
+              id="accuracy-stat-error"
+              label="Average value error"
+              v={`${c.accuracy.mean_abs_error_pct.toFixed(1)}%`}
+              colorClass="text-[#2F5FFF]"
+            />
           </div>
 
-          <div className="mt-8 overflow-hidden rounded-lg border border-pp-border bg-pp-page">
-            <div className="border-b border-pp-border px-4 py-3 text-[11px] uppercase tracking-widest text-pp-muted">Recent outcomes</div>
-            <table className="w-full text-[13px]">
-              <thead className="bg-pp-header text-[10px] uppercase tracking-widest text-pp-muted">
-                <tr>
-                  <th className="px-4 py-2 text-left">Sold</th>
-                  <th className="px-4 py-2 text-left">Outcome</th>
-                  <th className="px-4 py-2 text-right">Predicted ARV</th>
-                  <th className="px-4 py-2 text-right">Actual sale</th>
-                  <th className="px-4 py-2 text-right">Predicted profit</th>
-                  <th className="px-4 py-2 text-right">Actual profit</th>
-                  <th className="px-4 py-2 text-right">Error</th>
-                </tr>
-              </thead>
-              <tbody>
-                {c.outcomes.slice(0, 50).map((o: any, i: number) => (
-                  <tr key={i} className="border-t border-pp-border">
-                    <td className="num px-4 py-2 text-pp-muted">{o.actual_sold_at ?? "—"}</td>
-                    <td className="px-4 py-2">
-                      <span className="rounded-full px-2 py-0.5 text-[11px]" style={{
-                        color: o.outcome === "WIN" ? "#05d680" : o.outcome === "LOSS" ? "#f43f5e" : "var(--pp-muted)",
-                        backgroundColor: "color-mix(in oklab, " + (o.outcome === "WIN" ? "#05d680" : o.outcome === "LOSS" ? "#f43f5e" : "var(--pp-muted)") + " 15%, transparent)",
-                      }}>{o.outcome}</span>
-                    </td>
-                    <td className="num px-4 py-2 text-right">{fmt$(Number(o.predicted_arv))}</td>
-                    <td className="num px-4 py-2 text-right">{fmt$(Number(o.actual_sale_price))}</td>
-                    <td className="num px-4 py-2 text-right">{fmt$(Number(o.predicted_profit))}</td>
-                    <td className="num px-4 py-2 text-right" style={{ color: Number(o.actual_profit) > 0 ? "#05d680" : "#f43f5e" }}>{fmt$(Number(o.actual_profit))}</td>
-                    <td className="num px-4 py-2 text-right text-pp-muted">{Number(o.error_pct).toFixed(1)}%</td>
+          <div id="accuracy-table-wrapper" className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white shadow-sm">
+            <div className="border-b border-[#E2E8F0] bg-[#F8FAFC] px-5 py-3.5 text-xs font-bold uppercase tracking-wider text-[#0F172A] flex items-center justify-between">
+              <span>Historical Underwriting Outcomes</span>
+              <span className="text-[12px] text-[#64748B] font-normal">Last {Math.min(50, c.outcomes.length)} settled records</span>
+            </div>
+            <div className="overflow-x-auto">
+              <table id="accuracy-outcomes-table" className="w-full text-xs">
+                <thead className="bg-[#F8FAFC] border-b border-[#E2E8F0] text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
+                  <tr>
+                    <th className="px-4 py-3 text-left">Sold Date</th>
+                    <th className="px-4 py-3 text-left">Outcome</th>
+                    <th className="px-4 py-3 text-right">Predicted ARV</th>
+                    <th className="px-4 py-3 text-right">Actual Sale</th>
+                    <th className="px-4 py-3 text-right">Predicted Profit</th>
+                    <th className="px-4 py-3 text-right">Actual Profit</th>
+                    <th className="px-4 py-3 text-right">Error %</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-[#E2E8F0]">
+                  {c.outcomes.slice(0, 50).map((o: any, i: number) => {
+                    const isWin = o.outcome === "WIN";
+                    const isLoss = o.outcome === "LOSS";
+                    return (
+                      <tr key={i} id={`accuracy-row-${i}`} className="hover:bg-[#F8FAFC] transition-colors">
+                        <td className="px-4 py-3 text-[#64748B] font-mono">{o.actual_sold_at ?? "—"}</td>
+                        <td className="px-4 py-3">
+                          <span
+                            className={`px-2 py-0.5 rounded-md text-[10px] uppercase font-bold tracking-wider ${
+                              isWin
+                                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                : isLoss
+                                  ? "bg-rose-50 text-rose-700 border border-rose-200"
+                                  : "bg-[#F1F5F9] text-[#64748B] border border-[#E2E8F0]"
+                            }`}
+                          >
+                            {o.outcome}
+                          </span>
+                        </td>
+                        <td className="num px-4 py-3 text-right text-[#0F172A]">{fmt$(Number(o.predicted_arv))}</td>
+                        <td className="num px-4 py-3 text-right text-[#0F172A] font-bold">{fmt$(Number(o.actual_sale_price))}</td>
+                        <td className="num px-4 py-3 text-right text-[#64748B]">{fmt$(Number(o.predicted_profit))}</td>
+                        <td
+                          className={`num px-4 py-3 text-right font-bold ${
+                            Number(o.actual_profit) > 0 ? "text-emerald-600" : "text-rose-600"
+                          }`}
+                        >
+                          {fmt$(Number(o.actual_profit))}
+                        </td>
+                        <td className="num px-4 py-3 text-right text-[#64748B]">{Number(o.error_pct).toFixed(1)}%</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
 
-          <p className="mt-6 max-w-3xl text-sm text-pp-muted">
-            This dataset compounds. Year one it's a model. Year five it's the reference dataset for an industry — every predicted-vs-actual on every value-add residential transaction we cover, wins and losses alike.
-          </p>
+          <div id="accuracy-methodology-note" className="rounded-xl border border-[#E2E8F0] bg-white p-5 shadow-sm">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-[#2F5FFF]">Dataset Methodology</h4>
+            <p className="mt-2 text-xs leading-relaxed text-[#64748B]">
+              This dataset compounds over time. Year one it represents an algorithmic prediction model. Year five it becomes the reference dataset for the entire market — every predicted-vs-actual on every residential investment transaction tracked, wins and losses published identically.
+            </p>
+          </div>
         </>
       )}
     </div>
   );
 }
 
-function BigStat({ label, v, color }: { label: string; v: string; color?: string }) {
+function BigStat({ id, label, v, colorClass }: { id?: string; label: string; v: string; colorClass?: string }) {
   return (
-    <div className="rounded-lg border border-pp-border bg-pp-page p-5">
-      <div className="text-[10px] uppercase tracking-widest text-pp-muted">{label}</div>
-      <div className="num mt-1 text-3xl font-semibold" style={{ color }}>{v}</div>
+    <div id={id} className="rounded-xl border border-[#E2E8F0] bg-white p-5 shadow-sm">
+      <div className="text-[11px] uppercase font-bold tracking-wider text-[#64748B]">{label}</div>
+      <div className={`mt-1.5 text-2xl font-bold ${colorClass || "text-[#0F172A]"}`}>{v}</div>
     </div>
   );
 }

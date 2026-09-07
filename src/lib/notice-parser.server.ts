@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { GoogleGenAI } from "@google/genai";
 
 /**
  * Server-side legal sale-notice parser.
@@ -100,50 +101,71 @@ export async function parseLegalNotice(rawNotice: string): Promise<ParseNoticeRe
     return { ok: false, error: "That notice is too long. Paste the sale notice section only." };
   }
 
-  const apiKey = process.env["LOVABLE_API_KEY"];
-  if (!apiKey) {
-    return { ok: false, error: "The AI service is not configured on the server." };
+  const lovableKey = process.env["LOVABLE_API_KEY"];
+  const geminiKey = process.env["GEMINI_API_KEY"];
+
+  if (!lovableKey && !geminiKey) {
+    return { ok: false, error: "The AI service is not configured on the server. GEMINI_API_KEY or LOVABLE_API_KEY required." };
   }
 
-  let res: Response;
-  try {
-    res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          { role: "user", content: text },
-        ],
-        response_format: {
-          type: "json_schema",
-          json_schema: { name: "parsed_notice", strict: true, schema: RESPONSE_SCHEMA },
+  let content: string | undefined;
+
+  if (lovableKey) {
+    let res: Response;
+    try {
+      res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${lovableKey}`,
+          "Content-Type": "application/json",
         },
-      }),
-    });
-  } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : "Could not reach the AI service." };
-  }
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash",
+          messages: [
+            { role: "system", content: SYSTEM_PROMPT },
+            { role: "user", content: text },
+          ],
+          response_format: {
+            type: "json_schema",
+            json_schema: { name: "parsed_notice", strict: true, schema: RESPONSE_SCHEMA },
+          },
+        }),
+      });
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : "Could not reach the AI service." };
+    }
 
-  if (res.status === 429) {
-    return { ok: false, error: "Too many requests right now — try again in a minute." };
-  }
-  if (res.status === 402) {
-    return { ok: false, error: "AI credits are exhausted for this workspace." };
-  }
-  if (!res.ok) {
-    const detail = await res.text().catch(() => "");
-    return { ok: false, error: `AI service error ${res.status}: ${detail.slice(0, 200)}` };
-  }
+    if (res.status === 429) {
+      return { ok: false, error: "Too many requests right now — try again in a minute." };
+    }
+    if (res.status === 402) {
+      return { ok: false, error: "AI credits are exhausted for this workspace." };
+    }
+    if (!res.ok) {
+      const detail = await res.text().catch(() => "");
+      return { ok: false, error: `AI service error ${res.status}: ${detail.slice(0, 200)}` };
+    }
 
-  const payload = (await res.json().catch(() => null)) as
-    | { choices?: Array<{ message?: { content?: string } }> }
-    | null;
-  const content = payload?.choices?.[0]?.message?.content;
+    const payload = (await res.json().catch(() => null)) as
+      | { choices?: Array<{ message?: { content?: string } }> }
+      | null;
+    content = payload?.choices?.[0]?.message?.content;
+  } else if (geminiKey) {
+    try {
+      const ai = new GoogleGenAI({ apiKey: geminiKey });
+      const response = await ai.models.generateContent({
+        model: "gemini-3.8-flash",
+        contents: text,
+        config: {
+          systemInstruction: SYSTEM_PROMPT,
+          responseMimeType: "application/json",
+        },
+      });
+      content = response.text;
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : "Could not reach Gemini service." };
+    }
+  }
   if (!content) {
     return { ok: false, error: "The AI service returned an empty response." };
   }

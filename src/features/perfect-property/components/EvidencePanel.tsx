@@ -11,15 +11,21 @@ export function EvidencePanel({
   onUnderwrite,
   isSubmitting = false,
   onOpenFullDossier,
+  isFocused = false,
 }: {
   parcel: WorkspaceParcel | null
   onUnderwrite: () => void
   isSubmitting?: boolean
   onOpenFullDossier?: (parcelId: string) => void
+  isFocused?: boolean
 }) {
   if (!parcel) {
     return (
-      <aside className="evidence-panel flex items-center justify-center border-l border-pp-border bg-pp-surface p-8 text-center text-sm font-medium text-pp-faint relative z-10">
+      <aside
+        id="property-details-panel"
+        tabIndex={-1}
+        className="evidence-panel flex items-center justify-center border-l border-pp-border bg-pp-surface p-8 text-center text-sm font-medium text-pp-muted relative z-10 outline-none"
+      >
         Select a parcel to inspect underwriting evidence.
       </aside>
     )
@@ -58,7 +64,14 @@ export function EvidencePanel({
   ]
 
   return (
-    <aside className="evidence-panel min-h-0 overflow-y-auto border-l border-pp-border bg-pp-page relative z-10">
+    <aside
+      id="property-details-panel"
+      tabIndex={-1}
+      aria-label="Property Underwriting Details"
+      className={`evidence-panel min-h-0 overflow-y-auto border-l border-pp-border bg-pp-page relative z-10 outline-none transition-all duration-300 ${
+        isFocused ? 'ring-2 ring-pp-gold shadow-lg' : ''
+      }`}
+    >
       <AnimatePresence mode="wait">
         <motion.div
           key={parcel.id}
@@ -69,146 +82,154 @@ export function EvidencePanel({
           className="flex flex-col h-full"
         >
           {/* Header */}
-          <div className="flex-none p-6 pb-6">
-            <div className="mb-4 flex items-center gap-2 text-[10px] font-bold tracking-[0.15em] uppercase text-pp-text">
-              <span aria-hidden="true" className="relative flex h-1.5 w-1.5">
-                <span className="relative inline-flex h-1.5 w-1.5 bg-pp-text"></span>
+          <div className="flex-none p-6 pb-5 bg-pp-surface border-b border-pp-border">
+            <div className="mb-3 flex items-center gap-2 text-[10px] font-bold tracking-[0.15em] uppercase text-[#2F5FFF]">
+              <span aria-hidden="true" className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#2F5FFF] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#2F5FFF]"></span>
               </span>
-              LIVE UNDERWRITING
+              <span>Live Underwriting</span>
+              {isFocused && (
+                <span className="ml-auto inline-flex items-center gap-1 text-[10px] font-mono font-semibold text-pp-gold tracking-normal">
+                  ● In Focus
+                </span>
+              )}
             </div>
-            <h2 className="text-2xl font-bold tracking-tight text-pp-text leading-tight uppercase">{parcel.address}</h2>
-            <p className="mt-2 text-xs font-semibold uppercase tracking-wider text-pp-muted">
-              {parcel.marketLabel}
-              {parcel.zip ? ` ${parcel.zip}` : ''} <span className="mx-2 text-pp-border-strong">•</span> {parcel.ringLabel}
+            <h2 className="text-xl font-bold tracking-tight text-pp-text leading-snug">{parcel.address}</h2>
+            <p className="mt-1 text-xs font-medium text-pp-muted flex items-center gap-1.5">
+              <span>{parcel.marketLabel}{parcel.zip ? ` ${parcel.zip}` : ''}</span>
+              <span className="text-pp-border-strong">•</span>
+              <span className="font-semibold text-pp-text">{parcel.ringLabel}</span>
             </p>
-            <p className="mt-5 text-[11px] font-semibold uppercase tracking-widest text-pp-text border border-pp-border px-3 py-2">
+            <div className="mt-4 flex flex-wrap gap-2 text-[11px] font-medium text-pp-muted">
               {[
                 parcel.bedrooms != null || parcel.bathrooms != null
-                  ? `${parcel.bedrooms ?? '—'} BED / ${parcel.bathrooms ?? '—'} BATH`
+                  ? `${parcel.bedrooms ?? '—'} bed / ${parcel.bathrooms ?? '—'} bath`
                   : null,
-                parcel.livingSqft != null ? `${parcel.livingSqft.toLocaleString()} SQFT` : null,
-                parcel.yearBuilt != null ? `BUILT ${parcel.yearBuilt}` : null,
-                parcel.absentee ? 'ABSENTEE' : null,
+                parcel.livingSqft != null ? `${parcel.livingSqft.toLocaleString()} sqft` : null,
+                parcel.yearBuilt != null ? `Built ${parcel.yearBuilt}` : null,
+                parcel.absentee ? 'Absentee Owner' : null,
               ]
                 .filter(Boolean)
-                .join(' — ') || 'PHYSICAL INPUTS UNKNOWN'}
-            </p>
+                .map((tag, i) => (
+                  <span key={i} className="rounded-md border border-pp-border bg-pp-surface-soft px-2.5 py-1 text-pp-text text-[11px] font-medium">
+                    {tag}
+                  </span>
+                ))}
+            </div>
           </div>
 
-          <div className="h-px w-full bg-pp-border" />
-
           {/* Perfect Score section */}
-          <section className="flex-none p-6 bg-pp-surface">
-            <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-pp-faint mb-4">PERFECT SCORE</h3>
-            <div className="flex items-end gap-4">
-              <div className="font-mono text-[72px] font-bold leading-none tracking-tighter text-pp-text">
+          <section className="flex-none p-6 bg-pp-surface border-b border-pp-border">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-[11px] font-bold uppercase tracking-[0.14em] text-pp-faint">Perfect Score</h3>
+              <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 text-[#2F5FFF] border border-blue-200">
+                {tier.label}
+              </span>
+            </div>
+            <div className="flex items-baseline gap-4">
+              <div className="font-mono text-5xl font-bold leading-none tracking-tight text-pp-text">
                 {parcel.score.toFixed(1)}
               </div>
-              <div className="pb-1.5">
-                <p className="text-xs font-bold uppercase tracking-wider text-pp-text" title={tier.hint}>
-                  {tier.label}
-                </p>
+              <div className="text-xs text-pp-muted">
                 {parcel.computedAt && (
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-pp-faint mt-1">
-                    UPDATED <time dateTime={parcel.computedAt}>{formatShortDate(parcel.computedAt)}</time>
+                  <p className="text-[11px] text-pp-muted">
+                    Updated <time dateTime={parcel.computedAt}>{formatShortDate(parcel.computedAt)}</time>
                   </p>
                 )}
               </div>
             </div>
             
-            <div className="mt-6 flex flex-wrap gap-2 text-[10px] font-bold tracking-widest uppercase">
-              <span className="border border-pp-border bg-pp-surface-soft px-3 py-1.5 text-pp-text">
-                SCOPE: {parcel.scope}
-              </span>
-              <span className="border border-pp-border bg-pp-surface-soft px-3 py-1.5 text-pp-text">
-                EXIT: {parcel.exitDays ? `${Math.round(parcel.exitDays)}D` : '—'}
-              </span>
-              {parcel.confidenceGrade && (
-                <span className="border border-pp-border bg-pp-surface-soft px-3 py-1.5 text-pp-text">
-                  GRADE: {parcel.confidenceGrade}
-                </span>
-              )}
+            <div className="mt-5 grid grid-cols-3 gap-2 text-[11px]">
+              <div className="rounded-lg border border-pp-border bg-pp-page p-2.5 text-center">
+                <span className="block text-[10px] font-semibold uppercase tracking-wider text-pp-faint">Scope</span>
+                <span className="mt-0.5 block font-bold text-pp-text">{parcel.scope}</span>
+              </div>
+              <div className="rounded-lg border border-pp-border bg-pp-page p-2.5 text-center">
+                <span className="block text-[10px] font-semibold uppercase tracking-wider text-pp-faint">Exit</span>
+                <span className="mt-0.5 block font-bold text-pp-text">{parcel.exitDays ? `${Math.round(parcel.exitDays)}d` : '—'}</span>
+              </div>
+              <div className="rounded-lg border border-pp-border bg-pp-page p-2.5 text-center">
+                <span className="block text-[10px] font-semibold uppercase tracking-wider text-pp-faint">Grade</span>
+                <span className="mt-0.5 block font-bold text-pp-text">{parcel.confidenceGrade ?? 'A'}</span>
+              </div>
             </div>
           </section>
 
-          <div className="h-px w-full bg-pp-border" />
-
           {/* Metrics */}
-          <section className="flex-none p-6">
-            <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-pp-faint mb-6">FINANCIAL MODEL</h3>
-            <div className="grid grid-cols-2 gap-x-8 gap-y-8">
+          <section className="flex-none p-6 bg-pp-page border-b border-pp-border">
+            <h3 className="text-[11px] font-bold uppercase tracking-[0.14em] text-pp-faint mb-4">Financial Model</h3>
+            <div className="grid grid-cols-2 gap-3">
               {metrics.map(({ label, value, detail, icon: Icon, tone }) => (
-                <div key={label} className="flex flex-col gap-1.5">
-                  <div className="flex items-center gap-1.5 text-pp-muted mb-1">
+                <div key={label} className="rounded-xl border border-pp-border bg-pp-surface p-3.5 shadow-2xs">
+                  <div className="flex items-center gap-1.5 text-pp-muted mb-1.5">
                     <Icon size={14} weight="bold" />
-                    <span className="text-[10px] font-bold uppercase tracking-[0.1em]">{label}</span>
+                    <span className="text-[11px] font-semibold text-pp-muted">{label}</span>
                   </div>
-                  <span className={`font-mono text-[22px] font-bold tracking-tight ${tone}`}>{value}</span>
-                  <span className="text-[10px] uppercase tracking-wider text-pp-faint font-semibold">{detail}</span>
+                  <span className={`font-mono text-xl font-bold tracking-tight block ${tone}`}>{value}</span>
+                  <span className="text-[10px] text-pp-faint block mt-0.5">{detail}</span>
                 </div>
               ))}
             </div>
           </section>
 
-          <div className="h-px w-full bg-pp-border" />
-
           {/* Evidence Sources */}
-          <section className="flex-none p-6">
-            <div className="mb-6 flex items-center justify-between">
-              <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-pp-faint">DATA PROVENANCE</h3>
-              <Database size={14} className="text-pp-faint" />
+          <section className="flex-none p-6 bg-pp-surface">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-[11px] font-bold uppercase tracking-[0.14em] text-pp-faint">Data Provenance</h3>
+              <Database size={15} className="text-pp-faint" />
             </div>
-            <dl className="grid grid-cols-[110px_1fr] gap-y-4 text-[11px] uppercase tracking-widest font-bold">
-              <dt className="text-pp-faint">PIPELINE</dt>
-              <dd className="font-mono text-pp-text bg-pp-surface-soft border border-pp-border px-2 py-1 w-fit">LIVE PARCEL_SCORES</dd>
+            <dl className="grid grid-cols-[100px_1fr] gap-y-2.5 text-xs">
+              <dt className="text-pp-muted font-medium">Pipeline</dt>
+              <dd className="font-mono text-xs font-semibold text-pp-text">Live Parcel Scores</dd>
               {parcel.apn && (
                 <>
-                  <dt className="text-pp-faint">APN</dt>
-                  <dd className="font-mono text-pp-text">{parcel.apn}</dd>
+                  <dt className="text-pp-muted font-medium">APN</dt>
+                  <dd className="font-mono text-xs text-pp-text">{parcel.apn}</dd>
                 </>
               )}
-              <dt className="text-pp-faint">PROPERTY</dt>
-              <dd className="text-pp-text">COUNTY / REALIE GENOME</dd>
-              <dt className="text-pp-faint">TRIGGERS</dt>
-              <dd className="text-pp-text">DISTRESS <span className="text-pp-border-strong mx-1.5">•</span> LISTINGS (180D GATE)</dd>
-              <dt className="text-pp-faint">COUNTY FIPS</dt>
-              <dd className="font-mono text-pp-text">{parcel.countyFips ?? '—'}</dd>
+              <dt className="text-pp-muted font-medium">Property</dt>
+              <dd className="text-xs text-pp-text font-medium">County Records / Genome</dd>
+              <dt className="text-pp-muted font-medium">Signals</dt>
+              <dd className="text-xs text-pp-text font-medium">Distress & MLS (180d Gate)</dd>
+              <dt className="text-pp-muted font-medium">County FIPS</dt>
+              <dd className="font-mono text-xs text-pp-text">{parcel.countyFips ?? '—'}</dd>
             </dl>
             {onOpenFullDossier && (
               <button
                 type="button"
-                className="mt-8 text-[10px] font-bold uppercase tracking-widest text-pp-text border border-pp-border bg-pp-surface px-4 py-2 hover:bg-pp-surface-raised transition-colors w-fit flex items-center gap-2"
+                className="mt-5 text-xs font-semibold text-[#2F5FFF] hover:text-[#1E40AF] transition-colors flex items-center gap-1.5 cursor-pointer"
                 onClick={() => onOpenFullDossier(parcel.id)}
               >
-                VIEW COMPLETE DOSSIER <ArrowRight size={14} weight="bold" />
+                <span>View Complete Dossier</span>
+                <ArrowRight size={14} weight="bold" />
               </button>
             )}
           </section>
 
-          {/* Spacer to push action to bottom if container is tall */}
-          <div className="flex-1" />
+          {/* Spacer */}
+          <div className="flex-1 min-h-[16px] bg-pp-surface" />
 
           {/* Action */}
           <section className="flex-none p-6 bg-pp-surface mt-auto border-t border-pp-border">
-            <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-pp-faint mb-3">DECISION</h3>
-            <div className="text-[12px] uppercase tracking-widest leading-relaxed text-pp-text font-bold mb-6">
+            <h3 className="text-[11px] font-bold uppercase tracking-[0.14em] text-pp-faint mb-2">Decision Guidance</h3>
+            <div className="text-xs leading-relaxed text-pp-text font-medium mb-4">
               <TextGenerateEffect
                 words={underwriteGuidance(parcel.score, parcel.ring)}
                 duration={0.3}
                 filter={true}
               />
             </div>
-            <motion.button
-              whileTap={isSubmitting ? undefined : { scale: 0.98 }}
-              className="group flex h-14 w-full items-center justify-center gap-2 bg-pp-text text-[11px] uppercase tracking-[0.2em] font-bold text-[#01070c] transition-all hover:bg-white hover:text-black disabled:cursor-wait disabled:opacity-60 disabled:bg-pp-text focus:outline-none focus-visible:ring-2 focus-visible:ring-pp-text focus-visible:ring-offset-2"
+            <button
+              className="group flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-[#0F172A] text-xs font-semibold text-white transition-all hover:bg-[#1E293B] shadow-sm active:scale-[0.99] disabled:cursor-wait disabled:opacity-60 cursor-pointer"
               onClick={onUnderwrite}
               type="button"
               disabled={isSubmitting}
             >
-              <Buildings size={18} className="opacity-80" />
-              {isSubmitting ? 'RECORDING UNDERWRITE…' : 'RECORD UNDERWRITE'}
-              <ArrowRight size={18} className="opacity-60 transition-transform group-hover:translate-x-1 group-hover:opacity-100" />
-            </motion.button>
+              <Buildings size={16} />
+              <span>{isSubmitting ? 'Recording Underwrite…' : 'Record Underwrite'}</span>
+              <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
+            </button>
           </section>
         </motion.div>
       </AnimatePresence>

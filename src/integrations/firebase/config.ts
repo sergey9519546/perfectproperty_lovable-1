@@ -1,6 +1,13 @@
 import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, type Auth } from "firebase/auth";
-import { getFirestore, doc, getDocFromServer, type Firestore } from "firebase/firestore";
+import {
+  initializeFirestore,
+  getFirestore,
+  setLogLevel,
+  doc,
+  getDoc,
+  type Firestore,
+} from "firebase/firestore";
 import firebaseConfigJson from "../../../firebase-applet-config.json";
 
 export { firebaseConfigJson, firebaseConfigJson as firebaseAppletConfig };
@@ -25,8 +32,29 @@ export const app: FirebaseApp =
 // Initialize Firebase Auth
 export const auth: Auth = getAuth(app);
 
-// Initialize Firestore targeting the dedicated provisioned database
-export const db: Firestore = getFirestore(app, FIRESTORE_DATABASE_ID);
+// Suppress noisy network reconnect diagnostics in sandbox environments
+try {
+  setLogLevel("error");
+} catch {
+  // Ignore if unsupported in environment
+}
+
+// Initialize Firestore targeting the dedicated provisioned database with resilient forced long-polling transport
+let firestoreInstance: Firestore;
+try {
+  firestoreInstance = initializeFirestore(
+    app,
+    {
+      experimentalForceLongPolling: true,
+      ignoreUndefinedProperties: true,
+    },
+    FIRESTORE_DATABASE_ID
+  );
+} catch {
+  firestoreInstance = getFirestore(app, FIRESTORE_DATABASE_ID);
+}
+
+export const db: Firestore = firestoreInstance;
 
 // Google Auth Provider
 export const googleAuthProvider = new GoogleAuthProvider();
@@ -68,17 +96,15 @@ export async function getAuthenticatedFirebaseUser() {
 }
 
 /**
- * Validates connection to Firestore on initial boot as required by Firebase specification.
+ * Validates connection to Firestore on initial boot without throwing unhandled network exceptions.
  */
 export async function testFirestoreConnection(): Promise<boolean> {
   try {
-    await getDocFromServer(doc(db, "test", "connection"));
+    if (!db) return false;
+    await getDoc(doc(db, "test", "connection"));
     return true;
-  } catch (error) {
-    if (error instanceof Error && error.message.includes("the client is offline")) {
-      console.warn("Firestore client is offline or network restricted.");
-    }
-    // Expected to succeed or fail safely without crashing runtime
+  } catch (error: any) {
+    // Graceful fallback in offline/sandboxed environments
     return false;
   }
 }

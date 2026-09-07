@@ -100,7 +100,7 @@ function DealsPage() {
           county: r.parcels?.county_fips || undefined,
           state: r.parcels?.state || undefined,
           arv: r.full_reno_arv ? Number(r.full_reno_arv) : undefined,
-          maxBid: r.max_allowable_offer ? Number(r.max_allowable_offer) : undefined,
+          maxBid: (r.modeled_offer ?? r.max_allowable_offer) ? Number(r.modeled_offer ?? r.max_allowable_offer) : undefined,
           predictedSpread: r.gross_profit ? Number(r.gross_profit) : undefined,
           underwriteStatus: "underwritten",
           starred: true,
@@ -114,43 +114,70 @@ function DealsPage() {
   };
 
   const displayData = useMemo(() => {
-    if (viewMode === "saved" && user) {
-      return (q.data || []).filter((item: any) => savedIds.has(item.parcel_id));
+    if (viewMode === "saved") {
+      if (!user) return [];
+      const savedList = savedQ.data || [];
+      const scoredMap = new Map((q.data || []).map((item: any) => [item.parcel_id, item]));
+      return savedList.map((saved) => {
+        const scored = scoredMap.get(saved.parcelId);
+        if (scored) return scored;
+        return {
+          parcel_id: saved.parcelId,
+          perfect_score: 75,
+          gross_profit: saved.predictedSpread ?? 0,
+          modeled_offer: saved.maxBid ?? 0,
+          full_reno_arv: saved.arv,
+          ring: 1,
+          recommended_scope: saved.underwriteStatus || "watch",
+          parcels: {
+            id: saved.parcelId,
+            address: saved.address || "Saved Property",
+            city: saved.county || "",
+            state: saved.state || "",
+          },
+          computed_at: saved.updatedAt || saved.createdAt,
+          skeptic_flags: [],
+        };
+      });
     }
     return q.data || [];
-  }, [viewMode, user, q.data, savedIds]);
+  }, [viewMode, user, q.data, savedQ.data]);
 
   return (
     <>
-      <div className="mx-auto max-w-[1400px] px-6 py-8">
+      <div id="deals-page-container" className="mx-auto max-w-[1400px] px-6 py-8">
         <PageHeader
+          id="deals-header"
           title="Ranked deals"
+          badge="Monte Carlo Calibrated"
           sub="Every property we've scored, sorted by our overall buy score (0–100). Click any row to see the full breakdown — offer, profit, risks, comps, and AI Maps/Search Grounding."
         />
 
         <HelpStrip />
 
         {/* View mode toggle */}
-        <div className="mt-5 flex flex-wrap items-center justify-between gap-4 border-b border-pp-border pb-3">
-          <div className="flex gap-2">
+        <div id="deals-view-bar" className="mt-6 flex flex-wrap items-center justify-between gap-4 border-b border-[#E2E8F0] pb-3.5">
+          <div className="flex items-center gap-2">
             <button
+              id="deals-view-all-btn"
               type="button"
               onClick={() => setViewMode("all")}
-              className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+              className={`rounded-lg px-3.5 py-2 text-xs font-semibold transition-all cursor-pointer ${
                 viewMode === "all"
-                  ? "bg-pp-header text-pp-text border border-pp-border"
-                  : "text-pp-muted hover:text-pp-text"
+                  ? "bg-white text-[#0F172A] border border-[#CBD5E1] shadow-2xs"
+                  : "text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9]"
               }`}
             >
               All Ranked Deals ({q.data?.length ?? 0})
             </button>
             <button
+              id="deals-view-saved-btn"
               type="button"
               onClick={() => setViewMode("saved")}
-              className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+              className={`flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-xs font-semibold transition-all cursor-pointer ${
                 viewMode === "saved"
-                  ? "bg-amber-950/40 text-amber-300 border border-amber-500/30"
-                  : "text-pp-muted hover:text-pp-text"
+                  ? "bg-amber-50 text-amber-900 border border-amber-300 shadow-2xs"
+                  : "text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9]"
               }`}
             >
               <Bookmark className="h-3.5 w-3.5" />
@@ -158,15 +185,15 @@ function DealsPage() {
             </button>
           </div>
 
-          <div className="text-[13px] text-pp-muted">
-            Showing <span className="font-semibold text-pp-text">{displayData.length}</span>{" "}
+          <div id="deals-count-indicator" className="text-[13px] text-[#64748B]">
+            Showing <span className="font-semibold text-[#0F172A]">{displayData.length}</span>{" "}
             {viewMode === "saved" ? "saved watchlist properties" : "live scored properties"}
           </div>
         </div>
 
-        <div className="mt-6 overflow-x-auto rounded-lg border border-pp-border bg-pp-page">
-          <table className="w-full text-[14px]">
-            <thead className="bg-pp-header text-[11px] uppercase tracking-wider text-pp-muted">
+        <div id="deals-table-wrapper" className="mt-6 overflow-x-auto rounded-xl border border-[#E2E8F0] bg-white shadow-sm">
+          <table id="deals-data-table" className="w-full text-[14px]">
+            <thead className="bg-[#F8FAFC] border-b border-[#E2E8F0] text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
               <tr>
                 <th className="px-4 py-3 text-left">Property</th>
 
@@ -185,7 +212,7 @@ function DealsPage() {
                 <th className="px-4 py-3 text-left" title="Recommended renovation plan.">
                   Plan
                 </th>
-                <th className="border-l border-pp-border/50 px-4 py-3 text-right" title="What we'd offer the seller today.">
+                <th className="border-l border-[#E2E8F0] px-4 py-3 text-right" title="What we'd offer the seller today.">
                   Our offer
                 </th>
                 <th
@@ -200,7 +227,7 @@ function DealsPage() {
                 >
                   Typical · Worst case
                 </th>
-                <th className="border-l border-pp-border/50 px-4 py-3 text-right" title="Chance the deal loses money.">
+                <th className="border-l border-[#E2E8F0] px-4 py-3 text-right" title="Chance the deal loses money.">
                   Loss risk
                 </th>
                 <th className="px-4 py-3 text-right" title="Chance the seller accepts our offer.">
@@ -221,17 +248,45 @@ function DealsPage() {
               </tr>
             </thead>
             <tbody>
-              {q.isLoading && <TableSkeleton rows={10} columns={11} />}
-              {!q.isLoading && displayData.length === 0 && (
+              {(viewMode === "all" ? q.isLoading : savedQ.isLoading) && <TableSkeleton rows={10} columns={11} />}
+              {viewMode === "all" && q.isError && (
                 <tr>
-                  <td colSpan={11} className="px-4 py-8 text-center text-sm text-pp-muted">
+                  <td colSpan={11} className="px-4 py-8 text-center text-sm text-rose-500">
+                    Failed to load ranked deals: {q.error instanceof Error ? q.error.message : "Database error"}
+                    <button
+                      type="button"
+                      onClick={() => q.refetch()}
+                      className="ml-3 font-medium underline hover:text-rose-600"
+                    >
+                      Retry
+                    </button>
+                  </td>
+                </tr>
+              )}
+              {viewMode === "saved" && savedQ.isError && (
+                <tr>
+                  <td colSpan={11} className="px-4 py-8 text-center text-sm text-rose-500">
+                    Failed to load Firestore portfolio: {savedQ.error instanceof Error ? savedQ.error.message : "Firestore error"}
+                    <button
+                      type="button"
+                      onClick={() => savedQ.refetch()}
+                      className="ml-3 font-medium underline hover:text-rose-600"
+                    >
+                      Retry
+                    </button>
+                  </td>
+                </tr>
+              )}
+              {!(viewMode === "all" ? q.isLoading : savedQ.isLoading) && displayData.length === 0 && (
+                <tr>
+                  <td colSpan={11} className="px-4 py-8 text-center text-sm text-[#64748B]">
                     {viewMode === "saved"
                       ? "No deals saved in your Firestore portfolio yet. Click any property in the workspace or ranked list, open its Dossier, and click 'Save to Portfolio'."
                       : "No properties found matching current criteria."}
                   </td>
                 </tr>
               )}
-              {!q.isLoading && displayData.map((r: any, i: number) => {
+              {!(viewMode === "all" ? q.isLoading : savedQ.isLoading) && displayData.map((r: any, i: number) => {
                 const flags = (r.skeptic_flags as string[]) ?? [];
                 const pLoss = Number(r.mc_p_loss);
                 return (
@@ -239,15 +294,15 @@ function DealsPage() {
                     key={r.parcel_id}
                     onClick={() => setSelected(r.parcel_id)}
                     style={{ animationDelay: `${Math.min(i * 35, 600)}ms` }}
-                    className="group cursor-pointer border-t border-pp-border transition-colors hover:bg-pp-header animate-in fade-in slide-in-from-bottom-1 duration-300 fill-mode-backwards"
+                    className="group cursor-pointer border-t border-[#E2E8F0] transition-colors hover:bg-[#F8FAFC] animate-in fade-in slide-in-from-bottom-1 duration-300 fill-mode-backwards"
                   >
                     
-                    <td className="sticky left-0 z-10 bg-pp-page px-4 py-3 group-hover:bg-pp-header">
+                    <td className="sticky left-0 z-10 bg-white px-4 py-3 group-hover:bg-[#F8FAFC]">
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0 flex-1">
-                          <div className="font-medium truncate">{r.parcels.address}</div>
-                          <div className="text-[12px] text-pp-muted">
-                            {r.parcels.city}, {r.parcels.state}
+                          <div className="font-semibold text-[#0F172A] truncate">{r.parcels?.address || r.address || "Saved Property"}</div>
+                          <div className="text-[12px] text-[#64748B]">
+                            {r.parcels?.city || ""}{r.parcels?.state ? `, ${r.parcels.state}` : ""}
                           </div>
                           <DataFreshness
                             timestamp={r.computed_at}
@@ -263,14 +318,14 @@ function DealsPage() {
                           }}
                           aria-label={savedIds.has(r.parcel_id) ? "Remove from portfolio" : "Save to portfolio"}
                           title={savedIds.has(r.parcel_id) ? "In your portfolio" : "Save to portfolio"}
-                          className={`rounded p-1.5 transition-colors shrink-0 ${
+                          className={`rounded-md p-1.5 transition-colors shrink-0 ${
                             savedIds.has(r.parcel_id)
-                              ? "text-amber-400 hover:bg-amber-950/40"
-                              : "text-pp-faint hover:text-pp-text hover:bg-pp-surface"
+                              ? "text-amber-500 bg-amber-50 hover:bg-amber-100"
+                              : "text-[#94A3B8] hover:text-[#0F172A] hover:bg-[#F1F5F9]"
                           }`}
                         >
                           <Bookmark
-                            className={`h-4 w-4 ${savedIds.has(r.parcel_id) ? "fill-amber-400" : ""}`}
+                            className={`h-4 w-4 ${savedIds.has(r.parcel_id) ? "fill-amber-500" : ""}`}
                           />
                         </button>
                       </div>
@@ -281,9 +336,11 @@ function DealsPage() {
                     </td>
                     <td className="px-4 py-3 text-[13px]">{ringLabel(r.ring)}</td>
                     <td className="px-4 py-3 text-[13px]">{r.recommended_scope}</td>
-                    <td className="num border-l border-pp-border/50 px-4 py-3 text-right">{fmt$(Number(r.modeled_offer))}</td>
+                    <td className="num border-l border-pp-border/50 px-4 py-3 text-right">
+                      {fmt$(Number(r.modeled_offer ?? r.max_allowable_offer ?? 0))}
+                    </td>
                     <td className="num px-4 py-3 text-right text-pp-live font-medium">
-                      {fmt$(Number(r.gross_profit))}
+                      {fmt$(Number(r.gross_profit ?? 0))}
                     </td>
                     <td className="num px-4 py-3 text-right text-[13px]">
                       {r.mc_profit_p50 != null ? fmt$(Number(r.mc_profit_p50)) : "—"}
@@ -349,15 +406,15 @@ function HelpStrip() {
     { k: "Deal odds", v: "How likely the seller says yes at our offer." },
   ];
   return (
-    <div className="mt-4 rounded-lg border border-pp-border bg-pp-page/60 p-3">
-      <div className="mb-2 text-[11px] uppercase tracking-wider text-pp-muted">
+    <div className="mt-4 rounded-xl border border-[#E2E8F0] bg-white p-4 shadow-2xs">
+      <div className="mb-2 text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
         How to read this
       </div>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
         {items.map((it) => (
           <div key={it.k} className="text-[13px]">
-            <span className="font-medium text-pp-text">{it.k}: </span>
-            <span className="text-pp-muted">{it.v}</span>
+            <span className="font-semibold text-[#0F172A]">{it.k}: </span>
+            <span className="text-[#64748B]">{it.v}</span>
           </div>
         ))}
       </div>
@@ -438,7 +495,7 @@ function StressPanel({ rows }: { rows: any[] }) {
     }> = [];
     for (const r of rows) {
       const arv = pickArv(r);
-      const P = Number(r.modeled_offer ?? 0);
+      const P = Number(r.modeled_offer ?? r.max_allowable_offer ?? 0);
       const R = Number(r.reno_cost ?? 0);
       const exit_days = Number(r.exit_days ?? 90);
       if (!Number.isFinite(arv) || !arv) continue;
@@ -483,13 +540,13 @@ function StressPanel({ rows }: { rows: any[] }) {
   ];
 
   return (
-    <div className="mt-6 rounded-lg border border-pp-border bg-pp-page p-4">
-      <div className="flex items-center justify-between">
+    <div className="mt-6 rounded-xl border border-[#E2E8F0] bg-white p-5 shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <div className="text-[10px] uppercase tracking-widest text-pp-muted">
+          <div className="text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
             Portfolio stress test
           </div>
-          <div className="mt-0.5 text-[13px] text-pp-text">
+          <div className="mt-0.5 text-[13px] font-medium text-[#0F172A]">
             Applied across {deals.length} deals.
           </div>
         </div>
@@ -498,25 +555,18 @@ function StressPanel({ rows }: { rows: any[] }) {
             <button
               key={b.k}
               onClick={() => setKey(b.k)}
-              className="rounded-md border px-2.5 py-1 text-[12px]"
-              style={{
-                borderColor:
-                  key === b.k
-                    ? "color-mix(in oklab, var(--opportunity) 45%, transparent)"
-                    : "var(--pp-border)",
-                background:
-                  key === b.k
-                    ? "color-mix(in oklab, var(--opportunity) 12%, transparent)"
-                    : "var(--pp-header)",
-                color: key === b.k ? "var(--opportunity)" : "var(--foreground)",
-              }}
+              className={`rounded-lg px-3 py-1.5 text-[12px] font-semibold transition-all cursor-pointer ${
+                key === b.k
+                  ? "bg-blue-50 text-blue-700 border border-blue-200 shadow-2xs"
+                  : "border border-[#E2E8F0] bg-white text-[#475569] hover:bg-[#F8FAFC]"
+              }`}
             >
               {b.label}
             </button>
           ))}
         </div>
       </div>
-      <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-4">
+      <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
         <MiniBox label="Base E[Profit]" v={fmt$(totalBase)} />
         <MiniBox
           label="Stressed E[Profit]"
@@ -535,11 +585,11 @@ function StressPanel({ rows }: { rows: any[] }) {
 
 function MiniBox({ label, v, tone }: { label: string; v: string; tone?: "skeptic" | "profit" }) {
   const color =
-    tone === "skeptic" ? "#f43f5e" : tone === "profit" ? "#05d680" : undefined;
+    tone === "skeptic" ? "#E11D48" : tone === "profit" ? "#059669" : undefined;
   return (
-    <div className="rounded-md border border-pp-border bg-pp-header px-3 py-2">
-      <div className="text-[10px] uppercase tracking-wider text-pp-muted">{label}</div>
-      <div className="num mt-0.5 text-[14px] font-semibold" style={{ color }}>
+    <div className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-3.5 py-2.5">
+      <div className="text-[10px] font-bold uppercase tracking-wider text-[#64748B]">{label}</div>
+      <div className="num mt-0.5 text-[15px] font-bold text-[#0F172A]" style={{ color }}>
         {v}
       </div>
     </div>
@@ -581,47 +631,47 @@ function RealieLookup({ onCreated }: { onCreated: (id: string) => void }) {
   return (
     <form
       onSubmit={submit}
-      className="mt-6 flex flex-wrap items-end gap-2 rounded-lg border border-pp-border bg-pp-page p-4"
+      className="mt-6 flex flex-wrap items-end gap-3 rounded-xl border border-[#E2E8F0] bg-white p-5 shadow-sm"
     >
       <div className="flex-1 min-w-[220px]">
-        <div className="text-[10px] uppercase tracking-widest text-pp-muted">
+        <div className="text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
           Add parcel by address (Realie)
         </div>
         <input
           value={address}
           onChange={(e) => setAddress(e.target.value)}
           placeholder="123 Main St"
-          className="mt-1 w-full rounded-md border border-pp-border bg-pp-header px-3 py-1.5 text-[13px] outline-none focus:border-foreground"
+          className="mt-1.5 w-full rounded-lg border border-[#E2E8F0] bg-white px-3 py-2 text-[13px] text-[#0F172A] outline-none focus:border-[#2F5FFF] focus:ring-1 focus:ring-[#2F5FFF]"
         />
       </div>
       <div>
-        <div className="text-[10px] uppercase tracking-widest text-pp-muted">State</div>
+        <div className="text-[11px] font-bold uppercase tracking-wider text-[#64748B]">State</div>
         <input
           value={state}
           onChange={(e) => setState(e.target.value)}
           maxLength={2}
-          className="mt-1 w-16 rounded-md border border-pp-border bg-pp-header px-2 py-1.5 text-[13px] uppercase outline-none focus:border-foreground"
+          className="mt-1.5 w-16 rounded-lg border border-[#E2E8F0] bg-white px-2 py-2 text-[13px] text-[#0F172A] uppercase outline-none focus:border-[#2F5FFF] focus:ring-1 focus:ring-[#2F5FFF]"
         />
       </div>
       <div>
-        <div className="text-[10px] uppercase tracking-widest text-pp-muted">
+        <div className="text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
           City (optional)
         </div>
         <input
           value={city}
           onChange={(e) => setCity(e.target.value)}
           placeholder="Austin"
-          className="mt-1 w-40 rounded-md border border-pp-border bg-pp-header px-2 py-1.5 text-[13px] outline-none focus:border-foreground"
+          className="mt-1.5 w-40 rounded-lg border border-[#E2E8F0] bg-white px-3 py-2 text-[13px] text-[#0F172A] outline-none focus:border-[#2F5FFF] focus:ring-1 focus:ring-[#2F5FFF]"
         />
       </div>
       <button
         type="submit"
         disabled={busy}
-        className="rounded-md border border-pp-border bg-pp-header px-3 py-1.5 text-[12px] hover:bg-pp-page disabled:opacity-50"
+        className="rounded-lg border border-[#E2E8F0] bg-[#0F172A] px-4 py-2 text-[13px] font-semibold text-white shadow-2xs hover:bg-[#1E293B] disabled:opacity-50 cursor-pointer transition-all"
       >
         {busy ? "Underwriting…" : "Lookup + underwrite"}
       </button>
-      {err && <div className="w-full text-[12px] text-rose-500">{err}</div>}
+      {err && <div className="w-full text-[12px] font-medium text-rose-600">{err}</div>}
     </form>
   );
 }

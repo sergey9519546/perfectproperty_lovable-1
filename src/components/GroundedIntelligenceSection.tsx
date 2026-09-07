@@ -28,6 +28,8 @@ interface Props {
   maxBid?: number;
 }
 
+import { runGroundedIntelligenceFn } from "@/lib/gemini.functions";
+
 interface GroundingResult {
   ok: boolean;
   type: string;
@@ -67,28 +69,21 @@ export function GroundedIntelligenceSection({
     setResult(null);
 
     try {
-      const response = await fetch("/api/gemini/grounded-intelligence", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          type: mode,
-          address,
-          city,
-          county,
-          state,
-          coordinates: lat && lng ? { lat, lng } : undefined,
-          apn,
-          userQuery: customInquiry.trim() || undefined,
-        }),
-      });
+      const data = await runGroundedIntelligenceFn({ data: {
+        type: mode,
+        address,
+        city,
+        county,
+        state,
+        coordinates: lat && lng ? { lat, lng } : undefined,
+        apn,
+        userQuery: customInquiry.trim() || undefined,
+      }});
 
-      const data = (await response.json()) as GroundingResult;
-      if (!response.ok || !data.ok) {
-        throw new Error(data.error || "Failed to retrieve grounded intelligence.");
+      if (!data.ok) {
+        throw new Error((data as any).error || "Failed to retrieve grounded intelligence.");
       }
-      setResult(data);
+      setResult(data as any);
       toast.success(
         mode === "maps"
           ? "Google Maps spatial intelligence loaded"

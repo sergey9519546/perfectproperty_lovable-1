@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   APIProvider,
-  Map,
+  Map as GoogleMap,
   AdvancedMarker,
   InfoWindow,
   useMap,
@@ -29,7 +29,7 @@ import { fmt$ } from '@/lib/format'
 import {
   GMP_ATTRIBUTION_ID,
   DEFAULT_MAP_ID,
-  DARK_MAP_STYLE,
+  LIGHT_MAP_STYLE,
   DEMO_KEY_URL,
   getGoogleMapsApiKey,
   setGoogleMapsApiKey,
@@ -59,10 +59,10 @@ const DEFAULT_CENTER = { lat: 33.2, lng: -99.2 }
 const DEFAULT_ZOOM = 3.5
 
 function tierColor(score: number): string {
-  if (score >= 80) return '#f5b544' // amber / gold — exceptional
-  if (score >= 65) return '#4ad19a' // emerald — strong
-  if (score >= 50) return '#7fb3ff' // steel blue — viable
-  return '#71717a' // zinc — baseline
+  if (score >= 80) return '#2F5FFF' // royal blue — exceptional
+  if (score >= 65) return '#10B981' // emerald — strong
+  if (score >= 50) return '#64748B' // slate — viable
+  return '#94A3B8' // light slate — baseline
 }
 
 type MapTypeOption = 'roadmap' | 'satellite' | 'hybrid' | 'terrain'
@@ -82,6 +82,7 @@ function MapCameraController({
     zoomOut: () => void
     resetView: () => void
     fitParcels: () => void
+    focusOnParcel: (parcel: WorkspaceParcel) => void
   }) => void
 }) {
   const map = useMap()
@@ -114,9 +115,21 @@ function MapCameraController({
     map.fitBounds(bounds, { top: 70, right: 70, bottom: 70, left: 70 })
   }, [map, parcels])
 
+  const focusOnParcel = useCallback(
+    (parcel: WorkspaceParcel) => {
+      if (!map) return
+      map.panTo({ lat: parcel.coordinates[1], lng: parcel.coordinates[0] })
+      const currentZoom = map.getZoom() || 0
+      if (currentZoom < 12) {
+        map.setZoom(12)
+      }
+    },
+    [map],
+  )
+
   useEffect(() => {
-    onRegisterControls({ zoomIn, zoomOut, resetView, fitParcels })
-  }, [onRegisterControls, zoomIn, zoomOut, resetView, fitParcels])
+    onRegisterControls({ zoomIn, zoomOut, resetView, fitParcels, focusOnParcel })
+  }, [onRegisterControls, zoomIn, zoomOut, resetView, fitParcels, focusOnParcel])
 
   // Fit bounds whenever the parcel set materially changes
   useEffect(() => {
@@ -128,13 +141,11 @@ function MapCameraController({
   useEffect(() => {
     if (!map || !selected) return
     const id = selected.id
-    const shouldFly = prevSelectedId.current != null && prevSelectedId.current !== id
-    prevSelectedId.current = id
-
-    if (shouldFly) {
+    if (prevSelectedId.current !== id) {
+      prevSelectedId.current = id
       map.panTo({ lat: selected.coordinates[1], lng: selected.coordinates[0] })
-      if ((map.getZoom() || 0) < 11) {
-        map.setZoom(11)
+      if ((map.getZoom() || 0) < 12) {
+        map.setZoom(12)
       }
     }
   }, [map, selected])
@@ -154,17 +165,41 @@ export function MapCanvas(props: Props) {
   const [tempKeyInput, setTempKeyInput] = useState('')
   const [keySavedToast, setKeySavedToast] = useState(false)
 
+  // Cache of all known parcels so filtered-out markers can gracefully scale/fade out instead of instantly disappearing
+  const [allKnownParcels, setAllKnownParcels] = useState<Map<string, WorkspaceParcel>>(new Map())
+
+  useEffect(() => {
+    if (props.parcels && props.parcels.length > 0) {
+      setAllKnownParcels((prev) => {
+        const next = new Map(prev)
+        props.parcels.forEach((p) => next.set(p.id, p))
+        return next
+      })
+    }
+  }, [props.parcels])
+
+  const visibleParcelIds = useMemo(() => new Set(props.parcels.map((p) => p.id)), [props.parcels])
+
+  // Dismiss InfoWindow if active parcel gets filtered out
+  useEffect(() => {
+    if (activeInfoWindowParcel && !visibleParcelIds.has(activeInfoWindowParcel.id)) {
+      setActiveInfoWindowParcel(null)
+    }
+  }, [visibleParcelIds, activeInfoWindowParcel])
+
   // Camera control ref callbacks
   const cameraControlsRef = useRef<{
     zoomIn: () => void
     zoomOut: () => void
     resetView: () => void
     fitParcels: () => void
+    focusOnParcel: (parcel: WorkspaceParcel) => void
   }>({
     zoomIn: () => {},
     zoomOut: () => {},
     resetView: () => {},
     fitParcels: () => {},
+    focusOnParcel: () => {},
   })
 
   const handleRegisterControls = useCallback(
@@ -173,10 +208,26 @@ export function MapCanvas(props: Props) {
       zoomOut: () => void
       resetView: () => void
       fitParcels: () => void
+      focusOnParcel: (parcel: WorkspaceParcel) => void
     }) => {
       cameraControlsRef.current = controls
     },
     [],
+  )
+
+  const handleMarkerClick = useCallback(
+    (parcel: WorkspaceParcel) => {
+      props.onSelect(parcel)
+      setActiveInfoWindowParcel(parcel)
+      cameraControlsRef.current?.focusOnParcel(parcel)
+
+      const panelEl = document.getElementById('property-details-panel')
+      if (panelEl) {
+        panelEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+        panelEl.focus({ preventScroll: true })
+      }
+    },
+    [props],
   )
 
   const handleSaveApiKey = () => {
@@ -195,7 +246,7 @@ export function MapCanvas(props: Props) {
       {/* Google Maps APIProvider & Map */}
       <APIProvider apiKey={apiKey} libraries={['marker', 'places', 'geometry']}>
         <div className="absolute inset-0 w-full h-full">
-          <Map
+          <GoogleMap
             mapId={DEFAULT_MAP_ID}
             internalUsageAttributionIds={[GMP_ATTRIBUTION_ID]}
             defaultCenter={DEFAULT_CENTER}
@@ -203,7 +254,7 @@ export function MapCanvas(props: Props) {
             gestureHandling="greedy"
             disableDefaultUI={true}
             mapTypeId={mapType}
-            styles={mapType === 'roadmap' ? DARK_MAP_STYLE : undefined}
+            styles={mapType === 'roadmap' ? LIGHT_MAP_STYLE : undefined}
             style={{ width: '100%', height: '100%' }}
           >
             <MapCameraController
@@ -212,8 +263,9 @@ export function MapCanvas(props: Props) {
               onRegisterControls={handleRegisterControls}
             />
 
-            {/* Render Advanced Markers for all parcels */}
-            {props.parcels.map((parcel) => {
+            {/* Render Advanced Markers with graceful spring scale & fade transitions */}
+            {(allKnownParcels.size > 0 ? Array.from(allKnownParcels.values()) : props.parcels).map((parcel) => {
+              const isVisible = visibleParcelIds.has(parcel.id)
               const isSelected = props.selected?.id === parcel.id
               const isHovered = hoveredParcel?.id === parcel.id
               const metricVal = layerMetric(parcel, props.layer)
@@ -223,42 +275,74 @@ export function MapCanvas(props: Props) {
                 <AdvancedMarker
                   key={parcel.id}
                   position={{ lat: parcel.coordinates[1], lng: parcel.coordinates[0] }}
-                  onClick={() => {
-                    props.onSelect(parcel)
-                    setActiveInfoWindowParcel(parcel)
-                  }}
-                  title={`${parcel.address} — ${parcel.score.toFixed(1)} score`}
+                  onClick={() => isVisible && handleMarkerClick(parcel)}
+                  title={isVisible ? `${parcel.address} — ${parcel.score.toFixed(1)} score` : undefined}
                 >
-                  <div
-                    onMouseEnter={() => setHoveredParcel(parcel)}
+                  <motion.div
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{
+                      scale: isVisible ? (isSelected ? 1.35 : isHovered ? 1.15 : 1) : 0,
+                      opacity: isVisible ? 1 : 0,
+                      pointerEvents: isVisible ? 'auto' : 'none',
+                    }}
+                    transition={{
+                      type: 'spring',
+                      stiffness: 380,
+                      damping: 26,
+                      mass: 0.6,
+                    }}
+                    onMouseEnter={() => isVisible && setHoveredParcel(parcel)}
                     onMouseLeave={() => setHoveredParcel(null)}
-                    className="relative flex items-center justify-center cursor-pointer transition-transform duration-200"
+                    className="relative flex items-center justify-center cursor-pointer"
                     style={{
-                      transform: isSelected ? 'scale(1.28)' : isHovered ? 'scale(1.15)' : 'scale(1)',
-                      zIndex: isSelected ? 50 : isHovered ? 40 : 10,
+                      zIndex: isSelected ? 60 : isHovered ? 40 : 10,
                     }}
                   >
-                    {/* Glowing outer pulse for selected or high-priority parcel */}
-                    {isSelected && (
-                      <span
-                        className="absolute inset-0 rounded-full animate-ping opacity-40"
-                        style={{ backgroundColor: '#ffffff' }}
-                      />
+                    {/* Glowing multi-ring radar pulse for selected marker */}
+                    {isSelected && isVisible && (
+                      <>
+                        {/* Outermost expanding radar wave */}
+                        <span
+                          className="absolute -inset-3.5 rounded-full animate-ping opacity-60 pointer-events-none"
+                          style={{
+                            backgroundColor: color,
+                            animationDuration: '1.6s',
+                          }}
+                        />
+                        {/* Secondary staggered expanding pulse */}
+                        <span
+                          className="absolute -inset-2 rounded-full animate-ping opacity-45 pointer-events-none"
+                          style={{
+                            backgroundColor: '#ffffff',
+                            animationDuration: '1.2s',
+                          }}
+                        />
+                        {/* Steady glowing halo aura */}
+                        <span
+                          className="absolute -inset-2.5 rounded-full animate-pulse opacity-60 pointer-events-none"
+                          style={{
+                            boxShadow: `0 0 20px 4px ${color}`,
+                            border: `1.5px solid ${color}`,
+                          }}
+                        />
+                      </>
                     )}
 
                     <div
-                      className="relative flex items-center justify-center rounded-full font-mono text-[10px] font-bold text-white shadow-xl transition-colors"
+                      className="relative flex items-center justify-center rounded-full font-mono text-[10px] font-bold text-white shadow-xl transition-all"
                       style={{
-                        width: isSelected ? 32 : 24,
-                        height: isSelected ? 32 : 24,
+                        width: isSelected ? 34 : 24,
+                        height: isSelected ? 34 : 24,
                         backgroundColor: color,
                         border: isSelected ? '2.5px solid #ffffff' : '1.5px solid rgba(255,255,255,0.85)',
-                        boxShadow: `0 0 14px ${color}aa`,
+                        boxShadow: isSelected
+                          ? `0 0 18px 4px ${color}, 0 4px 12px rgba(0,0,0,0.6)`
+                          : `0 0 10px ${color}88`,
                       }}
                     >
                       {Math.round(metricVal)}
                     </div>
-                  </div>
+                  </motion.div>
                 </AdvancedMarker>
               )
             })}
@@ -299,15 +383,20 @@ export function MapCanvas(props: Props) {
                     onClick={() => {
                       props.onSelect(activeInfoWindowParcel)
                       setActiveInfoWindowParcel(null)
+                      const panelEl = document.getElementById('property-details-panel')
+                      if (panelEl) {
+                        panelEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+                        panelEl.focus({ preventScroll: true })
+                      }
                     }}
-                    className="w-full mt-2 rounded bg-zinc-900 px-2 py-1 text-center font-medium text-white hover:bg-zinc-800 transition-colors text-[11px]"
+                    className="w-full mt-2 rounded bg-zinc-900 px-2 py-1.5 text-center font-medium text-white hover:bg-zinc-800 transition-colors text-[11px]"
                   >
-                    Open Underwriting
+                    Open Live Underwriting
                   </button>
                 </div>
               </InfoWindow>
             )}
-          </Map>
+          </GoogleMap>
         </div>
       </APIProvider>
 
@@ -463,16 +552,16 @@ export function MapCanvas(props: Props) {
       </div>
 
       {/* Score Tier Legend */}
-      <div className="absolute bottom-7 left-3 z-20 w-[170px] border border-pp-border/18 bg-pp-surface/94 p-3 text-xs shadow-xs backdrop-blur-md rounded-md">
-        <div className="mb-2 font-medium text-pp-text flex items-center justify-between">
+      <div className="absolute bottom-7 left-3 z-20 w-[170px] border border-pp-border bg-pp-surface/95 p-3 text-xs shadow-md backdrop-blur-md rounded-lg">
+        <div className="mb-2 font-semibold text-pp-text flex items-center justify-between">
           <span>{props.layer}</span>
           <span className="text-[10px] text-pp-muted">{props.parcels.length} parcels</span>
         </div>
         {[
-          [80, 'Exceptional', '#f5b544'],
-          [65, 'Strong', '#4ad19a'],
-          [50, 'Viable', '#7fb3ff'],
-          [20, 'Baseline', '#71717a'],
+          [80, 'Exceptional', '#2F5FFF'],
+          [65, 'Strong', '#10B981'],
+          [50, 'Viable', '#64748B'],
+          [20, 'Baseline', '#94A3B8'],
         ].map(([val, label, col]) => (
           <div key={label as string} className="flex items-center gap-2 py-0.5 text-pp-muted">
             <span
@@ -480,8 +569,8 @@ export function MapCanvas(props: Props) {
               className="h-2.5 w-2.5 rounded-full"
               style={{ backgroundColor: col as string }}
             />
-            <span>{val}+</span>
-            <span className="ml-auto">{label}</span>
+            <span className="font-mono font-medium">{val}+</span>
+            <span className="ml-auto font-medium">{label}</span>
           </div>
         ))}
       </div>

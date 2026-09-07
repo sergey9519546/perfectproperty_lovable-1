@@ -1,5 +1,5 @@
 import { MagnifyingGlass } from '@phosphor-icons/react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { WorkspaceParcel } from '../live'
 import { formatMoney } from '../live'
 import { formatShortDate } from '../data'
@@ -26,6 +26,14 @@ export function DealTable({
       ),
     [parcels, query],
   )
+
+  useEffect(() => {
+    if (!selectedId) return
+    const rowEl = document.getElementById(`deal-row-${selectedId}`)
+    if (rowEl) {
+      rowEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    }
+  }, [selectedId])
 
   return (
     <section className="deal-table flex flex-col min-h-0 overflow-hidden border-t border-pp-border bg-pp-surface shadow-none">
@@ -78,6 +86,7 @@ export function DealTable({
               return (
                 <tr
                   key={parcel.id}
+                  id={`deal-row-${parcel.id}`}
                   className={`group cursor-pointer border-b border-pp-border/50 text-sm transition-colors ${active ? 'bg-pp-surface-soft' : 'hover:bg-pp-surface-soft/50'}`}
                   onClick={() => onSelect(parcel)}
                 >

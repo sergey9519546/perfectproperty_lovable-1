@@ -82,12 +82,12 @@ export function BulkLookupPanel() {
 
 
   return (
-    <div className="mt-6 rounded-lg border border-pp-border bg-pp-page p-4">
-      <div className="flex items-center justify-between">
+    <div className="mt-6 rounded-xl border border-[#E2E8F0] bg-white p-6 shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <div className="text-[10px] uppercase tracking-widest text-pp-muted">Bulk address import</div>
-          <div className="mt-0.5 text-[13px] text-pp-text">
-            Paste one address per line. Format: <code className="rounded bg-pp-header px-1">address, state[, city]</code>.
+          <div className="text-[10px] font-bold uppercase tracking-wider text-[#2F5FFF]">Bulk Address Import</div>
+          <div className="mt-0.5 text-xs text-[#64748B]">
+            Paste one address per line. Format: <code className="rounded bg-[#F1F5F9] px-1.5 py-0.5 text-[#0F172A] font-mono text-[11px] border border-[#E2E8F0]">address, state[, city]</code>.
             The overnight worker underwrites them via Realie.
           </div>
         </div>
@@ -96,59 +96,59 @@ export function BulkLookupPanel() {
           onClick={resumeLatest}
           disabled={resuming || !latestJob || latestFailed === 0}
           title={!latestJob ? "No jobs yet" : latestFailed === 0 ? "Latest job has no failed items" : `Requeue ${latestFailed} failed`}
-          className="rounded-md border border-pp-border bg-pp-header px-3 py-1.5 text-[12px] hover:bg-pp-page disabled:opacity-40"
+          className="rounded-lg border border-[#CBD5E1] bg-white px-3 py-1.5 text-xs font-semibold text-[#0F172A] hover:bg-[#F8FAFC] disabled:opacity-40 transition-colors shadow-2xs cursor-pointer"
         >
           {resuming ? "Resuming…" : `Resume failed (${latestFailed})`}
         </button>
       </div>
 
-      <form onSubmit={submit} className="mt-3 grid gap-2 md:grid-cols-[1fr_240px]">
+      <form onSubmit={submit} className="mt-4 grid gap-3 md:grid-cols-[1fr_260px]">
         <div>
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
             rows={6}
             placeholder={"123 Main St, TX, Austin\n456 Oak Ave, TX, Dallas\n789 Elm Dr | CA | San Diego"}
-            className="w-full rounded-md border border-pp-border bg-pp-header px-3 py-2 text-[12px] font-mono outline-none focus:border-foreground"
+            className="w-full rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-3 text-xs font-mono text-[#0F172A] outline-none focus:border-[#2F5FFF] focus:bg-white transition-colors"
           />
-          <div className="mt-1 flex flex-wrap items-center gap-3 text-[11px] text-pp-muted">
-            <span>{parsed.rows.length} valid</span>
-            {parsed.errors.length > 0 && <span className="text-rose-500">{parsed.errors.length} invalid</span>}
+          <div className="mt-1.5 flex flex-wrap items-center gap-3 text-[11px] text-[#64748B]">
+            <span className="font-semibold text-emerald-700">{parsed.rows.length} valid</span>
+            {parsed.errors.length > 0 && <span className="font-semibold text-rose-600">{parsed.errors.length} invalid</span>}
             {parsed.errors.slice(0, 2).map((e, i) => <span key={i} className="text-rose-500">· {e}</span>)}
           </div>
         </div>
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2.5">
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Job name (optional)"
-            className="rounded-md border border-pp-border bg-pp-header px-2 py-1.5 text-[13px] outline-none focus:border-foreground"
+            className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2 text-xs text-[#0F172A] outline-none focus:border-[#2F5FFF] focus:bg-white transition-colors"
           />
           <button
             type="submit"
             disabled={busy || !parsed.rows.length}
-            className="rounded-md border border-pp-border bg-pp-header px-3 py-1.5 text-[12px] hover:bg-pp-page disabled:opacity-50"
+            className="rounded-lg bg-[#0F172A] text-white px-3 py-2 text-xs font-semibold hover:bg-black disabled:opacity-50 transition-colors cursor-pointer"
           >
             {busy ? "Enqueuing…" : `Enqueue ${parsed.rows.length} for overnight`}
           </button>
-          {msg && <div className="text-[11px] text-pp-muted">{msg}</div>}
+          {msg && <div className="text-[11px] text-[#64748B] bg-[#F1F5F9] p-2 rounded-md border border-[#E2E8F0]">{msg}</div>}
         </div>
       </form>
 
       {(jobs.data?.length ?? 0) > 0 && (
-        <div className="mt-4 overflow-hidden rounded-md border border-pp-border">
-          <table className="w-full text-[12px]">
-            <thead className="bg-pp-header text-[10px] uppercase tracking-widest text-pp-muted">
+        <div className="mt-5 overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
+          <table className="w-full text-xs">
+            <thead className="bg-[#F8FAFC] text-[10px] font-bold uppercase tracking-wider text-[#64748B] border-b border-[#E2E8F0]">
               <tr>
-                <th className="px-3 py-2 text-left">Job</th>
-                <th className="px-3 py-2 text-left">Status</th>
-                <th className="px-3 py-2 text-right">Progress</th>
-                <th className="px-3 py-2 text-right">OK / Fail</th>
-                <th className="px-3 py-2 text-right">Created</th>
-                <th className="px-3 py-2 text-right"></th>
+                <th className="px-3.5 py-2.5 text-left">Job</th>
+                <th className="px-3.5 py-2.5 text-left">Status</th>
+                <th className="px-3.5 py-2.5 text-right">Progress</th>
+                <th className="px-3.5 py-2.5 text-right">OK / Fail</th>
+                <th className="px-3.5 py-2.5 text-right">Created</th>
+                <th className="px-3.5 py-2.5 text-right"></th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-[#E2E8F0]">
               {(jobs.data ?? []).map((j: any) => (
                 <JobRow key={j.id} job={j} />
               ))}
@@ -172,65 +172,71 @@ function JobRow({ job }: { job: any }) {
   const failedItems = ((detail.data?.items ?? []) as any[]).filter((i) => i.status === "failed");
   return (
     <>
-      <tr className="border-t border-pp-border">
-        <td className="px-3 py-2">{job.name || job.id.slice(0, 8)}</td>
-        <td className="px-3 py-2">{job.status}</td>
-        <td className="num px-3 py-2 text-right">{job.processed} / {job.total}</td>
-        <td className="num px-3 py-2 text-right">
-          <span className="text-pp-live">{job.succeeded}</span>{" · "}
-          <span className="text-rose-500">{job.failed}</span>
+      <tr className="hover:bg-[#F8FAFC] transition-colors">
+        <td className="px-3.5 py-2.5 font-medium text-[#0F172A]">{job.name || job.id.slice(0, 8)}</td>
+        <td className="px-3.5 py-2.5">
+          <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[#F1F5F9] border border-[#E2E8F0] text-[#0F172A]">
+            {job.status}
+          </span>
         </td>
-        <td className="px-3 py-2 text-right text-pp-muted">
+        <td className="num px-3.5 py-2.5 text-right font-mono text-[#0F172A]">{job.processed} / {job.total}</td>
+        <td className="num px-3.5 py-2.5 text-right font-mono">
+          <span className="text-emerald-600 font-bold">{job.succeeded}</span>{" · "}
+          <span className="text-rose-600 font-bold">{job.failed}</span>
+        </td>
+        <td className="px-3.5 py-2.5 text-right text-[#64748B]">
           {new Date(job.created_at).toLocaleString()}
         </td>
-        <td className="px-3 py-2 text-right">
+        <td className="px-3.5 py-2.5 text-right">
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}
-            className="text-[11px] text-pp-muted underline hover:text-pp-text"
+            className="text-[11px] font-semibold text-[#2F5FFF] hover:underline cursor-pointer"
           >
             {open ? "Hide" : "Details"}
           </button>
         </td>
       </tr>
       {open && (
-        <tr className="border-t border-pp-border bg-pp-header">
-          <td colSpan={6} className="px-3 py-2">
+        <tr className="bg-[#F8FAFC]">
+          <td colSpan={6} className="px-4 py-3">
             {detail.isLoading ? (
-              <div className="text-[11px] text-pp-muted">Loading…</div>
+              <div className="text-[11px] text-[#64748B]">Loading details…</div>
             ) : failedItems.length === 0 ? (
-              <div className="text-[11px] text-pp-muted">
+              <div className="text-[11px] text-[#64748B]">
                 No failed items ({(detail.data?.items ?? []).length} total).
               </div>
             ) : (
-              <div>
-                <div className="text-[10px] uppercase tracking-widest text-pp-muted">
-                  {failedItems.length} failed
+              <div className="space-y-2">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-rose-600">
+                  {failedItems.length} Failed Records
                 </div>
-                <table className="mt-1 w-full text-[11px]">
-                  <thead className="text-pp-muted">
-                    <tr>
-                      <th className="px-2 py-1 text-left">Address</th>
-                      <th className="px-2 py-1 text-left">State</th>
-                      <th className="px-2 py-1 text-right">Attempts</th>
-                      <th className="px-2 py-1 text-left">Error</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {failedItems.slice(0, 100).map((it: any) => (
-                      <tr key={it.id} className="border-t border-pp-border">
-                        <td className="px-2 py-1">{it.address}{it.city ? `, ${it.city}` : ""}</td>
-                        <td className="px-2 py-1">{it.state}</td>
-                        <td className="num px-2 py-1 text-right">
-                          {it.attempts ?? 0}/{it.max_attempts ?? 3}
-                        </td>
-                        <td className="px-2 py-1 text-rose-500">{it.error ?? "—"}</td>
+                <div className="overflow-x-auto rounded-lg border border-[#E2E8F0] bg-white">
+                  <table className="w-full text-[11px]">
+                    <thead className="bg-[#F1F5F9] text-[#64748B] border-b border-[#E2E8F0]">
+                      <tr>
+                        <th className="px-3 py-1.5 text-left font-semibold">Address</th>
+                        <th className="px-3 py-1.5 text-left font-semibold">State</th>
+                        <th className="px-3 py-1.5 text-right font-semibold">Attempts</th>
+                        <th className="px-3 py-1.5 text-left font-semibold">Error</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-[#E2E8F0]">
+                      {failedItems.slice(0, 100).map((it: any) => (
+                        <tr key={it.id} className="hover:bg-[#F8FAFC]">
+                          <td className="px-3 py-1.5 text-[#0F172A]">{it.address}{it.city ? `, ${it.city}` : ""}</td>
+                          <td className="px-3 py-1.5 font-mono text-[#64748B]">{it.state}</td>
+                          <td className="num px-3 py-1.5 text-right font-mono">
+                            {it.attempts ?? 0}/{it.max_attempts ?? 3}
+                          </td>
+                          <td className="px-3 py-1.5 text-rose-600">{it.error ?? "—"}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
                 {failedItems.length > 100 && (
-                  <div className="mt-1 text-[10px] text-pp-muted">
+                  <div className="text-[10px] text-[#64748B]">
                     Showing 100 of {failedItems.length} failed items.
                   </div>
                 )}

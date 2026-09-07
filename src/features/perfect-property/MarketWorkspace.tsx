@@ -35,6 +35,7 @@ import type { RankedParcelRow } from "./live-types";
 const routeByNavigationId: Record<string, string> = {
   deals: "/deals",
   sheriff: "/sheriff-sales",
+  notices: "/notices",
   assets: "/shadow",
   models: "/accuracy",
   targets: "/prophecy",
@@ -84,9 +85,11 @@ export function MarketWorkspace({ initialQuery, initialParcelId }: MarketWorkspa
   const [dossierId, setDossierId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [pendingAction, setPendingAction] = useState<WorkflowActionType | null>(null);
+  const [detailsFocused, setDetailsFocused] = useState(false);
   const [organizationName, setOrganizationName] = useState<string>(BRAND_CONFIG.name);
   const [userInitials, setUserInitials] = useState("PP");
   const toastTimerRef = useRef<number | null>(null);
+  const focusTimerRef = useRef<number | null>(null);
   const pendingActionRef = useRef(false);
   const userSelectedRef = useRef(false);
   const initialHandledRef = useRef(false);
@@ -240,6 +243,7 @@ export function MarketWorkspace({ initialQuery, initialParcelId }: MarketWorkspa
   useEffect(
     () => () => {
       if (toastTimerRef.current !== null) window.clearTimeout(toastTimerRef.current);
+      if (focusTimerRef.current !== null) window.clearTimeout(focusTimerRef.current);
     },
     [],
   );
@@ -268,6 +272,18 @@ export function MarketWorkspace({ initialQuery, initialParcelId }: MarketWorkspa
           county_fips: parcel.countyFips,
         },
       });
+
+      if (source === "map") {
+        setDetailsFocused(true);
+        if (focusTimerRef.current !== null) window.clearTimeout(focusTimerRef.current);
+        focusTimerRef.current = window.setTimeout(() => setDetailsFocused(false), 1800);
+
+        const panelEl = document.getElementById("property-details-panel");
+        if (panelEl) {
+          panelEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+          panelEl.focus({ preventScroll: true });
+        }
+      }
     },
     [],
   );
@@ -341,7 +357,9 @@ export function MarketWorkspace({ initialQuery, initialParcelId }: MarketWorkspa
           const link = document.createElement("a");
           link.href = url;
           link.download = `perfect-property-${parcel.id}-brief.json`;
+          document.body.appendChild(link);
           link.click();
+          document.body.removeChild(link);
           URL.revokeObjectURL(url);
           notify(`${parcel.address} investment brief exported`);
         } else {
@@ -415,6 +433,7 @@ export function MarketWorkspace({ initialQuery, initialParcelId }: MarketWorkspa
             onUnderwrite={() => void runWorkflowAction("underwrite")}
             isSubmitting={pendingAction === "underwrite"}
             onOpenFullDossier={(id) => setDossierId(id)}
+            isFocused={detailsFocused}
           />
         </div>
       </div>

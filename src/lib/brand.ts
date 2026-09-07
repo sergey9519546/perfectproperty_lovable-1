@@ -23,7 +23,7 @@ export const BRAND_CONFIG = {
   /** Default metadata */
   meta: {
     defaultTitle: "Perfect Property — Real Estate Deal Analysis & Cartographic Workspace",
-    description: "Real estate deal analysis and property discovery platform with cartographic workspace and underwriting engines.",
+    description: "Real estate deal analysis and property discovery platform with cartographic workspace, underwriting engines, and AI workforce sheriff & government property sales intelligence.",
   },
   /** Official architectural brand mark geometry */
   mark: {

@@ -1,10 +1,11 @@
-import { Buildings, ChartLineUp, Crosshair, Gavel, MapTrifold, Rows, Stack } from '@phosphor-icons/react'
+import { Buildings, ChartLineUp, Crosshair, Gavel, MapTrifold, Rows, Scroll, Stack } from '@phosphor-icons/react'
 import { motion } from 'motion/react'
 
 const items = [
   { id: 'map', label: 'Market map', icon: MapTrifold },
   { id: 'deals', label: 'Deals', icon: Rows },
   { id: 'sheriff', label: 'Sheriff & Gov Sales', icon: Gavel },
+  { id: 'notices', label: 'Legal Notice Reader', icon: Scroll },
   { id: 'assets', label: 'Assets', icon: Buildings },
   { id: 'models', label: 'Model accuracy', icon: ChartLineUp },
   { id: 'targets', label: 'Targets', icon: Crosshair },

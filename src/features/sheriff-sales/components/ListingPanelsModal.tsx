@@ -19,6 +19,8 @@ import {
 } from '@phosphor-icons/react';
 import type { SheriffGovSale } from '../types';
 
+import { runGroundedIntelligenceFn } from "@/lib/gemini.functions";
+
 export function ListingPanelsModal({
   sale,
   onClose,
@@ -64,16 +66,21 @@ export function ListingPanelsModal({
     setIsAnswering(true);
 
     try {
-      const response = await fetch('/api/gemini/grounded-intelligence', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          query: `Regarding Sheriff Sale Docket ${sale.caseNumber} at ${sale.parcel.address}, ${sale.parcel.city}, ${sale.parcel.state} (APN ${sale.openData.apn}). Plaintiff: ${sale.legalProse.plaintiff}. Judgment: $${sale.legalProse.finalJudgmentAmount}. Modeled ARV: $${sale.aiWorkforce.dealUnderwriter.modeledArv}. Surviving Liens: ${JSON.stringify(sale.theCatch.seniorSurvivingLiens)}. Occupancy: ${sale.theCatch.occupancyStatus}. Question: ${userQuery}`,
-          marketContext: `New Jersey/Pennsylvania Sheriff Auction. Verified August 2026 statutes.`,
-        }),
-      });
-      const data = await response.json();
-      const answerText = data.text || data.summary || `Based on Docket ${sale.caseNumber}, the foreclosing plaintiff is ${sale.entityResolution.trueBeneficialOwner} (${sale.entityResolution.loanServicer}). The surviving liens total $${sale.assistedLienCheck.totalSurvivingDebtRequired.toLocaleString()}, leaving a safe walk-away maximum allowable bid of $${sale.assistedLienCheck.safeMaxBidAfterSurvivingDebt.toLocaleString()}. Occupancy status is currently "${sale.theCatch.occupancyStatus.replace(/_/g, ' ')}".`;
+      const data = await runGroundedIntelligenceFn({ data: {
+        type: 'search',
+        address: sale.parcel.address,
+        city: sale.parcel.city,
+        county: sale.county,
+        state: sale.parcel.state,
+        apn: sale.openData.apn,
+        userQuery: `Regarding Sheriff Sale Docket ${sale.caseNumber}. Plaintiff: ${sale.legalProse.plaintiff}. Judgment: $${sale.legalProse.finalJudgmentAmount}. Modeled ARV: $${sale.aiWorkforce.dealUnderwriter.modeledArv}. Surviving Liens: ${JSON.stringify(sale.theCatch.seniorSurvivingLiens)}. Occupancy: ${sale.theCatch.occupancyStatus}. Question: ${userQuery}`,
+      }});
+
+      if (!data.ok) {
+        throw new Error((data as any).error || 'Failed to retrieve grounded intelligence');
+      }
+      const answerText = (data as any).summary || (data as any).text;
+      if (!answerText) throw new Error('No answer text generated');
       setChatMessages((prev) => [...prev, { role: 'assistant', text: answerText }]);
     } catch {
       // Deterministic expert response

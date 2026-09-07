@@ -11,19 +11,23 @@ service cloud.firestore {
     }
 
     function isValidId(id) {
-      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-\\.:]+$');
+    }
+
+    function isStringOrTimestamp(val) {
+      return val is string || val is timestamp;
     }
 
     function isValidUserProfile(data, userId) {
       return data.keys().hasAll(['id', 'email', 'createdAt', 'updatedAt'])
         && data.id == userId
         && data.id == request.auth.uid
-        && data.email is string && data.email.size() > 0 && data.email.size() <= 254
+        && data.email is string && data.email.size() <= 254
         && (!('displayName' in data) || (data.displayName is string && data.displayName.size() <= 120))
-        && (!('photoURL' in data) || (data.photoURL is string && data.photoURL.size() <= 1024))
-        && (!('tier' in data) || (data.tier in ['free', 'pro', 'enterprise']))
-        && data.createdAt is string && data.createdAt.size() <= 50
-        && data.updatedAt is string && data.updatedAt.size() <= 50;
+        && (!('photoURL' in data) || (data.photoURL is string && data.photoURL.size() <= 2048))
+        && (!('tier' in data) || (data.tier in ['free', 'pro', 'enterprise', 'admin']))
+        && isStringOrTimestamp(data.createdAt)
+        && isStringOrTimestamp(data.updatedAt);
     }
 
     function isValidSavedDeal(data, userId) {
@@ -32,7 +36,7 @@ service cloud.firestore {
         && data.userId == request.auth.uid
         && data.id is string && data.id.size() > 0 && data.id.size() <= 128
         && data.parcelId is string && data.parcelId.size() > 0 && data.parcelId.size() <= 128
-        && data.address is string && data.address.size() > 0 && data.address.size() <= 300
+        && data.address is string && data.address.size() <= 300
         && (!('county' in data) || (data.county is string && data.county.size() <= 100))
         && (!('state' in data) || (data.state is string && data.state.size() <= 10))
         && (!('arv' in data) || (data.arv is number))
@@ -41,8 +45,8 @@ service cloud.firestore {
         && (!('underwriteStatus' in data) || (data.underwriteStatus is string && data.underwriteStatus.size() <= 50))
         && (!('notes' in data) || (data.notes is string && data.notes.size() <= 10000))
         && (!('starred' in data) || (data.starred is bool))
-        && data.createdAt is string && data.createdAt.size() <= 50
-        && data.updatedAt is string && data.updatedAt.size() <= 50;
+        && isStringOrTimestamp(data.createdAt)
+        && isStringOrTimestamp(data.updatedAt);
     }
 
     function isValidUserFilterPreset(data, userId) {
@@ -50,12 +54,12 @@ service cloud.firestore {
         && data.userId == userId
         && data.userId == request.auth.uid
         && data.id is string && data.id.size() > 0 && data.id.size() <= 128
-        && data.name is string && data.name.size() > 0 && data.name.size() <= 100
+        && data.name is string && data.name.size() <= 100
         && (!('county' in data) || (data.county is string && data.county.size() <= 100))
         && (!('minScore' in data) || (data.minScore is number))
         && (!('maxPrice' in data) || (data.maxPrice is number))
         && (!('isShadowOnly' in data) || (data.isShadowOnly is bool))
-        && data.createdAt is string && data.createdAt.size() <= 50;
+        && isStringOrTimestamp(data.createdAt);
     }
 
     // Default deny all
@@ -71,7 +75,7 @@ service cloud.firestore {
     // User profile
     match /users/{userId} {
       allow get: if isOwner(userId) && isValidId(userId);
-      allow list: if isAuthenticated();
+      allow list: if false;
       allow create: if isOwner(userId) && isValidId(userId) && isValidUserProfile(request.resource.data, userId);
       allow update: if isOwner(userId) && isValidId(userId) && isValidUserProfile(request.resource.data, userId);
       allow delete: if isOwner(userId) && isValidId(userId);

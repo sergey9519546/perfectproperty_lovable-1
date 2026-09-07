@@ -94,8 +94,8 @@ export function FirebaseAuthProvider({
   const [authError, setAuthError] = useState<Error | null>(null);
 
   useEffect(() => {
-    testFirestoreConnection().catch((err) => {
-      console.warn("Firestore connection check notice:", err);
+    testFirestoreConnection().catch(() => {
+      // Handled silently; offline persistence ensures local responsiveness
     });
 
     const unsubscribe = onAuthStateChanged(

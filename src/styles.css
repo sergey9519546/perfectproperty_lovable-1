@@ -63,41 +63,35 @@
   /* Perfect Property showcase surface — exposed as Tailwind utilities so components
      stop hardcoding hex values (text-pp-text, bg-pp-surface, border-pp-border...).
      Contrast verified WCAG AA against each surface. */
-  --color-pp-page: var(--pp-page, #01070c);
-  --color-pp-header: var(--pp-header, #02080d);
-  --color-pp-surface: var(--pp-surface, #061018);
-  --color-pp-surface-raised: var(--pp-surface-raised, #091721);
-  --color-pp-surface-soft: var(--pp-surface-soft, #07131b);
-  --color-pp-border: #7893a5;
-  --color-pp-border-strong: #8faec3;
-  --color-pp-text: var(--pp-text, #f3f6f8);
-  --color-pp-muted: var(--pp-muted, #aab8c2);
-  --color-pp-faint: var(--pp-faint, #7e8c98);
-  --color-pp-gold: var(--pp-gold, #efaa2d);
-  --color-pp-gold-bright: var(--pp-gold-bright, #f5b83c);
-  --color-pp-live: var(--pp-live, #05d680);
+  --color-pp-page: var(--pp-page, #FAFAFC);
+  --color-pp-header: var(--pp-header, #FFFFFF);
+  --color-pp-surface: var(--pp-surface, #FFFFFF);
+  --color-pp-surface-raised: var(--pp-surface-raised, #F8FAFC);
+  --color-pp-surface-soft: var(--pp-surface-soft, #F1F5F9);
+  --color-pp-border: var(--pp-border, #E2E8F0);
+  --color-pp-border-strong: var(--pp-border-strong, #CBD5E1);
+  --color-pp-text: var(--pp-text, #0F172A);
+  --color-pp-muted: var(--pp-muted, #475569);
+  --color-pp-faint: var(--pp-faint, #94A3B8);
+  --color-pp-gold: var(--pp-gold, #2F5FFF);
+  --color-pp-gold-bright: var(--pp-gold-bright, #2555FF);
+  --color-pp-live: var(--pp-live, #10B981);
 
   /* Elevation shadows */
-  --color-shadow-sm: var(--shadow-sm);
-  --color-shadow-md: var(--shadow-md);
-  --color-shadow-lg: var(--shadow-lg);
-  --color-shadow-xl: var(--shadow-xl);
-  /* Elevation shadows */
-  --color-shadow-xs: var(--shadow-xs);
-  --color-shadow-sm: var(--shadow-sm);
-  --color-shadow-md: var(--shadow-md);
-  --color-shadow-lg: var(--shadow-lg);
-  --color-shadow-xl: var(--shadow-xl);
-  --color-shadow-2xl: var(--shadow-2xl);
-  --color-shadow-dialog: var(--shadow-dialog);
-  --color-shadow-toast: var(--shadow-toast);
-  --color-shadow-map-panel: var(--shadow-map-panel);
-  --color-shadow-map-controls: var(--shadow-map-controls);
-  --color-shadow-inset-border: var(--shadow-inset-border);
-  --color-shadow-inset-sidebar: var(--shadow-inset-sidebar);
-  --color-shadow-glow-live: var(--shadow-glow-live);
-  --color-shadow-glow-gold: var(--shadow-glow-gold);
-  --color-shadow-inset-gold: var(--shadow-inset-gold);
+  --shadow-2xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.03);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.18);
+  --shadow-dialog: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-toast: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-map-panel: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
+  --shadow-map-controls: 0 1px 3px rgba(0, 0, 0, 0.12);
+  --shadow-glow-live: 0 0 16px rgba(16, 185, 129, 0.35);
+  --shadow-glow-gold: 0 0 16px rgba(47, 95, 255, 0.35);
+
   --color-pp-blue: var(--pp-blue);
   --color-pp-blue-strong: var(--pp-blue-strong);
   --color-pp-tier-strong: var(--pp-tier-strong);
@@ -164,52 +158,73 @@
   --shadow-inset-border: none;
   --shadow-inset-sidebar: none;
   --shadow-glow-live: none;
-  --background: #fdfdfd;
-  --foreground: #09090b;
-  --surface: #ffffff;
-  --surface-2: #f4f4f5;
-  --surface-3: #e4e4e7;
-  --border: #e4e4e7;
-  --border-strong: #d4d4d8;
-  --muted: #f4f4f5;
-  --muted-foreground: #71717a;
-  --card: #ffffff;
-  --card-foreground: #09090b;
-  --popover: #ffffff;
-  --popover-foreground: #09090b;
-  --primary: #09090b;
-  --primary-foreground: #ffffff;
-  --secondary: #f4f4f5;
-  --secondary-foreground: #09090b;
-  --accent: #f4f4f5;
-  --accent-foreground: #09090b;
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-  --input: #e4e4e7;
-  --ring: #09090b;
+  --pp-page: #FAFAFC;
+  --pp-header: #FFFFFF;
+  --pp-surface: #FFFFFF;
+  --pp-surface-raised: #F8FAFC;
+  --pp-surface-soft: #F1F5F9;
+  --pp-border: #E2E8F0;
+  --pp-border-strong: #CBD5E1;
+  --pp-border-subtle: #F1F5F9;
+  --pp-border-default: #E2E8F0;
+  --pp-text: #0F172A;
+  --pp-text-secondary: #475569;
+  --pp-text-dim: #64748B;
+  --pp-text-label: #64748B;
+  --pp-text-active-filter: #0F172A;
+  --pp-text-on-primary: #FFFFFF;
+  --pp-muted: #475569;
+  --pp-faint: #94A3B8;
+  --pp-gold: #2F5FFF;
+  --pp-gold-bright: #2555FF;
+  --pp-live: #10B981;
 
-  --opportunity: #09090b;
-  --opportunity-strong: #18181b;
-  --profit: #10b981;
+  --background: #FAFAFC;
+  --foreground: #0F172A;
+  --surface: #FFFFFF;
+  --surface-2: #F8FAFC;
+  --surface-3: #F1F5F9;
+  --border: #E2E8F0;
+  --border-strong: #CBD5E1;
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B;
+  --card: #FFFFFF;
+  --card-foreground: #0F172A;
+  --popover: #FFFFFF;
+  --popover-foreground: #0F172A;
+  --primary: #2F5FFF;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F1F5F9;
+  --secondary-foreground: #0F172A;
+  --accent: #F1F5F9;
+  --accent-foreground: #0F172A;
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+  --input: #E2E8F0;
+  --ring: #2F5FFF;
+
+  --opportunity: #2F5FFF;
+  --opportunity-strong: #1E40AF;
+  --profit: #10B981;
   --profit-strong: #059669;
-  --skeptic: #ef4444;
-  --shadow-ring: #09090b;
-  --prophecy: #0ea5e9;
-  --listed: #64748b;
+  --skeptic: #EF4444;
+  --shadow-ring: #2F5FFF;
+  --prophecy: #2F5FFF;
+  --listed: #64748B;
 
-  --tier-exceptional: #09090b;
-  --tier-strong: #10b981;
-  --tier-viable: #64748b;
-  --tier-watch: #a1a1aa;
+  --tier-exceptional: #2F5FFF;
+  --tier-strong: #10B981;
+  --tier-viable: #64748B;
+  --tier-watch: #94A3B8;
 }
 
 .dark {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 @layer base {
   * { border-color: var(--color-border); }
-  html { color-scheme: dark; }
+  html { color-scheme: light; }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
@@ -236,22 +251,11 @@
 @utility text-md { font-size: 13px; line-height: 1.4; }
 @utility text-hero { font-size: clamp(2.4rem, 5vw, 3.5rem); line-height: 1.08; letter-spacing: -0.045em; }
 
-@utility shadow-xs { box-shadow: none; }
-@utility shadow-dialog { box-shadow: none; }
-@utility shadow-toast { box-shadow: none; }
-@utility shadow-map-panel { box-shadow: none; }
-@utility shadow-map-controls { box-shadow: none; }
-@utility shadow-inset-border { box-shadow: none; }
-@utility shadow-inset-sidebar { box-shadow: none; }
-@utility shadow-glow-live { box-shadow: none; }
-@utility shadow-glow-gold { box-shadow: none; }
-@utility shadow-inset-gold { box-shadow: none; }
-
 @utility raised-surface {
   background: var(--pp-surface-raised);
   border: 1px solid var(--pp-border);
-  border-radius: 5px;
-  box-shadow: none;
+  border-radius: 6px;
+  box-shadow: var(--shadow-sm);
 }
 
 /* Map custom marker glow */
@@ -261,47 +265,28 @@
 
 /* Perfect Property public and market-workspace surfaces.
    Token names mirror the Tailwind utilities (color-pp-*) registered in @theme so the
-   theme resolves cleanly. --faint bumped from #657581 (4.03:1 FAIL) to #7e8c98
-   (5.56:1 PASS WCAG AA small text). Borders strengthened for visibility. */
+   theme resolves cleanly. */
 .perfect-property-ui {
-
-  /* Elevation shadows */
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  /* Semantic shadows */
-  --shadow-glow-gold: none;
-  --shadow-dialog: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  --shadow-inset-gold: none;
-  --shadow-toast: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  --shadow-map-panel: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --shadow-map-controls: 0 1px 3px rgba(0, 0, 0, 0.1);
-  --shadow-inset-border: none;
-  --shadow-inset-sidebar: none;
-  --shadow-glow-live: none;
-  --pp-page: #0a0a0a;
-  --pp-header: #0a0a0a;
-  --pp-surface: #121212;
-  --pp-surface-raised: #1a1a1a;
-  --pp-surface-soft: #1e1e1e;
-  --pp-border: #27272a;
-  --pp-border-strong: #3f3f46;
-  --pp-border-subtle: #18181b;
-  --pp-border-default: #27272a;
-  --pp-text-secondary: #a1a1aa;
-  --pp-text-dim: #71717a;
-  --pp-text-label: #52525b;
-  --pp-text-active-filter: #ffffff;
-  --pp-text-on-primary: #0a0a0a;
-  --pp-text: #ffffff;
-  --pp-muted: #a1a1aa;
-  --pp-faint: #52525b;
-  --pp-gold: #efaa2d;
-  --pp-gold-bright: #fbbf24;
-  --pp-live: #10b981;
+  --pp-page: #FAFAFC;
+  --pp-header: #FFFFFF;
+  --pp-surface: #FFFFFF;
+  --pp-surface-raised: #F8FAFC;
+  --pp-surface-soft: #F1F5F9;
+  --pp-border: #E2E8F0;
+  --pp-border-strong: #CBD5E1;
+  --pp-border-subtle: #F1F5F9;
+  --pp-border-default: #E2E8F0;
+  --pp-text-secondary: #475569;
+  --pp-text-dim: #64748B;
+  --pp-text-label: #64748B;
+  --pp-text-active-filter: #0F172A;
+  --pp-text-on-primary: #FFFFFF;
+  --pp-text: #0F172A;
+  --pp-muted: #475569;
+  --pp-faint: #94A3B8;
+  --pp-gold: #2F5FFF;
+  --pp-gold-bright: #2555FF;
+  --pp-live: #10B981;
   /* Typography scale */
   --pp-text-xs: 10px;
   --pp-text-sm: 11px;
@@ -331,11 +316,11 @@
   --pp-space-24: 96px;
 
   /* Border radius */
-  --pp-radius-sm: 3px;
-  --pp-radius-md: 5px;
-  --pp-radius-lg: 7px;
-  --pp-radius-xl: 10px;
-  --pp-radius-2xl: 14px;
+  --pp-radius-sm: 4px;
+  --pp-radius-md: 6px;
+  --pp-radius-lg: 8px;
+  --pp-radius-xl: 12px;
+  --pp-radius-2xl: 16px;
 
   /* Line height */
   --pp-leading-none: 1;
@@ -344,11 +329,11 @@
   --pp-leading-normal: 1.5;
   --pp-leading-relaxed: 1.7;
   --pp-leading-loose: 2;
-  --pp-blue: rgba(26, 84, 125, 0.16);
-  --pp-blue-strong: rgba(26, 84, 125, 0.22);
-  --pp-tier-strong: #a97828;
-  --pp-tier-moderate: #607482;
-  --pp-tier-weak: #34434d;
+  --pp-blue: rgba(47, 95, 255, 0.10);
+  --pp-blue-strong: rgba(47, 95, 255, 0.18);
+  --pp-tier-strong: #2F5FFF;
+  --pp-tier-moderate: #10B981;
+  --pp-tier-weak: #64748B;
   min-width: 320px;
   font-family: var(--font-sans);
   font-synthesis: none;
@@ -373,7 +358,7 @@
 
 .perfect-property-ui button:focus-visible,
 .perfect-property-ui input:focus-visible {
-  outline: 2px solid rgba(239, 170, 45, 0.85);
+  outline: 2px solid rgba(47, 95, 255, 0.85);
   outline-offset: 2px;
 }
 
@@ -383,23 +368,25 @@
 
 .perfect-property-ui .control-button {
   display: flex;
-  height: 38px;
+  height: 36px;
   align-items: center;
   gap: 8px;
   border: 1px solid var(--pp-border);
-  border-radius: 5px;
+  border-radius: 6px;
   background: var(--pp-surface);
   padding: 0 12px;
   color: var(--pp-text-secondary);
   font-size: 12px;
-  box-shadow: none;
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  font-weight: 500;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .perfect-property-ui .control-button:hover {
   border-color: var(--pp-border-strong);
   background: var(--pp-surface-soft);
   color: var(--pp-text);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
 }
 
 .perfect-property-ui .control-button:active,
@@ -411,23 +398,24 @@
 
 .perfect-property-ui .primary-button {
   display: flex;
-  height: 38px;
+  height: 36px;
   align-items: center;
   justify-content: center;
   gap: 8px;
   border: 1px solid transparent;
-  border-radius: 5px;
-  background: #09090b;
+  border-radius: 6px;
+  background: #0F172A;
   padding: 0 16px;
-  color: #ffffff;
+  color: #FFFFFF;
   font-size: 12px;
-  font-weight: 500;
-  box-shadow: none;
-  transition: opacity 0.15s ease;
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  transition: background 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
 }
 
 .perfect-property-ui .primary-button:hover {
-  opacity: 0.85;
+  background: #1E293B;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
 }
 
 .perfect-property-ui .landing-cta {
@@ -453,15 +441,16 @@
 }
 
 .perfect-property-ui .filter-button {
-  height: 34px;
+  height: 32px;
   white-space: nowrap;
   border: 1px solid var(--pp-border);
-  border-radius: 4px;
+  border-radius: 6px;
   background: var(--pp-surface);
   padding: 0 12px;
   color: var(--pp-text-secondary);
   font-size: 11px;
-  box-shadow: none;
+  font-weight: 500;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
   transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
@@ -472,10 +461,10 @@
 }
 
 .perfect-property-ui .filter-button.active-filter {
-  border-color: var(--pp-border-strong);
-  background: #f4f4f5;
-  color: #09090b;
-  box-shadow: none;
+  border-color: #0F172A;
+  background: #0F172A;
+  color: #FFFFFF;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
 }
 
 .perfect-property-ui .label {

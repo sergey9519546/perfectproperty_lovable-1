@@ -1,5 +1,6 @@
 import { useEffect } from "react";
-import { APIProvider, Map, AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
+import { APIProvider, Map as GoogleMap, AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
+import { motion } from "motion/react";
 import { GMP_ATTRIBUTION_ID, DEFAULT_MAP_ID, getGoogleMapsApiKey, DARK_MAP_STYLE } from "@/lib/google-maps";
 
 export interface MapParcel {
@@ -53,7 +54,7 @@ export function MapView({ parcels, center = [-98, 36], zoom = 4, onSelect, selec
   return (
     <div className={className ?? "h-full w-full relative overflow-hidden"}>
       <APIProvider apiKey={apiKey} libraries={["marker", "places", "geometry"]}>
-        <Map
+        <GoogleMap
           mapId={DEFAULT_MAP_ID}
           internalUsageAttributionIds={[GMP_ATTRIBUTION_ID]}
           defaultCenter={{ lat: center[1], lng: center[0] }}
@@ -76,17 +77,35 @@ export function MapView({ parcels, center = [-98, 36], zoom = 4, onSelect, selec
                 onClick={() => onSelect?.(p.parcel_id)}
                 title={`Score: ${p.perfect_score}`}
               >
-                <div
-                  className="relative flex items-center justify-center cursor-pointer transition-transform duration-150 hover:scale-125"
+                <motion.div
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: isSelected ? 1.3 : 1, opacity: 1 }}
+                  transition={{ type: "spring", stiffness: 380, damping: 26, mass: 0.6 }}
+                  className="relative flex items-center justify-center cursor-pointer hover:scale-115 transition-transform"
                   style={{
                     width: isSelected ? 30 : 22,
                     height: isSelected ? 30 : 22,
                   }}
                 >
-                  <span
-                    className="absolute inset-0 rounded-full animate-ping opacity-30"
-                    style={{ backgroundColor: isSelected ? "#ffffff" : ringColor }}
-                  />
+                  {isSelected && (
+                    <>
+                      <span
+                        className="absolute -inset-3 rounded-full animate-ping opacity-60 pointer-events-none"
+                        style={{ backgroundColor: color, animationDuration: '1.6s' }}
+                      />
+                      <span
+                        className="absolute -inset-1.5 rounded-full animate-ping opacity-40 pointer-events-none"
+                        style={{ backgroundColor: '#ffffff', animationDuration: '1.2s' }}
+                      />
+                      <span
+                        className="absolute -inset-2 rounded-full animate-pulse opacity-50 pointer-events-none"
+                        style={{
+                          boxShadow: `0 0 16px 3px ${color}`,
+                          border: `1.5px solid ${color}`,
+                        }}
+                      />
+                    </>
+                  )}
                   <div
                     className="relative flex items-center justify-center rounded-full font-mono text-[10px] font-bold text-white shadow-lg"
                     style={{
@@ -99,11 +118,11 @@ export function MapView({ parcels, center = [-98, 36], zoom = 4, onSelect, selec
                   >
                     {Math.round(p.perfect_score)}
                   </div>
-                </div>
+                </motion.div>
               </AdvancedMarker>
             );
           })}
-        </Map>
+        </GoogleMap>
       </APIProvider>
     </div>
   );

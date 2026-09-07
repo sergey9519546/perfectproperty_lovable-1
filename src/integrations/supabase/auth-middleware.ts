@@ -91,6 +91,26 @@ export const requireSupabaseAuth = createMiddleware({ type: 'function' }).server
         if (payload.exp && payload.exp < nowSec) {
           throw new Error('Unauthorized: Session token expired');
         }
+
+        // SECURE TOKEN VALIDATION FOR FIREBASE
+        if (isFirebaseToken) {
+          const { firebaseAppletConfig } = await import('@/integrations/firebase/config');
+          const apiKey = firebaseAppletConfig.apiKey;
+          if (!apiKey) throw new Error('Firebase API Key missing for token verification');
+          const verifyRes = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idToken: token })
+          });
+          const verifyData = await verifyRes.json();
+          if (!verifyRes.ok || !verifyData.users || verifyData.users.length === 0) {
+             throw new Error('Unauthorized: Firebase token signature verification failed');
+          }
+          if (verifyData.users[0].localId !== payload.sub) {
+             throw new Error('Unauthorized: Firebase token subject mismatch');
+          }
+        }
+
         const { supabaseAdmin } = await import('./client.server');
         return next({
           context: {
