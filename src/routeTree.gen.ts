@@ -20,6 +20,7 @@ import { Route as NoticesRouteImport } from './routes/notices'
 import { Route as ProphecyRouteImport } from './routes/prophecy'
 import { Route as ShadowRouteImport } from './routes/shadow'
 import { Route as SheriffSalesRouteImport } from './routes/sheriff-sales'
+import { Route as SourcesRouteImport } from './routes/sources'
 import { Route as WorkspaceRouteImport } from './routes/workspace'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
@@ -30,8 +31,6 @@ import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as ApiAnalyticsActionsRouteImport } from './routes/api/analytics/actions'
 import { Route as ApiAnalyticsEventsRouteImport } from './routes/api/analytics/events'
-import { Route as ApiGeminiGroundedIntelligenceRouteImport } from './routes/api/gemini/grounded-intelligence'
-import { Route as ApiGeminiSheriffIntelligenceRouteImport } from './routes/api/gemini/sheriff-intelligence'
 import { Route as ApiPublicBackfillOutcomesRouteImport } from './routes/api/public/backfill-outcomes'
 import { Route as ApiPublicIngestAllRouteImport } from './routes/api/public/ingest-all'
 import { Route as ApiPublicIngestOutcomesRouteImport } from './routes/api/public/ingest-outcomes'
@@ -99,6 +98,11 @@ const SheriffSalesRoute = SheriffSalesRouteImport.update({
   path: '/sheriff-sales',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SourcesRoute = SourcesRouteImport.update({
+  id: '/sources',
+  path: '/sources',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WorkspaceRoute = WorkspaceRouteImport.update({
   id: '/workspace',
   path: '/workspace',
@@ -152,18 +156,6 @@ const ApiAnalyticsEventsRoute = ApiAnalyticsEventsRouteImport.update({
   path: '/api/analytics/events',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiGeminiGroundedIntelligenceRoute =
-  ApiGeminiGroundedIntelligenceRouteImport.update({
-    id: '/api/gemini/grounded-intelligence',
-    path: '/api/gemini/grounded-intelligence',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiGeminiSheriffIntelligenceRoute =
-  ApiGeminiSheriffIntelligenceRouteImport.update({
-    id: '/api/gemini/sheriff-intelligence',
-    path: '/api/gemini/sheriff-intelligence',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const ApiPublicBackfillOutcomesRoute =
   ApiPublicBackfillOutcomesRouteImport.update({
     id: '/api/public/backfill-outcomes',
@@ -237,6 +229,7 @@ export interface FileRoutesByFullPath {
   '/prophecy': typeof ProphecyRoute
   '/shadow': typeof ShadowRoute
   '/sheriff-sales': typeof SheriffSalesRoute
+  '/sources': typeof SourcesRoute
   '/workspace': typeof WorkspaceRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -247,8 +240,6 @@ export interface FileRoutesByFullPath {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/analytics/actions': typeof ApiAnalyticsActionsRoute
   '/api/analytics/events': typeof ApiAnalyticsEventsRoute
-  '/api/gemini/grounded-intelligence': typeof ApiGeminiGroundedIntelligenceRoute
-  '/api/gemini/sheriff-intelligence': typeof ApiGeminiSheriffIntelligenceRoute
   '/api/public/backfill-outcomes': typeof ApiPublicBackfillOutcomesRoute
   '/api/public/ingest-all': typeof ApiPublicIngestAllRoute
   '/api/public/ingest-outcomes': typeof ApiPublicIngestOutcomesRoute
@@ -272,6 +263,7 @@ export interface FileRoutesByTo {
   '/prophecy': typeof ProphecyRoute
   '/shadow': typeof ShadowRoute
   '/sheriff-sales': typeof SheriffSalesRoute
+  '/sources': typeof SourcesRoute
   '/workspace': typeof WorkspaceRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -282,8 +274,6 @@ export interface FileRoutesByTo {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/analytics/actions': typeof ApiAnalyticsActionsRoute
   '/api/analytics/events': typeof ApiAnalyticsEventsRoute
-  '/api/gemini/grounded-intelligence': typeof ApiGeminiGroundedIntelligenceRoute
-  '/api/gemini/sheriff-intelligence': typeof ApiGeminiSheriffIntelligenceRoute
   '/api/public/backfill-outcomes': typeof ApiPublicBackfillOutcomesRoute
   '/api/public/ingest-all': typeof ApiPublicIngestAllRoute
   '/api/public/ingest-outcomes': typeof ApiPublicIngestOutcomesRoute
@@ -309,6 +299,7 @@ export interface FileRoutesById {
   '/prophecy': typeof ProphecyRoute
   '/shadow': typeof ShadowRoute
   '/sheriff-sales': typeof SheriffSalesRoute
+  '/sources': typeof SourcesRoute
   '/workspace': typeof WorkspaceRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -319,8 +310,6 @@ export interface FileRoutesById {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/analytics/actions': typeof ApiAnalyticsActionsRoute
   '/api/analytics/events': typeof ApiAnalyticsEventsRoute
-  '/api/gemini/grounded-intelligence': typeof ApiGeminiGroundedIntelligenceRoute
-  '/api/gemini/sheriff-intelligence': typeof ApiGeminiSheriffIntelligenceRoute
   '/api/public/backfill-outcomes': typeof ApiPublicBackfillOutcomesRoute
   '/api/public/ingest-all': typeof ApiPublicIngestAllRoute
   '/api/public/ingest-outcomes': typeof ApiPublicIngestOutcomesRoute
@@ -347,6 +336,7 @@ export interface FileRouteTypes {
     | '/prophecy'
     | '/shadow'
     | '/sheriff-sales'
+    | '/sources'
     | '/workspace'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
@@ -357,8 +347,6 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/api/analytics/actions'
     | '/api/analytics/events'
-    | '/api/gemini/grounded-intelligence'
-    | '/api/gemini/sheriff-intelligence'
     | '/api/public/backfill-outcomes'
     | '/api/public/ingest-all'
     | '/api/public/ingest-outcomes'
@@ -382,6 +370,7 @@ export interface FileRouteTypes {
     | '/prophecy'
     | '/shadow'
     | '/sheriff-sales'
+    | '/sources'
     | '/workspace'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
@@ -392,8 +381,6 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/api/analytics/actions'
     | '/api/analytics/events'
-    | '/api/gemini/grounded-intelligence'
-    | '/api/gemini/sheriff-intelligence'
     | '/api/public/backfill-outcomes'
     | '/api/public/ingest-all'
     | '/api/public/ingest-outcomes'
@@ -418,6 +405,7 @@ export interface FileRouteTypes {
     | '/prophecy'
     | '/shadow'
     | '/sheriff-sales'
+    | '/sources'
     | '/workspace'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
@@ -428,8 +416,6 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/api/analytics/actions'
     | '/api/analytics/events'
-    | '/api/gemini/grounded-intelligence'
-    | '/api/gemini/sheriff-intelligence'
     | '/api/public/backfill-outcomes'
     | '/api/public/ingest-all'
     | '/api/public/ingest-outcomes'
@@ -455,6 +441,7 @@ export interface RootRouteChildren {
   ProphecyRoute: typeof ProphecyRoute
   ShadowRoute: typeof ShadowRoute
   SheriffSalesRoute: typeof SheriffSalesRoute
+  SourcesRoute: typeof SourcesRoute
   WorkspaceRoute: typeof WorkspaceRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -462,8 +449,6 @@ export interface RootRouteChildren {
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiAnalyticsActionsRoute: typeof ApiAnalyticsActionsRoute
   ApiAnalyticsEventsRoute: typeof ApiAnalyticsEventsRoute
-  ApiGeminiGroundedIntelligenceRoute: typeof ApiGeminiGroundedIntelligenceRoute
-  ApiGeminiSheriffIntelligenceRoute: typeof ApiGeminiSheriffIntelligenceRoute
   ApiPublicBackfillOutcomesRoute: typeof ApiPublicBackfillOutcomesRoute
   ApiPublicIngestAllRoute: typeof ApiPublicIngestAllRoute
   ApiPublicIngestOutcomesRoute: typeof ApiPublicIngestOutcomesRoute
@@ -556,6 +541,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SheriffSalesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sources': {
+      id: '/sources'
+      path: '/sources'
+      fullPath: '/sources'
+      preLoaderRoute: typeof SourcesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/workspace': {
       id: '/workspace'
       path: '/workspace'
@@ -624,20 +616,6 @@ declare module '@tanstack/react-router' {
       path: '/api/analytics/events'
       fullPath: '/api/analytics/events'
       preLoaderRoute: typeof ApiAnalyticsEventsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/gemini/grounded-intelligence': {
-      id: '/api/gemini/grounded-intelligence'
-      path: '/api/gemini/grounded-intelligence'
-      fullPath: '/api/gemini/grounded-intelligence'
-      preLoaderRoute: typeof ApiGeminiGroundedIntelligenceRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/gemini/sheriff-intelligence': {
-      id: '/api/gemini/sheriff-intelligence'
-      path: '/api/gemini/sheriff-intelligence'
-      fullPath: '/api/gemini/sheriff-intelligence'
-      preLoaderRoute: typeof ApiGeminiSheriffIntelligenceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/backfill-outcomes': {
@@ -746,6 +724,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProphecyRoute: ProphecyRoute,
   ShadowRoute: ShadowRoute,
   SheriffSalesRoute: SheriffSalesRoute,
+  SourcesRoute: SourcesRoute,
   WorkspaceRoute: WorkspaceRoute,
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
@@ -754,8 +733,6 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiAnalyticsActionsRoute: ApiAnalyticsActionsRoute,
   ApiAnalyticsEventsRoute: ApiAnalyticsEventsRoute,
-  ApiGeminiGroundedIntelligenceRoute: ApiGeminiGroundedIntelligenceRoute,
-  ApiGeminiSheriffIntelligenceRoute: ApiGeminiSheriffIntelligenceRoute,
   ApiPublicBackfillOutcomesRoute: ApiPublicBackfillOutcomesRoute,
   ApiPublicIngestAllRoute: ApiPublicIngestAllRoute,
   ApiPublicIngestOutcomesRoute: ApiPublicIngestOutcomesRoute,

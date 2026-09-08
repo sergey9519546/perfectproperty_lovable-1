@@ -129,6 +129,18 @@ export function TopBar({
                 <span>Portfolio Health & Risk</span>
               </Link>
             </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/notices" className="cursor-pointer flex items-center gap-2 py-1.5 text-xs">
+                <Compass size={14} className="text-pp-muted" />
+                <span>Read a Sale Notice</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/sources" className="cursor-pointer flex items-center gap-2 py-1.5 text-xs">
+                <BookmarkSimple size={14} className="text-pp-muted" />
+                <span>Where Data Comes From</span>
+              </Link>
+            </DropdownMenuItem>
             {onSignOut && (
               <>
                 <DropdownMenuSeparator className="bg-pp-border" />
