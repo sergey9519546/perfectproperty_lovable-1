@@ -8,7 +8,7 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -161,7 +161,12 @@ function RootComponent() {
 }
 
 function TopNav() {
-  const { user, signOutUser } = useFirebaseAuth();
+  const { user: authUser, signOutUser } = useFirebaseAuth();
+  // Auth state only exists in the browser; render the signed-out shell during
+  // SSR/hydration so server and client markup match.
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => setHydrated(true), []);
+  const user = hydrated ? authUser : null;
 
   async function handleSignOut() {
     try {
