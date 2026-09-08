@@ -30,8 +30,6 @@ import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as ApiAnalyticsActionsRouteImport } from './routes/api/analytics/actions'
 import { Route as ApiAnalyticsEventsRouteImport } from './routes/api/analytics/events'
-import { Route as ApiGeminiGroundedIntelligenceRouteImport } from './routes/api/gemini/grounded-intelligence'
-import { Route as ApiGeminiSheriffIntelligenceRouteImport } from './routes/api/gemini/sheriff-intelligence'
 import { Route as ApiPublicBackfillOutcomesRouteImport } from './routes/api/public/backfill-outcomes'
 import { Route as ApiPublicIngestAllRouteImport } from './routes/api/public/ingest-all'
 import { Route as ApiPublicIngestOutcomesRouteImport } from './routes/api/public/ingest-outcomes'
@@ -152,18 +150,6 @@ const ApiAnalyticsEventsRoute = ApiAnalyticsEventsRouteImport.update({
   path: '/api/analytics/events',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiGeminiGroundedIntelligenceRoute =
-  ApiGeminiGroundedIntelligenceRouteImport.update({
-    id: '/api/gemini/grounded-intelligence',
-    path: '/api/gemini/grounded-intelligence',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiGeminiSheriffIntelligenceRoute =
-  ApiGeminiSheriffIntelligenceRouteImport.update({
-    id: '/api/gemini/sheriff-intelligence',
-    path: '/api/gemini/sheriff-intelligence',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const ApiPublicBackfillOutcomesRoute =
   ApiPublicBackfillOutcomesRouteImport.update({
     id: '/api/public/backfill-outcomes',
@@ -247,8 +233,6 @@ export interface FileRoutesByFullPath {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/analytics/actions': typeof ApiAnalyticsActionsRoute
   '/api/analytics/events': typeof ApiAnalyticsEventsRoute
-  '/api/gemini/grounded-intelligence': typeof ApiGeminiGroundedIntelligenceRoute
-  '/api/gemini/sheriff-intelligence': typeof ApiGeminiSheriffIntelligenceRoute
   '/api/public/backfill-outcomes': typeof ApiPublicBackfillOutcomesRoute
   '/api/public/ingest-all': typeof ApiPublicIngestAllRoute
   '/api/public/ingest-outcomes': typeof ApiPublicIngestOutcomesRoute
@@ -282,8 +266,6 @@ export interface FileRoutesByTo {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/analytics/actions': typeof ApiAnalyticsActionsRoute
   '/api/analytics/events': typeof ApiAnalyticsEventsRoute
-  '/api/gemini/grounded-intelligence': typeof ApiGeminiGroundedIntelligenceRoute
-  '/api/gemini/sheriff-intelligence': typeof ApiGeminiSheriffIntelligenceRoute
   '/api/public/backfill-outcomes': typeof ApiPublicBackfillOutcomesRoute
   '/api/public/ingest-all': typeof ApiPublicIngestAllRoute
   '/api/public/ingest-outcomes': typeof ApiPublicIngestOutcomesRoute
@@ -319,8 +301,6 @@ export interface FileRoutesById {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/analytics/actions': typeof ApiAnalyticsActionsRoute
   '/api/analytics/events': typeof ApiAnalyticsEventsRoute
-  '/api/gemini/grounded-intelligence': typeof ApiGeminiGroundedIntelligenceRoute
-  '/api/gemini/sheriff-intelligence': typeof ApiGeminiSheriffIntelligenceRoute
   '/api/public/backfill-outcomes': typeof ApiPublicBackfillOutcomesRoute
   '/api/public/ingest-all': typeof ApiPublicIngestAllRoute
   '/api/public/ingest-outcomes': typeof ApiPublicIngestOutcomesRoute
@@ -357,8 +337,6 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/api/analytics/actions'
     | '/api/analytics/events'
-    | '/api/gemini/grounded-intelligence'
-    | '/api/gemini/sheriff-intelligence'
     | '/api/public/backfill-outcomes'
     | '/api/public/ingest-all'
     | '/api/public/ingest-outcomes'
@@ -392,8 +370,6 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/api/analytics/actions'
     | '/api/analytics/events'
-    | '/api/gemini/grounded-intelligence'
-    | '/api/gemini/sheriff-intelligence'
     | '/api/public/backfill-outcomes'
     | '/api/public/ingest-all'
     | '/api/public/ingest-outcomes'
@@ -428,8 +404,6 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/api/analytics/actions'
     | '/api/analytics/events'
-    | '/api/gemini/grounded-intelligence'
-    | '/api/gemini/sheriff-intelligence'
     | '/api/public/backfill-outcomes'
     | '/api/public/ingest-all'
     | '/api/public/ingest-outcomes'
@@ -462,8 +436,6 @@ export interface RootRouteChildren {
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiAnalyticsActionsRoute: typeof ApiAnalyticsActionsRoute
   ApiAnalyticsEventsRoute: typeof ApiAnalyticsEventsRoute
-  ApiGeminiGroundedIntelligenceRoute: typeof ApiGeminiGroundedIntelligenceRoute
-  ApiGeminiSheriffIntelligenceRoute: typeof ApiGeminiSheriffIntelligenceRoute
   ApiPublicBackfillOutcomesRoute: typeof ApiPublicBackfillOutcomesRoute
   ApiPublicIngestAllRoute: typeof ApiPublicIngestAllRoute
   ApiPublicIngestOutcomesRoute: typeof ApiPublicIngestOutcomesRoute
@@ -626,20 +598,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAnalyticsEventsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/gemini/grounded-intelligence': {
-      id: '/api/gemini/grounded-intelligence'
-      path: '/api/gemini/grounded-intelligence'
-      fullPath: '/api/gemini/grounded-intelligence'
-      preLoaderRoute: typeof ApiGeminiGroundedIntelligenceRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/gemini/sheriff-intelligence': {
-      id: '/api/gemini/sheriff-intelligence'
-      path: '/api/gemini/sheriff-intelligence'
-      fullPath: '/api/gemini/sheriff-intelligence'
-      preLoaderRoute: typeof ApiGeminiSheriffIntelligenceRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/public/backfill-outcomes': {
       id: '/api/public/backfill-outcomes'
       path: '/api/public/backfill-outcomes'
@@ -754,8 +712,6 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiAnalyticsActionsRoute: ApiAnalyticsActionsRoute,
   ApiAnalyticsEventsRoute: ApiAnalyticsEventsRoute,
-  ApiGeminiGroundedIntelligenceRoute: ApiGeminiGroundedIntelligenceRoute,
-  ApiGeminiSheriffIntelligenceRoute: ApiGeminiSheriffIntelligenceRoute,
   ApiPublicBackfillOutcomesRoute: ApiPublicBackfillOutcomesRoute,
   ApiPublicIngestAllRoute: ApiPublicIngestAllRoute,
   ApiPublicIngestOutcomesRoute: ApiPublicIngestOutcomesRoute,
