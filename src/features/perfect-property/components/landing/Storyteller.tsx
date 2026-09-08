@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { Play, X, CheckCircle, ArrowRight, Zap, Clock, ShieldCheck, Sparkles, Building2 } from 'lucide-react'
@@ -8,16 +9,16 @@ export const Storyteller = () => {
   const [activeWorkflow, setActiveWorkflow] = useState<'traditional' | 'automated'>('automated')
 
   return (
-    <section className="py-28 bg-white">
+    <section className="py-28 bg-card">
       <div className="max-w-[1240px] mx-auto px-6">
         <div className="text-center mb-16">
-          <span className="text-xs font-mono font-bold uppercase tracking-[0.2em] text-[#2F5FFF] block mb-3">
+          <span className="text-xs font-mono font-bold uppercase tracking-[0.2em] text-primary block mb-3">
             THE UNDERWRITING BOTTLENECK
           </span>
-          <h2 className="text-[38px] md:text-[50px] font-bold tracking-[-0.04em] leading-[1.05] text-[#0F0F0F] mb-6 max-w-[800px] mx-auto">
+          <h2 className="text-[38px] md:text-[50px] font-bold tracking-[-0.04em] leading-[1.05] text-background mb-6 max-w-[800px] mx-auto">
             You're the deal hunter. Perfect Property makes every opportunity clear.
           </h2>
-          <p className="text-[19px] text-[#4B5563] max-w-[760px] mx-auto leading-[1.6] font-medium">
+          <p className="text-[19px] text-muted-foreground max-w-[760px] mx-auto leading-[1.6] font-medium">
             In a fast-moving market, deal velocity and analytical rigor matter most. Perfect Property automates underwriting in seconds.
           </p>
         </div>
@@ -31,15 +32,15 @@ export const Storyteller = () => {
           className="bg-[#EBFCE5] rounded-[32px] border border-[#D5EED0] shadow-[0_32px_64px_-12px_rgba(15,23,42,0.08)] overflow-hidden min-h-[620px] relative flex flex-col group"
         >
           {/* Browser Top Bar */}
-          <div className="h-12 bg-white/95 backdrop-blur px-6 flex items-center justify-between border-b border-slate-200/60 z-20">
+          <div className="h-12 bg-card/95 backdrop-blur px-6 flex items-center justify-between border-b border-slate-200/60 z-20">
             <div className="flex gap-2">
               <div className="w-3 h-3 rounded-full bg-[#FF5F57] shadow-xs" />
               <div className="w-3 h-3 rounded-full bg-[#FFBD2E] shadow-xs" />
               <div className="w-3 h-3 rounded-full bg-[#28C840] shadow-xs" />
             </div>
-            <div className="flex items-center gap-2 bg-slate-100/90 px-4 py-1 rounded-md border border-slate-200/50">
+            <div className="flex items-center gap-2 bg-accent/90 px-4 py-1 rounded-md border border-slate-200/50">
               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[11px] font-mono font-bold text-slate-600 tracking-wide uppercase">
+              <span className="text-[11px] font-mono font-bold text-muted-foreground tracking-wide uppercase">
                 perfectproperty.com/workspace/florida
               </span>
             </div>
@@ -58,14 +59,14 @@ export const Storyteller = () => {
               transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
               className="absolute top-10 left-4 md:left-14 w-72 md:w-80 z-10 hidden sm:block"
             >
-              <CardSpotlight className="bg-white/95 backdrop-blur-md p-5 rounded-2xl shadow-[0_20px_40px_-10px_rgba(0,0,0,0.12)] border border-slate-200">
-                <div className="w-full h-32 bg-slate-100 rounded-xl mb-3 overflow-hidden relative">
+              <CardSpotlight className="bg-card/95 backdrop-blur-md p-5 rounded-2xl shadow-[0_20px_40px_-10px_rgba(0,0,0,0.12)] border border-slate-200">
+                <div className="w-full h-32 bg-accent rounded-xl mb-3 overflow-hidden relative">
                   <img 
                     src="https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&q=80&w=800" 
                     alt="Austin Property" 
                     className="w-full h-full object-cover" 
                   />
-                  <div className="absolute top-2.5 left-2.5 px-2.5 py-0.5 bg-white/90 backdrop-blur rounded text-[10px] font-mono font-bold text-[#2F5FFF] border border-blue-100 shadow-xs">
+                  <div className="absolute top-2.5 left-2.5 px-2.5 py-0.5 bg-card/90 backdrop-blur rounded text-[10px] font-mono font-bold text-primary border border-blue-100 shadow-xs">
                     RING 1 DEAL
                   </div>
                   <div className="absolute bottom-2 right-2 px-2 py-0.5 bg-slate-950/80 backdrop-blur rounded text-[9px] font-mono text-slate-200">
@@ -73,26 +74,26 @@ export const Storyteller = () => {
                   </div>
                 </div>
 
-                <div className="font-bold text-[15px] text-slate-900 mb-2">123 Main St, Austin TX</div>
+                <div className="font-bold text-[15px] text-foreground mb-2">123 Main St, Austin TX</div>
                 <div className="space-y-1.5 font-mono text-xs">
                   <div className="flex justify-between">
-                    <span className="text-slate-500 font-sans">Underwrite ARV:</span>
-                    <span className="font-bold text-slate-900">$342,500</span>
+                    <span className="text-muted-foreground font-sans">Underwrite ARV:</span>
+                    <span className="font-bold text-foreground">$342,500</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-500 font-sans">Projected Profit:</span>
+                    <span className="text-muted-foreground font-sans">Projected Profit:</span>
                     <span className="font-bold text-emerald-600">+$52,800 (23.4%)</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-500 font-sans">Confidence:</span>
-                    <span className="font-bold text-blue-600">97.8% (28 comps)</span>
+                    <span className="text-muted-foreground font-sans">Confidence:</span>
+                    <span className="font-bold text-primary">97.8% (28 comps)</span>
                   </div>
                 </div>
 
                 <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
                     <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    <span className="text-[10px] font-mono font-bold text-slate-500 uppercase">Underwritten in 6s</span>
+                    <span className="text-[10px] font-mono font-bold text-muted-foreground uppercase">Underwritten in 6s</span>
                   </div>
                   <span className="text-[10px] font-mono font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
                     APPROVED
@@ -107,8 +108,8 @@ export const Storyteller = () => {
               transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
               className="absolute bottom-10 right-4 md:right-14 w-72 md:w-80 z-10 hidden sm:block"
             >
-              <CardSpotlight className="bg-white/95 backdrop-blur-md p-5 rounded-2xl shadow-[0_20px_40px_-10px_rgba(0,0,0,0.12)] border border-slate-200">
-                <div className="w-full h-32 bg-slate-100 rounded-xl mb-3 overflow-hidden relative">
+              <CardSpotlight className="bg-card/95 backdrop-blur-md p-5 rounded-2xl shadow-[0_20px_40px_-10px_rgba(0,0,0,0.12)] border border-slate-200">
+                <div className="w-full h-32 bg-accent rounded-xl mb-3 overflow-hidden relative">
                   <img 
                     src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=800" 
                     alt="Denver Property" 
@@ -122,18 +123,18 @@ export const Storyteller = () => {
                   </div>
                 </div>
 
-                <div className="font-bold text-[15px] text-slate-900 mb-2">456 Oak Ave, Denver CO</div>
+                <div className="font-bold text-[15px] text-foreground mb-2">456 Oak Ave, Denver CO</div>
                 <div className="space-y-1.5 font-mono text-xs">
                   <div className="flex justify-between">
-                    <span className="text-slate-500 font-sans">Off-Market Prob:</span>
+                    <span className="text-muted-foreground font-sans">Off-Market Prob:</span>
                     <span className="font-bold text-amber-600">82.4% Notice</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-500 font-sans">Tax Arrears:</span>
-                    <span className="font-bold text-slate-900">$18,450 (2 yrs)</span>
+                    <span className="text-muted-foreground font-sans">Tax Arrears:</span>
+                    <span className="font-bold text-foreground">$18,450 (2 yrs)</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-500 font-sans">Equity Spread:</span>
+                    <span className="text-muted-foreground font-sans">Equity Spread:</span>
                     <span className="font-bold text-emerald-600">+$124,000</span>
                   </div>
                 </div>
@@ -141,7 +142,7 @@ export const Storyteller = () => {
                 <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
                     <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                    <span className="text-[10px] font-mono font-bold text-slate-500 uppercase">Pre-Listing Alert</span>
+                    <span className="text-[10px] font-mono font-bold text-muted-foreground uppercase">Pre-Listing Alert</span>
                   </div>
                   <span className="text-[10px] font-mono font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded">
                     OUTREACH READY
@@ -156,27 +157,27 @@ export const Storyteller = () => {
                 whileHover={{ scale: 1.08 }}
                 whileTap={{ scale: 0.96 }}
                 onClick={() => setShowDemoModal(true)}
-                className="w-18 h-18 bg-white rounded-2xl flex items-center justify-center shadow-xl mb-6 mx-auto cursor-pointer border border-slate-200/80 transition-transform group/btn"
+                className="w-18 h-18 bg-card rounded-2xl flex items-center justify-center shadow-xl mb-6 mx-auto cursor-pointer border border-slate-200/80 transition-transform group/btn"
                 aria-label="Open Interactive Demo"
               >
-                <Play size={28} fill="#2F5FFF" className="text-[#2F5FFF] ml-1 transition-transform group-hover/btn:scale-110" />
+                <Play size={28} fill="#efaa2d" className="text-primary ml-1 transition-transform group-hover/btn:scale-110" />
               </motion.button>
               
-              <h3 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight text-[#0F0F0F]">
+              <h3 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight text-background">
                 See the engine in action
               </h3>
-              <p className="text-[#4B5563] mb-8 leading-relaxed text-[17px] font-medium">
+              <p className="text-muted-foreground mb-8 leading-relaxed text-[17px] font-medium">
                 Compare traditional 4-hour manual spreadsheet underwriting against our 8-second automated cadastral pipeline.
               </p>
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <button
+                <Button
                   onClick={() => setShowDemoModal(true)}
-                  className="h-12 px-8 bg-[#0F0F0F] text-white rounded-xl font-bold text-sm hover:bg-black shadow-lg transition-all cursor-pointer flex items-center gap-2"
+                  className="h-12 px-8 bg-background text-white rounded-xl font-bold text-sm hover:bg-black shadow-lg transition-all cursor-pointer flex items-center gap-2"
                 >
                   <Play size={16} fill="white" />
                   Launch Interactive Demo
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -184,31 +185,31 @@ export const Storyteller = () => {
 
         {/* Speed Comparison Metric Bar */}
         <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200">
+          <div className="p-6 rounded-2xl bg-muted border border-slate-200">
             <div className="flex items-center gap-3 mb-2">
-              <Clock className="w-5 h-5 text-slate-500" />
-              <span className="text-xs font-mono font-bold uppercase text-slate-500">Underwrite Velocity</span>
+              <Clock className="w-5 h-5 text-muted-foreground" />
+              <span className="text-xs font-mono font-bold uppercase text-muted-foreground">Underwrite Velocity</span>
             </div>
-            <p className="text-2xl font-bold text-slate-900 font-mono">8 Seconds / Parcel</p>
-            <p className="text-xs text-slate-500 mt-1">vs. 4.5 hours manual analyst spreadsheet time</p>
+            <p className="text-2xl font-bold text-foreground font-mono">8 Seconds / Parcel</p>
+            <p className="text-xs text-muted-foreground mt-1">vs. 4.5 hours manual analyst spreadsheet time</p>
           </div>
 
-          <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200">
+          <div className="p-6 rounded-2xl bg-muted border border-slate-200">
             <div className="flex items-center gap-3 mb-2">
-              <Zap className="w-5 h-5 text-blue-600" />
-              <span className="text-xs font-mono font-bold uppercase text-slate-500">Nightly Scanning</span>
+              <Zap className="w-5 h-5 text-primary" />
+              <span className="text-xs font-mono font-bold uppercase text-muted-foreground">Nightly Scanning</span>
             </div>
-            <p className="text-2xl font-bold text-blue-600 font-mono">100% Full County</p>
-            <p className="text-xs text-slate-500 mt-1">Every parcel re-scored nightly on tax &amp; lien rolls</p>
+            <p className="text-2xl font-bold text-primary font-mono">100% Full County</p>
+            <p className="text-xs text-muted-foreground mt-1">Every parcel re-scored nightly on tax &amp; lien rolls</p>
           </div>
 
-          <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200">
+          <div className="p-6 rounded-2xl bg-muted border border-slate-200">
             <div className="flex items-center gap-3 mb-2">
               <ShieldCheck className="w-5 h-5 text-emerald-600" />
-              <span className="text-xs font-mono font-bold uppercase text-slate-500">IC Dossier Output</span>
+              <span className="text-xs font-mono font-bold uppercase text-muted-foreground">IC Dossier Output</span>
             </div>
             <p className="text-2xl font-bold text-emerald-600 font-mono">Lender-Ready Memos</p>
-            <p className="text-xs text-slate-500 mt-1">Complete with comp regressions &amp; repair schedules</p>
+            <p className="text-xs text-muted-foreground mt-1">Complete with comp regressions &amp; repair schedules</p>
           </div>
         </div>
       </div>
@@ -222,68 +223,68 @@ export const Storyteller = () => {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.2 }}
-              className="bg-white rounded-3xl border border-slate-200 max-w-2xl w-full p-8 shadow-2xl relative overflow-hidden"
+              className="bg-card rounded-3xl border border-slate-200 max-w-2xl w-full p-8 shadow-2xl relative overflow-hidden"
             >
-              <button 
+              <Button 
                 onClick={() => setShowDemoModal(false)}
-                className="absolute top-6 right-6 p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 transition-colors cursor-pointer"
+                className="absolute top-6 right-6 p-2 text-slate-400 hover:text-muted-foreground rounded-full hover:bg-accent transition-colors cursor-pointer"
                 aria-label="Close modal"
               >
                 <X size={20} />
-              </button>
+              </Button>
 
-              <div className="flex items-center gap-2 text-xs font-mono text-[#2F5FFF] font-bold mb-3">
+              <div className="flex items-center gap-2 text-xs font-mono text-primary font-bold mb-3">
                 <Sparkles className="w-4 h-4" />
                 PIPELINE EXECUTION BENCHMARK
               </div>
               
-              <h3 className="text-2xl font-bold text-slate-900 mb-2">
+              <h3 className="text-2xl font-bold text-foreground mb-2">
                 Speed &amp; Depth Benchmark
               </h3>
-              <p className="text-sm text-slate-600 mb-6">
+              <p className="text-sm text-muted-foreground mb-6">
                 See how automated cadastral underwriting changes institutional acquisition throughput.
               </p>
 
               {/* Workflow Toggle */}
-              <div className="grid grid-cols-2 gap-3 p-1.5 bg-slate-100 rounded-xl mb-6 font-semibold text-xs">
-                <button
+              <div className="grid grid-cols-2 gap-3 p-1.5 bg-accent rounded-xl mb-6 font-semibold text-xs">
+                <Button
                   onClick={() => setActiveWorkflow('traditional')}
                   className={`py-2.5 px-4 rounded-lg transition-all cursor-pointer ${
                     activeWorkflow === 'traditional'
-                      ? 'bg-white text-slate-900 shadow-sm'
-                      : 'text-slate-500 hover:text-slate-800'
+                      ? 'bg-card text-foreground shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
                   Manual Analyst Flow (4.5 hrs)
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => setActiveWorkflow('automated')}
                   className={`py-2.5 px-4 rounded-lg transition-all cursor-pointer ${
                     activeWorkflow === 'automated'
-                      ? 'bg-blue-600 text-white shadow-sm'
-                      : 'text-slate-500 hover:text-slate-800'
+                      ? 'bg-primary text-primary-foreground shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
                   Perfect Property Nightly Engine (8 sec)
-                </button>
+                </Button>
               </div>
 
               {activeWorkflow === 'traditional' ? (
-                <div className="space-y-3 font-sans text-xs text-slate-600">
-                  <div className="p-3.5 rounded-xl border border-slate-200 bg-slate-50">
-                    <p className="font-bold text-slate-800 mb-1">Step 1: Download County Tax PDF (45 mins)</p>
+                <div className="space-y-3 font-sans text-xs text-muted-foreground">
+                  <div className="p-3.5 rounded-xl border border-slate-200 bg-muted">
+                    <p className="font-bold text-foreground mb-1">Step 1: Download County Tax PDF (45 mins)</p>
                     <p>Analyst navigates county clerk portal, enters APN, manually extracts deed history and tax rate.</p>
                   </div>
-                  <div className="p-3.5 rounded-xl border border-slate-200 bg-slate-50">
-                    <p className="font-bold text-slate-800 mb-1">Step 2: Zillow / Redfin Comps Search (90 mins)</p>
+                  <div className="p-3.5 rounded-xl border border-slate-200 bg-muted">
+                    <p className="font-bold text-foreground mb-1">Step 2: Zillow / Redfin Comps Search (90 mins)</p>
                     <p>Subjective comp selection prone to cherry-picking without hedonic spatial adjustments.</p>
                   </div>
-                  <div className="p-3.5 rounded-xl border border-slate-200 bg-slate-50">
-                    <p className="font-bold text-slate-800 mb-1">Step 3: Excel Model Data Entry (90 mins)</p>
+                  <div className="p-3.5 rounded-xl border border-slate-200 bg-muted">
+                    <p className="font-bold text-foreground mb-1">Step 3: Excel Model Data Entry (90 mins)</p>
                     <p>Formula errors, outdated interest rate assumptions, missing title lien cross-checks.</p>
                   </div>
-                  <div className="p-3.5 rounded-xl border border-slate-200 bg-slate-50">
-                    <p className="font-bold text-slate-800 mb-1">Step 4: Investment Memo Formatting (45 mins)</p>
+                  <div className="p-3.5 rounded-xl border border-slate-200 bg-muted">
+                    <p className="font-bold text-foreground mb-1">Step 4: Investment Memo Formatting (45 mins)</p>
                     <p>Copy-pasting screenshots into slide decks. Only 2 deals underwritten per analyst day.</p>
                   </div>
                 </div>
@@ -329,12 +330,12 @@ export const Storyteller = () => {
               )}
 
               <div className="mt-8 flex justify-end">
-                <button
+                <Button
                   onClick={() => setShowDemoModal(false)}
                   className="px-6 py-2.5 bg-slate-900 text-white rounded-xl text-xs font-bold font-mono hover:bg-black transition-colors cursor-pointer"
                 >
                   CLOSE BENCHMARK
-                </button>
+                </Button>
               </div>
             </motion.div>
           </div>

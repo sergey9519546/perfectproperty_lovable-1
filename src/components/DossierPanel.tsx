@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -129,7 +130,7 @@ export function DossierPanel({ parcelId, onClose }: Props) {
 
   return (
     <>
-      <button
+      <Button
         type="button"
         aria-label="Close dossier backdrop"
         className="fixed inset-0 z-40 bg-black/50 backdrop-blur-[1px] max-md:bg-black/60"
@@ -147,7 +148,7 @@ export function DossierPanel({ parcelId, onClose }: Props) {
         <div className="flex items-center gap-3">
           <h2 id="dossier-heading" className="text-[11px] font-medium uppercase tracking-widest text-pp-muted">Dossier</h2>
           {q.data?.parcel && (
-            <button
+            <Button
               type="button"
               onClick={handleToggleSave}
               disabled={isSaving}
@@ -160,12 +161,12 @@ export function DossierPanel({ parcelId, onClose }: Props) {
             >
               <Bookmark size={13} weight={isSaved ? "fill" : "bold"} />
               <span>{isSaving ? "Saving..." : isSaved ? "In Portfolio" : "Save to Portfolio"}</span>
-            </button>
+            </Button>
           )}
         </div>
-        <button ref={closeRef} onClick={onClose} aria-label="Close dossier" className="rounded-md p-1.5 text-pp-muted transition-colors hover:bg-pp-header hover:text-pp-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
+        <Button ref={closeRef} onClick={onClose} aria-label="Close dossier" className="rounded-md p-1.5 text-pp-muted transition-colors hover:bg-pp-header hover:text-pp-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
           <X className="h-4 w-4" />
-        </button>
+        </Button>
       </div>
 
       {q.isLoading && (
@@ -244,7 +245,7 @@ function Header({
           <DataFreshness timestamp={d.score?.computed_at} prefix="Underwritten" className="mt-1" />
         </div>
         {onToggleSave && (
-          <button
+          <Button
             type="button"
             onClick={onToggleSave}
             disabled={isSaving}
@@ -256,7 +257,7 @@ function Header({
           >
             <Bookmark size={14} weight={isSaved ? "fill" : "bold"} />
             <span>{isSaving ? "Saving..." : isSaved ? "In Portfolio" : "Save to Portfolio"}</span>
-          </button>
+          </Button>
         )}
       </div>
       <div className="mt-3 grid grid-cols-4 gap-2 text-[11px] text-pp-muted">

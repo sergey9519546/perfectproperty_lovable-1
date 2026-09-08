@@ -15,24 +15,24 @@ import { BentoGrid, BentoGridItem, CardSpotlight } from '@/components/ui/acetern
 
 export const Features = () => {
   return (
-    <section id="features-bento" className="py-28 bg-[#FAFAFC] border-t border-[#E5E7EB]">
+    <section id="features-bento" className="py-28 bg-background border-t border-border">
       <div className="max-w-[1240px] mx-auto px-6">
         {/* Section Header */}
         <div className="grid lg:grid-cols-2 gap-10 items-end mb-16">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-200/60 rounded-full text-[12px] font-semibold text-blue-700 tracking-wide uppercase mb-4">
-              <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 border border-blue-200/60 rounded-full text-[12px] font-semibold text-primary tracking-wide uppercase mb-4">
+              <Sparkles className="w-3.5 h-3.5 text-primary" />
               Institutional Underwriting Architecture
             </div>
-            <h2 className="text-[36px] md:text-[46px] font-bold tracking-[-0.03em] leading-[1.08] text-[#0F172A]">
+            <h2 className="text-[36px] md:text-[46px] font-bold tracking-[-0.03em] leading-[1.08] text-foreground">
               The fastest way to underwrite and tell your deal story.
             </h2>
-            <p className="mt-4 text-[17px] md:text-[19px] text-[#475569] max-w-[560px] leading-[1.5] font-normal">
+            <p className="mt-4 text-[17px] md:text-[19px] text-muted-foreground max-w-[560px] leading-[1.5] font-normal">
               Built on sub-meter parcel cadastre, Monte Carlo downside simulations, and continuous deed-verified accuracy.
             </p>
           </div>
           <div className="hidden lg:flex justify-end pb-2">
-            <div className="flex items-center gap-3 text-[13px] font-medium text-slate-500 bg-white border border-slate-200 px-4 py-2 rounded-xl shadow-xs">
+            <div className="flex items-center gap-3 text-[13px] font-medium text-muted-foreground bg-card border border-slate-200 px-4 py-2 rounded-xl shadow-xs">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span>3,142 County Registrars Synced</span>
             </div>
@@ -43,7 +43,7 @@ export const Features = () => {
         <BentoGrid className="grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Card 1: Cadastral Boundary & GIS Parcel Engine (col-span-2) */}
           <BentoGridItem
-            className="md:col-span-2 p-0 overflow-hidden border border-slate-200/90 bg-white shadow-xs hover:border-blue-300 transition-all duration-300"
+            className="md:col-span-2 p-0 overflow-hidden border border-slate-200/90 bg-card shadow-xs hover:border-blue-300 transition-all duration-300"
             header={
               <CardSpotlight className="p-6 bg-slate-900 text-white rounded-t-xl overflow-hidden relative" color="rgba(59, 130, 246, 0.2)">
                 <div className="flex items-center justify-between mb-4">
@@ -111,7 +111,7 @@ export const Features = () => {
 
           {/* Card 2: Monte Carlo ARV Skepticism (col-span-1) */}
           <BentoGridItem
-            className="p-0 overflow-hidden border border-slate-200/90 bg-white shadow-xs hover:border-blue-300 transition-all duration-300"
+            className="p-0 overflow-hidden border border-slate-200/90 bg-card shadow-xs hover:border-blue-300 transition-all duration-300"
             header={
               <CardSpotlight className="p-6 bg-slate-900 text-white rounded-t-xl relative overflow-hidden" color="rgba(16, 185, 129, 0.15)">
                 <div className="flex items-center justify-between mb-3">
@@ -165,7 +165,7 @@ export const Features = () => {
 
           {/* Card 3: Pre-Foreclosure Shadow Distress (col-span-1) */}
           <BentoGridItem
-            className="p-0 overflow-hidden border border-slate-200/90 bg-white shadow-xs hover:border-blue-300 transition-all duration-300"
+            className="p-0 overflow-hidden border border-slate-200/90 bg-card shadow-xs hover:border-blue-300 transition-all duration-300"
             header={
               <CardSpotlight className="p-6 bg-slate-900 text-white rounded-t-xl relative overflow-hidden" color="rgba(245, 158, 11, 0.15)">
                 <div className="flex items-center justify-between mb-3">
@@ -183,7 +183,7 @@ export const Features = () => {
                       <span className="text-amber-400 font-bold block text-[11px]">LIS PENDENS FILED</span>
                       <span className="text-slate-400 text-[10px]">Travis County · Case #24-819</span>
                     </div>
-                    <span className="text-[10px] text-slate-500 font-bold">12m ago</span>
+                    <span className="text-[10px] text-muted-foreground font-bold">12m ago</span>
                   </div>
 
                   <div className="p-2 bg-slate-900/90 border border-slate-800 rounded flex items-center justify-between">
@@ -191,7 +191,7 @@ export const Features = () => {
                       <span className="text-rose-400 font-bold block text-[11px]">TAX LIEN AUCTION</span>
                       <span className="text-slate-400 text-[10px]">Delinquent $14,280 · 38D gate</span>
                     </div>
-                    <span className="text-[10px] text-slate-500 font-bold">2h ago</span>
+                    <span className="text-[10px] text-muted-foreground font-bold">2h ago</span>
                   </div>
 
                   <div className="p-2 bg-slate-900/90 border border-slate-800 rounded flex items-center justify-between">
@@ -199,7 +199,7 @@ export const Features = () => {
                       <span className="text-purple-400 font-bold block text-[11px]">PROBATE INTESTATE</span>
                       <span className="text-slate-400 text-[10px]">Estate of Miller · 100% Equity</span>
                     </div>
-                    <span className="text-[10px] text-slate-500 font-bold">5h ago</span>
+                    <span className="text-[10px] text-muted-foreground font-bold">5h ago</span>
                   </div>
                 </div>
               </CardSpotlight>
@@ -212,7 +212,7 @@ export const Features = () => {
 
           {/* Card 4: Institutional Deal Memo Synthesis (col-span-2) */}
           <BentoGridItem
-            className="md:col-span-2 p-0 overflow-hidden border border-slate-200/90 bg-white shadow-xs hover:border-blue-300 transition-all duration-300"
+            className="md:col-span-2 p-0 overflow-hidden border border-slate-200/90 bg-card shadow-xs hover:border-blue-300 transition-all duration-300"
             header={
               <CardSpotlight className="p-6 bg-slate-900 text-white rounded-t-xl relative overflow-hidden" color="rgba(59, 130, 246, 0.15)">
                 <div className="flex items-center justify-between mb-3">
@@ -248,12 +248,12 @@ export const Features = () => {
                       <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                       <span>Skeptic Cleared: Full title warranty + 3 comps within 0.4 miles</span>
                     </div>
-                    <span className="text-[10px] text-slate-500 font-semibold">HOLD PERIOD: 110 DAYS</span>
+                    <span className="text-[10px] text-muted-foreground font-semibold">HOLD PERIOD: 110 DAYS</span>
                   </div>
                 </div>
               </CardSpotlight>
             }
-            icon={<FileText className="w-4 h-4 text-blue-600" />}
+            icon={<FileText className="w-4 h-4 text-primary" />}
             badge="IC Ready"
             title="Instant Institutional Deal Memos"
             description="Eliminate multi-day analyst turnaround. Generate board-grade investment memos with verified comps, sensitivity matrices, and modeled offer caps in seconds."
@@ -261,7 +261,7 @@ export const Features = () => {
 
           {/* Card 5: Continuous Accuracy & Backtesting Pipeline (col-span-3) */}
           <BentoGridItem
-            className="md:col-span-2 lg:col-span-3 p-0 overflow-hidden border border-slate-200/90 bg-white shadow-xs hover:border-blue-300 transition-all duration-300"
+            className="md:col-span-2 lg:col-span-3 p-0 overflow-hidden border border-slate-200/90 bg-card shadow-xs hover:border-blue-300 transition-all duration-300"
             header={
               <CardSpotlight className="p-6 bg-slate-900 text-white rounded-t-xl relative overflow-hidden" color="rgba(99, 102, 241, 0.15)">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">

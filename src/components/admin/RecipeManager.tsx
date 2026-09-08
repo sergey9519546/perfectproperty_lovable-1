@@ -1,3 +1,5 @@
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -151,20 +153,20 @@ export function RecipeManager({
                     {r.last_run_at ? `${r.last_run_rows ?? 0} · ${new Date(r.last_run_at).toLocaleDateString()}` : "—"}
                   </td>
                   <td className="px-3 py-2 text-right">
-                    <button
+                    <Button
                       onClick={() => runRec.mutate({ id: r.id, name: r.name })}
                       disabled={runRec.isPending}
-                      className="mr-1 inline-flex items-center gap-1 rounded bg-pp-gold px-2 py-1 text-[11px] text-[#01070c] transition-opacity hover:opacity-90 disabled:opacity-50"
+                      className="mr-1 inline-flex items-center gap-1 rounded bg-pp-gold px-2 py-1 text-[11px] text-background transition-opacity hover:opacity-90 disabled:opacity-50"
                     >
                       <Play className="h-3 w-3" /> Run
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       onClick={() => setDeleteTarget({ id: r.id, name: r.name })}
                       className="rounded border border-border p-1 text-skeptic transition-colors hover:bg-skeptic/10"
                       aria-label={`Delete ${r.name}`}
                     >
                       <Trash className="h-3 w-3" />
-                    </button>
+                    </Button>
                   </td>
                 </tr>
               ))}
@@ -243,9 +245,9 @@ function RecipeWizard({
       <div className="rounded-lg border border-opportunity/50 bg-surface p-4">
         <div className="flex items-center justify-between">
           <h2 className="text-[11px] uppercase tracking-widest text-opportunity">Schema wizard · approve extraction</h2>
-          <button onClick={() => setWizard(null)} className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground">
+          <Button onClick={() => setWizard(null)} className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground">
             <X size={12} aria-hidden="true" /> Close
-          </button>
+          </Button>
         </div>
         <div className="mt-1 truncate text-[11px] text-muted-foreground">{wizard.url}</div>
 
@@ -255,7 +257,7 @@ function RecipeWizard({
           </div>
           <div className="mt-1 flex flex-wrap gap-2">
             {wizard.candidates.map((c: any, i: number) => (
-              <button
+              <Button
                 key={i}
                 onClick={() => setWizard({ ...wizard, selectedIdx: i })}
                 className={`rounded-md border px-2 py-1 text-[11px] transition-colors ${
@@ -264,7 +266,7 @@ function RecipeWizard({
               >
                 <span className="font-mono">{c.container_selector}</span>
                 <span className="ml-2 text-muted-foreground">x{c.sample_count} · s{c.score}</span>
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -275,7 +277,7 @@ function RecipeWizard({
             <div className="mt-1 max-h-72 overflow-y-auto rounded border border-border bg-surface-2 p-2">
               {cand.fields.map((f: any, i: number) => (
                 <div key={i} className="flex items-start gap-2 border-b border-border/50 py-1 text-[11px] last:border-0">
-                  <input
+                  <Input
                     value={f.name}
                     onChange={(e) => updateField(i, { name: e.target.value })}
                     className="w-28 rounded border border-border bg-pp-page px-1 py-0.5 font-mono outline-none focus:border-primary"
@@ -292,13 +294,13 @@ function RecipeWizard({
                     <option value="number">number</option>
                   </select>
                   <div className="flex-1 truncate text-muted-foreground" title={f.sample}>{f.sample}</div>
-                  <button
+                  <Button
                     onClick={() => removeField(i)}
                     aria-label="Remove field"
                     className="text-skeptic transition-colors hover:text-skeptic/70"
                   >
                     <X size={12} aria-hidden="true" />
-                  </button>
+                  </Button>
                 </div>
               ))}
             </div>
@@ -312,7 +314,7 @@ function RecipeWizard({
         </div>
 
         <div className="mt-3 flex flex-wrap items-center gap-2">
-          <input
+          <Input
             value={wizard.name}
             onChange={(e) => setWizard({ ...wizard, name: e.target.value })}
             className="w-64 rounded-md border border-border bg-pp-page px-2 py-1 text-[12px] outline-none focus:border-primary"
@@ -327,7 +329,7 @@ function RecipeWizard({
             <option value="sales">sales</option>
             <option value="parcels">parcels</option>
           </select>
-          <button
+          <Button
             onClick={() =>
               saveRec.mutate({
                 name: wizard.name,
@@ -338,10 +340,10 @@ function RecipeWizard({
               })
             }
             disabled={saveRec.isPending}
-            className="rounded-md bg-pp-gold px-3 py-1 text-[12px] font-medium text-[#01070c] transition-opacity hover:opacity-90 disabled:opacity-50"
+            className="rounded-md bg-pp-gold px-3 py-1 text-[12px] font-medium text-background transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             {saveRec.isPending ? "Saving…" : "Save recipe"}
-          </button>
+          </Button>
         </div>
       </div>
     </section>
@@ -372,9 +374,9 @@ function RunReport({ report, onDismiss }: { report: RunReportState; onDismiss: (
         <h2 className="text-[11px] uppercase tracking-widest text-muted-foreground">
           Last run · {report.recipe_name}
         </h2>
-        <button onClick={onDismiss} className="text-[10px] uppercase tracking-widest text-muted-foreground hover:text-foreground">
+        <Button onClick={onDismiss} className="text-[10px] uppercase tracking-widest text-muted-foreground hover:text-foreground">
           Dismiss
-        </button>
+        </Button>
       </div>
       <div className="mt-2 rounded-lg border border-border bg-surface p-4">
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
@@ -391,7 +393,7 @@ function RunReport({ report, onDismiss }: { report: RunReportState; onDismiss: (
               <div className="mt-2 overflow-hidden rounded border border-border">
                 <div className="flex h-6 w-full text-[10px]">
                   <ConfBar label={`APN+County ${mb.apn_county}`} pct={pctOf(mb.apn_county)} className="bg-emerald-500/80 text-white" title="Highest confidence: exact APN match within county" />
-                  <ConfBar label={`Addr+County ${mb.addr_county}`} pct={pctOf(mb.addr_county)} className="bg-pp-gold text-[#01070c]" title="High confidence: normalized address + county" />
+                  <ConfBar label={`Addr+County ${mb.addr_county}`} pct={pctOf(mb.addr_county)} className="bg-pp-gold text-background" title="High confidence: normalized address + county" />
                   <ConfBar label={`Addr+City ${mb.addr_city}`} pct={pctOf(mb.addr_city)} className="bg-amber-500/80 text-white" title="Medium confidence: normalized address + city" />
                   <ConfBar label={`Unmatched ${res.unmatched}`} pct={pctOf(res.unmatched)} className="bg-skeptic/70 text-white" title="No parcel resolved" />
                 </div>

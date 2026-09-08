@@ -78,9 +78,9 @@ export function ProtectedLayout({
           <div className="mb-4">
             <Brand id="protected-loading-brand" />
           </div>
-          <div className="relative my-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-500/10 text-[#2F5FFF]">
+          <div className="relative my-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-500/10 text-primary">
             <ShieldCheck className="h-6 w-6" />
-            <Loader2 className="absolute h-10 w-10 animate-spin text-[#2F5FFF]/40" />
+            <Loader2 className="absolute h-10 w-10 animate-spin text-primary/40" />
           </div>
           <p className="text-sm font-semibold text-pp-text">Verifying secure session...</p>
           <p className="mt-1.5 text-xs text-pp-muted">

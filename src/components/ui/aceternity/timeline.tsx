@@ -41,18 +41,18 @@ export function Timeline({ data, title, description, className }: TimelineProps)
 
   return (
     <div
-      className={cn('w-full bg-white font-sans md:px-10', className)}
+      className={cn('w-full bg-card font-sans md:px-10', className)}
       ref={containerRef}
     >
       {(title || description) && (
         <div className="max-w-7xl mx-auto py-12 px-4 md:px-8 lg:px-10">
           {title && (
-            <h2 className="text-2xl md:text-4xl mb-3 text-slate-900 font-bold max-w-4xl tracking-tight">
+            <h2 className="text-2xl md:text-4xl mb-3 text-foreground font-bold max-w-4xl tracking-tight">
               {title}
             </h2>
           )}
           {description && (
-            <p className="text-slate-600 text-sm md:text-base max-w-sm">
+            <p className="text-muted-foreground text-sm md:text-base max-w-sm">
               {description}
             </p>
           )}
@@ -66,15 +66,15 @@ export function Timeline({ data, title, description, className }: TimelineProps)
             className="flex justify-start pt-10 md:pt-20 md:gap-10"
           >
             <div className="sticky flex flex-col md:flex-row z-40 items-center top-40 self-start max-w-xs lg:max-w-sm md:w-full">
-              <div className="h-10 absolute left-3 md:left-3 w-10 rounded-full bg-white flex items-center justify-center border border-slate-200 shadow-xs">
+              <div className="h-10 absolute left-3 md:left-3 w-10 rounded-full bg-card flex items-center justify-center border border-slate-200 shadow-xs">
                 <div className="h-4 w-4 rounded-full bg-blue-600 border border-blue-200 p-1" />
               </div>
               <div className="hidden md:flex flex-col md:pl-20">
-                <h3 className="text-xl md:text-2xl font-bold text-slate-800">
+                <h3 className="text-xl md:text-2xl font-bold text-foreground">
                   {item.title}
                 </h3>
                 {item.badge && (
-                  <span className="text-[11px] font-mono text-blue-600 mt-0.5">
+                  <span className="text-[11px] font-mono text-primary mt-0.5">
                     {item.badge}
                   </span>
                 )}
@@ -82,7 +82,7 @@ export function Timeline({ data, title, description, className }: TimelineProps)
             </div>
 
             <div className="relative pl-20 pr-4 md:pl-4 w-full">
-              <h3 className="md:hidden block text-xl mb-4 text-left font-bold text-slate-800">
+              <h3 className="md:hidden block text-xl mb-4 text-left font-bold text-foreground">
                 {item.title}
               </h3>
               {item.content}

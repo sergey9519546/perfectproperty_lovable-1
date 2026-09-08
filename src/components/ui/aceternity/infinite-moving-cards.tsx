@@ -83,11 +83,11 @@ export function InfiniteMovingCards({
         {items.map((item, idx) => (
           <li
             key={idx}
-            className="w-[320px] max-w-full relative rounded-xl border border-slate-200 bg-white px-5 py-4 shrink-0 transition-colors shadow-xs hover:border-slate-300"
+            className="w-[320px] max-w-full relative rounded-xl border border-slate-200 bg-card px-5 py-4 shrink-0 transition-colors shadow-xs hover:border-slate-300"
           >
             <div className="flex items-center justify-between gap-2 mb-2">
               {item.badge && (
-                <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-full">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-primary bg-primary/10 border border-blue-100 px-2 py-0.5 rounded-full">
                   {item.badge}
                 </span>
               )}
@@ -99,15 +99,15 @@ export function InfiniteMovingCards({
             </div>
 
             {item.quote && (
-              <p className="text-xs text-slate-600 leading-relaxed line-clamp-2 mb-3">
+              <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2 mb-3">
                 "{item.quote}"
               </p>
             )}
 
             <div className="flex items-center justify-between pt-1 border-t border-slate-100">
               <div className="flex flex-col">
-                <span className="text-xs font-bold text-slate-900">{item.name}</span>
-                <span className="text-[11px] text-slate-500">{item.title}</span>
+                <span className="text-xs font-bold text-foreground">{item.name}</span>
+                <span className="text-[11px] text-muted-foreground">{item.title}</span>
               </div>
               {item.tag && (
                 <span className="text-[10px] font-mono text-slate-400">

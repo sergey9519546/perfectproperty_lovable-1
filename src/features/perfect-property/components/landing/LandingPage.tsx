@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { Header } from './Header'
 import { Hero } from './Hero'
 import { SocialProof } from './SocialProof'
 import { Storyteller } from './Storyteller'
@@ -27,10 +26,9 @@ export function LandingPage({ onExplore, onSignIn }: LandingPageProps) {
   return (
     <div
       id="perfect-property-light-landing-root"
-      className="min-h-screen bg-white text-[#0F172A] font-sans antialiased selection:bg-blue-100 selection:text-blue-900"
+      className="min-h-screen bg-card text-foreground font-sans antialiased selection:bg-primary/20 selection:text-primary"
     >
-      <Header scrolled={scrolled} onSignIn={onSignIn} onExplore={() => onExplore()} />
-      <main id="light-landing-main">
+            <main id="light-landing-main">
         <Hero onExplore={onExplore} />
         <SocialProof />
         <Storyteller />

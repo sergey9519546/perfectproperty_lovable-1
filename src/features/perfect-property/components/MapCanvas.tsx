@@ -1,3 +1,5 @@
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   APIProvider,
@@ -378,7 +380,7 @@ export function MapCanvas(props: Props) {
                       <span className="font-semibold text-zinc-800">{fmt$(activeInfoWindowParcel.offer)}</span>
                     </div>
                   </div>
-                  <button
+                  <Button
                     type="button"
                     onClick={() => {
                       props.onSelect(activeInfoWindowParcel)
@@ -392,7 +394,7 @@ export function MapCanvas(props: Props) {
                     className="w-full mt-2 rounded bg-zinc-900 px-2 py-1.5 text-center font-medium text-white hover:bg-zinc-800 transition-colors text-[11px]"
                   >
                     Open Live Underwriting
-                  </button>
+                  </Button>
                 </div>
               </InfoWindow>
             )}
@@ -411,7 +413,7 @@ export function MapCanvas(props: Props) {
             {item}
           </FilterButton>
         ))}
-        <span className="mx-1 h-6 w-px bg-white/10" />
+        <span className="mx-1 h-6 w-px bg-card/10" />
 
         {/* Map Type Quick Switcher (Roadmap, Satellite, Terrain) */}
         <div className="flex items-center gap-1 rounded-md border border-pp-border/20 bg-pp-surface/70 p-0.5">
@@ -423,7 +425,7 @@ export function MapCanvas(props: Props) {
               ['terrain', 'Terrain'],
             ] as const
           ).map(([type, label]) => (
-            <button
+            <Button
               key={type}
               type="button"
               onClick={() => setMapType(type)}
@@ -434,14 +436,14 @@ export function MapCanvas(props: Props) {
               }`}
             >
               {label}
-            </button>
+            </Button>
           ))}
         </div>
 
         {/* Refreshing & Snapshot indicator */}
         <div className="ml-auto flex items-center gap-2">
           {/* Google Maps API status indicator */}
-          <button
+          <Button
             type="button"
             onClick={() => {
               setTempKeyInput(apiKey)
@@ -457,7 +459,7 @@ export function MapCanvas(props: Props) {
             <Globe size={13} />
             <span className="max-sm:hidden">{apiKey ? 'Google Maps Live' : 'Maps Demo Mode'}</span>
             <Key size={11} className="opacity-70" />
-          </button>
+          </Button>
 
           {props.isRefreshing ? (
             <span className="filter-button inline-flex items-center gap-2 max-lg:hidden text-pp-muted">
@@ -505,7 +507,7 @@ export function MapCanvas(props: Props) {
 
       {/* Right Layer Dropdown */}
       <div className="absolute right-3 top-20 z-20 w-[210px] max-sm:right-6">
-        <button
+        <Button
           type="button"
           className="control-button w-full justify-between"
           aria-expanded={layersOpen}
@@ -516,7 +518,7 @@ export function MapCanvas(props: Props) {
             <Stack size={17} className="text-pp-gold" />
             {props.layer}
           </span>
-        </button>
+        </Button>
         <AnimatePresence>
           {layersOpen && (
             <motion.div
@@ -529,7 +531,7 @@ export function MapCanvas(props: Props) {
               className="mt-1 overflow-hidden rounded-md border border-pp-border/18 bg-pp-surface/96 p-1 shadow-map-panel backdrop-blur-md"
             >
               {layerModes.map((mode) => (
-                <button
+                <Button
                   key={mode}
                   onClick={() => {
                     props.onLayerChange(mode)
@@ -544,7 +546,7 @@ export function MapCanvas(props: Props) {
                   }`}
                 >
                   {mode === props.layer ? <Eye size={15} /> : <EyeSlash size={15} />} {mode}
-                </button>
+                </Button>
               ))}
             </motion.div>
           )}
@@ -615,9 +617,9 @@ export function MapCanvas(props: Props) {
               {props.error ?? 'Check the network connection, then try again.'}
             </p>
             {props.onRetry ? (
-              <button type="button" className="primary-button mt-4 mx-auto" onClick={props.onRetry}>
+              <Button type="button" className="primary-button mt-4 mx-auto" onClick={props.onRetry}>
                 Retry
-              </button>
+              </Button>
             ) : null}
           </div>
         </div>
@@ -637,19 +639,19 @@ export function MapCanvas(props: Props) {
                 </p>
                 <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
                   {props.onOpenDeals ? (
-                    <button type="button" className="primary-button" onClick={props.onOpenDeals}>
+                    <Button type="button" className="primary-button" onClick={props.onOpenDeals}>
                       Open ranked deals
-                    </button>
+                    </Button>
                   ) : null}
                   {props.onOpenAdmin ? (
-                    <button type="button" className="control-button" onClick={props.onOpenAdmin}>
+                    <Button type="button" className="control-button" onClick={props.onOpenAdmin}>
                       Open admin pipeline
-                    </button>
+                    </Button>
                   ) : null}
                   {props.onRetry ? (
-                    <button type="button" className="control-button" onClick={props.onRetry}>
+                    <Button type="button" className="control-button" onClick={props.onRetry}>
                       Refresh
-                    </button>
+                    </Button>
                   ) : null}
                 </div>
               </>
@@ -661,9 +663,9 @@ export function MapCanvas(props: Props) {
                   filter.
                 </p>
                 {props.onOpenDeals ? (
-                  <button type="button" className="primary-button mt-4 mx-auto" onClick={props.onOpenDeals}>
+                  <Button type="button" className="primary-button mt-4 mx-auto" onClick={props.onOpenDeals}>
                     Open ranked deals
-                  </button>
+                  </Button>
                 ) : null}
               </>
             )}
@@ -696,13 +698,13 @@ export function MapCanvas(props: Props) {
               exit={{ scale: 0.95, opacity: 0 }}
               className="relative w-full max-w-md rounded-lg border border-pp-border/30 bg-pp-surface p-6 shadow-2xl"
             >
-              <button
+              <Button
                 type="button"
                 onClick={() => setKeyModalOpen(false)}
                 className="absolute right-4 top-4 text-pp-muted hover:text-pp-text"
               >
                 <X size={18} />
-              </button>
+              </Button>
 
               <div className="flex items-center gap-2 mb-3">
                 <Globe size={22} className="text-pp-gold" />
@@ -738,7 +740,7 @@ export function MapCanvas(props: Props) {
                 <label htmlFor="gmp-key-input" className="block text-xs font-medium text-pp-text mb-1.5">
                   Your Google Maps API Key
                 </label>
-                <input
+                <Input
                   id="gmp-key-input"
                   type="password"
                   placeholder="AIzaSy..."
@@ -753,20 +755,20 @@ export function MapCanvas(props: Props) {
               </div>
 
               <div className="mt-6 flex items-center justify-end gap-2">
-                <button
+                <Button
                   type="button"
                   onClick={() => setKeyModalOpen(false)}
                   className="rounded px-3 py-1.5 text-xs text-pp-muted hover:text-pp-text"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
                   onClick={handleSaveApiKey}
                   className="primary-button text-xs"
                 >
                   Save Key
-                </button>
+                </Button>
               </div>
             </motion.div>
           </div>
@@ -809,7 +811,7 @@ function MapButton({
   children: React.ReactNode
 }) {
   return (
-    <button
+    <Button
       aria-label={label}
       title={label}
       onClick={onClick}
@@ -817,6 +819,6 @@ function MapButton({
       className="grid h-8 w-8 place-items-center rounded-sm text-pp-muted hover:bg-pp-surface-soft active:translate-y-px"
     >
       {children}
-    </button>
+    </Button>
   )
 }

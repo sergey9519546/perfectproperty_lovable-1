@@ -42,7 +42,7 @@ export function HoverEffect({ items, className }: HoverEffectProps) {
             <AnimatePresence>
               {hoveredIndex === idx && (
                 <motion.span
-                  className="absolute inset-0 h-full w-full bg-blue-50/80 rounded-2xl block border border-blue-200/60"
+                  className="absolute inset-0 h-full w-full bg-primary/10/80 rounded-2xl block border border-blue-200/60"
                   layoutId="hoverBackground"
                   initial={{ opacity: 0 }}
                   animate={{
@@ -56,24 +56,24 @@ export function HoverEffect({ items, className }: HoverEffectProps) {
                 />
               )}
             </AnimatePresence>
-            <div className="rounded-xl h-full w-full p-5 overflow-hidden bg-white border border-slate-200/80 group-hover:border-slate-300 relative z-20 flex flex-col justify-between transition-all duration-200 shadow-sm">
+            <div className="rounded-xl h-full w-full p-5 overflow-hidden bg-card border border-slate-200/80 group-hover:border-slate-300 relative z-20 flex flex-col justify-between transition-all duration-200 shadow-sm">
               <div>
                 <div className="flex items-center justify-between gap-2 mb-3">
                   {item.icon && (
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600 border border-blue-100">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary border border-blue-100">
                       {item.icon}
                     </div>
                   )}
                   {item.badge && (
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground bg-accent px-2 py-0.5 rounded-full">
                       {item.badge}
                     </span>
                   )}
                 </div>
-                <h4 className="text-slate-900 font-bold tracking-tight text-base mb-1.5">
+                <h4 className="text-foreground font-bold tracking-tight text-base mb-1.5">
                   {item.title}
                 </h4>
-                <p className="text-slate-600 tracking-normal text-xs leading-relaxed">
+                <p className="text-muted-foreground tracking-normal text-xs leading-relaxed">
                   {item.description}
                 </p>
               </div>

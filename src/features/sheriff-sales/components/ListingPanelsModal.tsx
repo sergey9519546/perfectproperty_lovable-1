@@ -1,3 +1,6 @@
+import { Input } from "@/components/ui/input";
+import { DossierModalSkeleton } from '@/components/ui/skeleton-loaders';
+import { Button } from "@/components/ui/button";
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -24,9 +27,11 @@ import { runGroundedIntelligenceFn } from "@/lib/gemini.functions";
 export function ListingPanelsModal({
   sale,
   onClose,
+  loading = false,
 }: {
   sale: SheriffGovSale;
   onClose: () => void;
+  loading?: boolean;
 }) {
   const [activePanelTab, setActivePanelTab] = useState<
     'comps' | 'flip' | 'demand' | 'catch' | 'lien_check' | 'bid_card' | 'ask_ai'
@@ -106,12 +111,15 @@ export function ListingPanelsModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm overflow-y-auto">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.96 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.96 }}
-        className="w-full max-w-5xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden my-8 max-h-[92vh] flex flex-col"
-      >
+      {loading ? (
+        <DossierModalSkeleton />
+      ) : (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.96 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.96 }}
+          className="w-full max-w-5xl bg-card rounded-2xl shadow-2xl border border-slate-200 overflow-hidden my-8 max-h-[92vh] flex flex-col"
+        >
         {/* Header */}
         <div className="p-6 bg-slate-900 text-white flex flex-wrap items-center justify-between gap-4 border-b border-slate-800">
           <div>
@@ -133,81 +141,81 @@ export function ListingPanelsModal({
             <span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-full text-xs font-mono font-bold">
               PERFECT SCORE: {sale.aiWorkforce.dealUnderwriter.perfectScore}/100
             </span>
-            <button
+            <Button
               onClick={onClose}
               className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors"
               aria-label="Close modal"
             >
               <X size={20} />
-            </button>
+            </Button>
           </div>
         </div>
 
         {/* Panel Tabs Navigation */}
-        <div className="flex flex-wrap items-center gap-1 p-2 bg-slate-100 border-b border-slate-200 text-xs font-semibold overflow-x-auto">
-          <button
+        <div className="flex flex-wrap items-center gap-1 p-2 bg-accent border-b border-slate-200 text-xs font-semibold overflow-x-auto">
+          <Button
             onClick={() => setActivePanelTab('comps')}
             className={`px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors ${
-              activePanelTab === 'comps' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'
+              activePanelTab === 'comps' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             <CurrencyDollar size={15} />
             <span>1. Comps & Margin</span>
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => setActivePanelTab('flip')}
             className={`px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors ${
-              activePanelTab === 'flip' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'
+              activePanelTab === 'flip' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             <TrendUp size={15} />
             <span>2. Flip Score & End-Game</span>
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => setActivePanelTab('demand')}
             className={`px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors ${
-              activePanelTab === 'demand' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'
+              activePanelTab === 'demand' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             <HouseLine size={15} />
             <span>3. Resale Demand Meter</span>
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => setActivePanelTab('catch')}
             className={`px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors ${
-              activePanelTab === 'catch' ? 'bg-white text-rose-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'
+              activePanelTab === 'catch' ? 'bg-card text-rose-700 shadow-sm' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             <WarningOctagon size={15} />
             <span>4. The Catch</span>
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => setActivePanelTab('lien_check')}
             className={`px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors ${
-              activePanelTab === 'lien_check' ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'
+              activePanelTab === 'lien_check' ? 'bg-card text-indigo-700 shadow-sm' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             <ShieldCheck size={15} />
             <span>Assisted Lien Check (Hack 8)</span>
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => setActivePanelTab('bid_card')}
             className={`px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors ${
-              activePanelTab === 'bid_card' ? 'bg-white text-amber-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'
+              activePanelTab === 'bid_card' ? 'bg-card text-amber-700 shadow-sm' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             <FileText size={15} />
             <span>Bid Card</span>
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => setActivePanelTab('ask_ai')}
             className={`px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors ${
-              activePanelTab === 'ask_ai' ? 'bg-blue-600 text-white shadow-sm' : 'text-blue-700 hover:bg-blue-50'
+              activePanelTab === 'ask_ai' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-primary hover:bg-primary/10'
             }`}
           >
             <Sparkle size={15} />
             <span>“Ask This Listing” AI</span>
-          </button>
+          </Button>
         </div>
 
         {/* Body Content */}
@@ -215,36 +223,36 @@ export function ListingPanelsModal({
           {/* PANEL 1: COMPS AND MARGIN */}
           {activePanelTab === 'comps' && (
             <div className="space-y-6">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-slate-50 border border-slate-200 rounded-xl">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-muted border border-slate-200 rounded-xl">
                 <div>
-                  <span className="text-[11px] font-mono text-slate-500 uppercase block">Modeled ARV</span>
-                  <span className="text-xl font-bold text-slate-900">
+                  <span className="text-[11px] font-mono text-muted-foreground uppercase block">Modeled ARV</span>
+                  <span className="text-xl font-bold text-foreground">
                     ${sale.aiWorkforce.dealUnderwriter.modeledArv.toLocaleString()}
                   </span>
-                  <span className="text-[11px] text-slate-500 block mt-0.5">
+                  <span className="text-[11px] text-muted-foreground block mt-0.5">
                     ${sale.compsAndMargin.submarketMedianPpsf}/sqft median
                   </span>
                 </div>
                 <div>
-                  <span className="text-[11px] font-mono text-slate-500 uppercase block">Rehab Scope</span>
+                  <span className="text-[11px] font-mono text-muted-foreground uppercase block">Rehab Scope</span>
                   <span className="text-xl font-bold text-amber-600">
                     ${activeRehabEstimate.toLocaleString()}
                   </span>
-                  <span className="text-[11px] text-slate-500 block mt-0.5">
+                  <span className="text-[11px] text-muted-foreground block mt-0.5">
                     Tier: {selectedRehabTier.replace(/_/g, ' ')}
                   </span>
                 </div>
                 <div>
-                  <span className="text-[11px] font-mono text-slate-500 uppercase block">Max Allowable Bid (MAB)</span>
-                  <span className="text-xl font-bold text-blue-600">
+                  <span className="text-[11px] font-mono text-muted-foreground uppercase block">Max Allowable Bid (MAB)</span>
+                  <span className="text-xl font-bold text-primary">
                     ${dynamicMab.toLocaleString()}
                   </span>
-                  <span className="text-[11px] text-slate-500 block mt-0.5">
+                  <span className="text-[11px] text-muted-foreground block mt-0.5">
                     Strict 70% institutional rule
                   </span>
                 </div>
                 <div>
-                  <span className="text-[11px] font-mono text-slate-500 uppercase block">Projected Net Spread</span>
+                  <span className="text-[11px] font-mono text-muted-foreground uppercase block">Projected Net Spread</span>
                   <span className="text-xl font-bold text-emerald-600">
                     +${sale.compsAndMargin.netSpreadDollars.toLocaleString()}
                   </span>
@@ -255,37 +263,37 @@ export function ListingPanelsModal({
               </div>
 
               {/* Rehab Scope Selector */}
-              <div className="p-4 bg-white border border-slate-200 rounded-xl space-y-2">
-                <span className="text-xs font-bold text-slate-700 block">Simulate Alternate Contractor Rehab Scope:</span>
+              <div className="p-4 bg-card border border-slate-200 rounded-xl space-y-2">
+                <span className="text-xs font-bold text-secondary-foreground block">Simulate Alternate Contractor Rehab Scope:</span>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
                   {(['LIGHT_COSMETIC', 'MEDIUM_UPDATE', 'HEAVY_MECHANICAL', 'GUT_REHAB'] as const).map((tier) => (
-                    <button
+                    <Button
                       key={tier}
                       onClick={() => setSelectedRehabTier(tier)}
                       className={`p-2.5 rounded-lg border text-left font-mono transition-all ${
                         selectedRehabTier === tier
-                          ? 'border-blue-600 bg-blue-50 text-blue-900 font-bold'
-                          : 'border-slate-200 hover:border-slate-300 text-slate-700'
+                          ? 'border-blue-600 bg-primary/10 text-primary font-bold'
+                          : 'border-slate-200 hover:border-slate-300 text-secondary-foreground'
                       }`}
                     >
-                      <div className="text-[10px] text-slate-500 uppercase">{tier.replace(/_/g, ' ')}</div>
+                      <div className="text-[10px] text-muted-foreground uppercase">{tier.replace(/_/g, ' ')}</div>
                       <div className="text-sm font-bold mt-0.5">
                         ${Math.round(sale.compsAndMargin.modeledRehabEstimate * rehabCostMultipliers[tier]).toLocaleString()}
                       </div>
-                    </button>
+                    </Button>
                   ))}
                 </div>
               </div>
 
               {/* Verified Submarket Comps Table */}
               <div className="space-y-3">
-                <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
                   <span>Arm's-Length Submarket Comps (Within 0.5 miles)</span>
-                  <span className="text-xs font-mono font-normal text-slate-500">Source: County Deed Books</span>
+                  <span className="text-xs font-mono font-normal text-muted-foreground">Source: County Deed Books</span>
                 </h3>
                 <div className="overflow-x-auto border border-slate-200 rounded-xl">
                   <table className="w-full text-xs text-left">
-                    <thead className="bg-slate-100 font-mono text-slate-600 uppercase border-b border-slate-200">
+                    <thead className="bg-accent font-mono text-muted-foreground uppercase border-b border-slate-200">
                       <tr>
                         <th className="p-3">Address</th>
                         <th className="p-3">Closed Date</th>
@@ -298,13 +306,13 @@ export function ListingPanelsModal({
                     </thead>
                     <tbody className="divide-y divide-slate-100 font-mono">
                       {sale.compsAndMargin.recentComps.map((comp, idx) => (
-                        <tr key={idx} className="hover:bg-slate-50">
-                          <td className="p-3 font-semibold text-slate-900">{comp.address}</td>
-                          <td className="p-3 text-slate-600">{comp.saleDate}</td>
-                          <td className="p-3 font-bold text-slate-900">${comp.salePrice.toLocaleString()}</td>
-                          <td className="p-3 text-slate-600">{comp.sqft} sf</td>
-                          <td className="p-3 font-bold text-blue-600">${comp.pricePerSqft}</td>
-                          <td className="p-3 text-slate-500">{comp.distanceMiles} mi</td>
+                        <tr key={idx} className="hover:bg-muted">
+                          <td className="p-3 font-semibold text-foreground">{comp.address}</td>
+                          <td className="p-3 text-muted-foreground">{comp.saleDate}</td>
+                          <td className="p-3 font-bold text-foreground">${comp.salePrice.toLocaleString()}</td>
+                          <td className="p-3 text-muted-foreground">{comp.sqft} sf</td>
+                          <td className="p-3 font-bold text-primary">${comp.pricePerSqft}</td>
+                          <td className="p-3 text-muted-foreground">{comp.distanceMiles} mi</td>
                           <td className="p-3">
                             <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
                               {comp.condition}
@@ -324,53 +332,53 @@ export function ListingPanelsModal({
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="p-5 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl">
-                  <span className="text-xs font-mono text-blue-700 uppercase font-semibold block">Flip Score</span>
-                  <div className="text-4xl font-black text-blue-900 mt-1">
+                  <span className="text-xs font-mono text-primary uppercase font-semibold block">Flip Score</span>
+                  <div className="text-4xl font-black text-primary mt-1">
                     {sale.flipScoreAndEndGame.flipScore}
-                    <span className="text-xl font-bold text-blue-600">/100</span>
+                    <span className="text-xl font-bold text-primary">/100</span>
                   </div>
                   <p className="text-xs text-blue-800 mt-2">
                     Turnaround velocity: <strong>{sale.flipScoreAndEndGame.estimatedTurnaroundDays} days</strong> from sheriff deed to resale closing.
                   </p>
                 </div>
 
-                <div className="p-5 bg-white border border-slate-200 rounded-xl space-y-2">
-                  <span className="text-xs font-mono text-slate-500 uppercase font-semibold block">Strategy Benchmarks</span>
+                <div className="p-5 bg-card border border-slate-200 rounded-xl space-y-2">
+                  <span className="text-xs font-mono text-muted-foreground uppercase font-semibold block">Strategy Benchmarks</span>
                   <div className="space-y-1.5 text-xs">
                     <div className="flex justify-between">
-                      <span className="text-slate-600">Fix & Flip Unlevered IRR:</span>
+                      <span className="text-muted-foreground">Fix & Flip Unlevered IRR:</span>
                       <span className="font-bold text-emerald-600 font-mono">+{sale.flipScoreAndEndGame.fixAndFlipIrr}%</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-600">BRRRR Rental Cap Rate:</span>
+                      <span className="text-muted-foreground">BRRRR Rental Cap Rate:</span>
                       <span className="font-bold text-indigo-600 font-mono">{sale.flipScoreAndEndGame.brrrrRentalYield}%</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-600">Wholetail As-Is Spread:</span>
-                      <span className="font-bold text-slate-900 font-mono">${sale.flipScoreAndEndGame.wholetailMargin.toLocaleString()}</span>
+                      <span className="text-muted-foreground">Wholetail As-Is Spread:</span>
+                      <span className="font-bold text-foreground font-mono">${sale.flipScoreAndEndGame.wholetailMargin.toLocaleString()}</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="p-5 bg-white border border-slate-200 rounded-xl">
-                  <span className="text-xs font-mono text-slate-500 uppercase font-semibold block">Recommended Exit</span>
+                <div className="p-5 bg-card border border-slate-200 rounded-xl">
+                  <span className="text-xs font-mono text-muted-foreground uppercase font-semibold block">Recommended Exit</span>
                   <div className="mt-2 inline-flex px-3 py-1.5 rounded-lg bg-emerald-100 text-emerald-800 font-bold text-sm">
                     {sale.flipScoreAndEndGame.recommendedExitStrategy.replace(/_/g, ' ')}
                   </div>
-                  <p className="text-xs text-slate-600 mt-2">
+                  <p className="text-xs text-muted-foreground mt-2">
                     Highest risk-adjusted capital velocity based on current submarket absorption rates.
                   </p>
                 </div>
               </div>
 
               {/* Sensitivity Matrix */}
-              <div className="p-5 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
-                <h4 className="text-xs font-bold text-slate-800 uppercase font-mono">Auction Discount Sensitivity Matrix</h4>
+              <div className="p-5 bg-muted border border-slate-200 rounded-xl space-y-3">
+                <h4 className="text-xs font-bold text-foreground uppercase font-mono">Auction Discount Sensitivity Matrix</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 font-mono text-xs">
                   {sale.flipScoreAndEndGame.sensitivityMatrix.map((tier, idx) => (
-                    <div key={idx} className="p-3 bg-white border border-slate-200 rounded-lg">
-                      <div className="text-[11px] text-slate-500 font-semibold">{tier.discountPct}% DISCOUNT LEVEL</div>
-                      <div className="text-sm font-bold text-slate-900 mt-1">Bid: ${tier.purchaseBid.toLocaleString()}</div>
+                    <div key={idx} className="p-3 bg-card border border-slate-200 rounded-lg">
+                      <div className="text-[11px] text-muted-foreground font-semibold">{tier.discountPct}% DISCOUNT LEVEL</div>
+                      <div className="text-sm font-bold text-foreground mt-1">Bid: ${tier.purchaseBid.toLocaleString()}</div>
                       <div className="text-xs font-bold text-emerald-600 mt-0.5">Projected ROI: {tier.projectedRoi}%</div>
                     </div>
                   ))}
@@ -382,63 +390,63 @@ export function ListingPanelsModal({
           {/* PANEL 3: RESALE DEMAND METER */}
           {activePanelTab === 'demand' && (
             <div className="space-y-6">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-5 bg-slate-50 border border-slate-200 rounded-xl">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-5 bg-muted border border-slate-200 rounded-xl">
                 <div>
-                  <span className="text-xs font-mono text-slate-500 uppercase block">Months of Inventory</span>
-                  <span className="text-2xl font-bold text-slate-900">
+                  <span className="text-xs font-mono text-muted-foreground uppercase block">Months of Inventory</span>
+                  <span className="text-2xl font-bold text-foreground">
                     {sale.resaleDemandMeter.submarketAbsorptionRateMonths} mo
                   </span>
                   <span className="text-[11px] text-emerald-600 font-bold block mt-0.5">Extreme Seller Market</span>
                 </div>
                 <div>
-                  <span className="text-xs font-mono text-slate-500 uppercase block">Average Days on Market</span>
-                  <span className="text-2xl font-bold text-slate-900">
+                  <span className="text-xs font-mono text-muted-foreground uppercase block">Average Days on Market</span>
+                  <span className="text-2xl font-bold text-foreground">
                     {sale.resaleDemandMeter.averageDaysOnMarket} days
                   </span>
-                  <span className="text-[11px] text-slate-500 block mt-0.5">Rapid submarket liquidation</span>
+                  <span className="text-[11px] text-muted-foreground block mt-0.5">Rapid submarket liquidation</span>
                 </div>
                 <div>
-                  <span className="text-xs font-mono text-slate-500 uppercase block">Buyer Liquidity Index</span>
-                  <span className="text-2xl font-bold text-blue-600">
+                  <span className="text-xs font-mono text-muted-foreground uppercase block">Buyer Liquidity Index</span>
+                  <span className="text-2xl font-bold text-primary">
                     {sale.resaleDemandMeter.buyerLiquidityIndex}/100
                   </span>
-                  <span className="text-[11px] text-blue-600 block mt-0.5">Deep retail mortgage pool</span>
+                  <span className="text-[11px] text-primary block mt-0.5">Deep retail mortgage pool</span>
                 </div>
                 <div>
-                  <span className="text-xs font-mono text-slate-500 uppercase block">School District Rating</span>
+                  <span className="text-xs font-mono text-muted-foreground uppercase block">School District Rating</span>
                   <span className="text-2xl font-bold text-indigo-600">
                     {sale.resaleDemandMeter.schoolDistrictRating}/10
                   </span>
-                  <span className="text-[11px] text-slate-500 block mt-0.5">Family buyer anchor</span>
+                  <span className="text-[11px] text-muted-foreground block mt-0.5">Family buyer anchor</span>
                 </div>
               </div>
 
               {/* NAIP Ortho Aerial Findings */}
-              <div className="p-5 bg-white border border-slate-200 rounded-xl space-y-3">
+              <div className="p-5 bg-card border border-slate-200 rounded-xl space-y-3">
                 <div className="flex items-center justify-between">
-                  <h4 className="text-xs font-mono uppercase font-bold text-slate-800">
+                  <h4 className="text-xs font-mono uppercase font-bold text-foreground">
                     NAIP Multi-Spectral Aerial Ortho Observations
                   </h4>
-                  <span className="text-[11px] font-mono text-slate-500">0.6m Resolution (Verified August 2026)</span>
+                  <span className="text-[11px] font-mono text-muted-foreground">0.6m Resolution (Verified August 2026)</span>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
-                    <span className="text-[11px] text-slate-500 uppercase block">Roof Wear Score</span>
-                    <span className="text-lg font-bold text-slate-900">{sale.openImagery.roofWearScore}/100</span>
-                    <span className="text-[11px] text-slate-600 block mt-0.5">{sale.openImagery.roofType}</span>
+                  <div className="p-3 bg-muted rounded-lg border border-slate-200">
+                    <span className="text-[11px] text-muted-foreground uppercase block">Roof Wear Score</span>
+                    <span className="text-lg font-bold text-foreground">{sale.openImagery.roofWearScore}/100</span>
+                    <span className="text-[11px] text-muted-foreground block mt-0.5">{sale.openImagery.roofType}</span>
                   </div>
-                  <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
-                    <span className="text-[11px] text-slate-500 uppercase block">Structural Integrity</span>
+                  <div className="p-3 bg-muted rounded-lg border border-slate-200">
+                    <span className="text-[11px] text-muted-foreground uppercase block">Structural Integrity</span>
                     <span className="text-lg font-bold text-emerald-700">{sale.openImagery.structuralIntegrityRating}</span>
-                    <span className="text-[11px] text-slate-600 block mt-0.5">No foundation deflection</span>
+                    <span className="text-[11px] text-muted-foreground block mt-0.5">No foundation deflection</span>
                   </div>
-                  <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
-                    <span className="text-[11px] text-slate-500 uppercase block">Lot Access Status</span>
-                    <span className="text-lg font-bold text-blue-700">{sale.openImagery.lotAccessStatus.replace(/_/g, ' ')}</span>
-                    <span className="text-[11px] text-slate-600 block mt-0.5">Dedicated public street</span>
+                  <div className="p-3 bg-muted rounded-lg border border-slate-200">
+                    <span className="text-[11px] text-muted-foreground uppercase block">Lot Access Status</span>
+                    <span className="text-lg font-bold text-primary">{sale.openImagery.lotAccessStatus.replace(/_/g, ' ')}</span>
+                    <span className="text-[11px] text-muted-foreground block mt-0.5">Dedicated public street</span>
                   </div>
                 </div>
-                <ul className="text-xs text-slate-700 space-y-1 pl-4 list-disc">
+                <ul className="text-xs text-secondary-foreground space-y-1 pl-4 list-disc">
                   {sale.openImagery.imageryObservations.map((obs, idx) => (
                     <li key={idx}>{obs}</li>
                   ))}
@@ -463,14 +471,14 @@ export function ListingPanelsModal({
 
               {/* Surviving Liens Breakdown */}
               <div className="space-y-3">
-                <h4 className="text-xs font-bold font-mono text-slate-800 uppercase">Senior Surviving Liens</h4>
+                <h4 className="text-xs font-bold font-mono text-foreground uppercase">Senior Surviving Liens</h4>
                 <div className="space-y-2">
                   {sale.theCatch.seniorSurvivingLiens.map((lien, idx) => (
-                    <div key={idx} className="p-4 bg-white border border-slate-200 rounded-xl flex items-center justify-between">
+                    <div key={idx} className="p-4 bg-card border border-slate-200 rounded-xl flex items-center justify-between">
                       <div>
-                        <div className="font-bold text-sm text-slate-900">{lien.type}</div>
-                        <div className="text-xs text-slate-600">Holder: {lien.holder}</div>
-                        <div className="text-[11px] font-mono text-slate-500 mt-0.5">Basis: {lien.legalBasis}</div>
+                        <div className="font-bold text-sm text-foreground">{lien.type}</div>
+                        <div className="text-xs text-muted-foreground">Holder: {lien.holder}</div>
+                        <div className="text-[11px] font-mono text-muted-foreground mt-0.5">Basis: {lien.legalBasis}</div>
                       </div>
                       <div className="text-right">
                         <div className="text-base font-bold font-mono text-rose-600">${lien.amount.toLocaleString()}</div>
@@ -484,8 +492,8 @@ export function ListingPanelsModal({
               </div>
 
               {/* Occupancy & Eviction Constraints */}
-              <div className="p-5 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
-                <span className="text-xs font-bold font-mono text-slate-800 uppercase block">
+              <div className="p-5 bg-muted border border-slate-200 rounded-xl space-y-2">
+                <span className="text-xs font-bold font-mono text-foreground uppercase block">
                   Occupancy & Eviction Statutory Rule
                 </span>
                 <div className="flex items-center gap-2">
@@ -493,7 +501,7 @@ export function ListingPanelsModal({
                     {sale.theCatch.occupancyStatus.replace(/_/g, ' ')}
                   </span>
                 </div>
-                <p className="text-xs text-slate-600 mt-1">
+                <p className="text-xs text-muted-foreground mt-1">
                   {sale.jurisdictionState === 'NJ'
                     ? 'In New Jersey, tenants are protected by the NJ Anti-Eviction Act (N.J.S.A. 2A:18-61.1). Foreclosure alone is not good cause for removal. If owner-occupied, bidder must apply for a Writ of Possession through the Sheriff after deed confirmation (typically 45-60 days).'
                     : 'In Pennsylvania, purchasers must file an Action in Ejectment under Pa.R.C.P. 1051 if occupant refuses cash-for-keys relocation.'}
@@ -519,7 +527,7 @@ export function ListingPanelsModal({
               {/* Waterfall Table */}
               <div className="border border-slate-200 rounded-xl overflow-hidden">
                 <table className="w-full text-xs text-left">
-                  <thead className="bg-slate-100 font-mono text-slate-600 uppercase border-b border-slate-200">
+                  <thead className="bg-accent font-mono text-muted-foreground uppercase border-b border-slate-200">
                     <tr>
                       <th className="p-3">Pos</th>
                       <th className="p-3">Lienholder</th>
@@ -531,23 +539,23 @@ export function ListingPanelsModal({
                   </thead>
                   <tbody className="divide-y divide-slate-100 font-mono">
                     {sale.assistedLienCheck.waterfall.map((lien) => (
-                      <tr key={lien.position} className={lien.survivesSale ? 'bg-rose-50/50' : 'bg-white'}>
-                        <td className="p-3 font-bold text-slate-700">#{lien.position}</td>
-                        <td className="p-3 font-semibold text-slate-900">{lien.lienHolder}</td>
-                        <td className="p-3 text-slate-600">{lien.lienType.replace(/_/g, ' ')}</td>
-                        <td className="p-3 font-bold text-slate-900">${lien.currentBalance.toLocaleString()}</td>
+                      <tr key={lien.position} className={lien.survivesSale ? 'bg-rose-50/50' : 'bg-card'}>
+                        <td className="p-3 font-bold text-secondary-foreground">#{lien.position}</td>
+                        <td className="p-3 font-semibold text-foreground">{lien.lienHolder}</td>
+                        <td className="p-3 text-muted-foreground">{lien.lienType.replace(/_/g, ' ')}</td>
+                        <td className="p-3 font-bold text-foreground">${lien.currentBalance.toLocaleString()}</td>
                         <td className="p-3">
                           {lien.survivesSale ? (
                             <span className="px-2 py-0.5 rounded bg-rose-100 text-rose-800 font-bold text-[10px]">
                               SURVIVES
                             </span>
                           ) : (
-                            <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-bold text-[10px]">
+                            <span className="px-2 py-0.5 rounded bg-accent text-muted-foreground font-bold text-[10px]">
                               EXTINGUISHED
                             </span>
                           )}
                         </td>
-                        <td className="p-3 text-slate-600 text-[11px] font-sans">{lien.justification}</td>
+                        <td className="p-3 text-muted-foreground text-[11px] font-sans">{lien.justification}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -575,51 +583,51 @@ export function ListingPanelsModal({
           {activePanelTab === 'bid_card' && (
             <div className="space-y-6">
               <div className="flex justify-between items-center">
-                <span className="text-xs font-mono text-slate-500 uppercase">Auction Day Bidder Sheet</span>
-                <button
+                <span className="text-xs font-mono text-muted-foreground uppercase">Auction Day Bidder Sheet</span>
+                <Button
                   onClick={handlePrintBidCard}
                   className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer"
                 >
                   <Printer size={16} />
                   <span>Print Auction Day Card</span>
-                </button>
+                </Button>
               </div>
 
-              <div className="p-6 bg-white border-2 border-slate-900 rounded-xl space-y-5 font-mono">
+              <div className="p-6 bg-card border-2 border-slate-900 rounded-xl space-y-5 font-mono">
                 <div className="border-b border-slate-300 pb-4 flex justify-between items-start">
                   <div>
-                    <span className="text-xs text-slate-500 uppercase">SHERIFF SALE BID CARD</span>
-                    <h3 className="text-lg font-bold text-slate-900">{sale.bidCard.propertyAddress}</h3>
-                    <p className="text-xs text-slate-600 mt-0.5">
+                    <span className="text-xs text-muted-foreground uppercase">SHERIFF SALE BID CARD</span>
+                    <h3 className="text-lg font-bold text-foreground">{sale.bidCard.propertyAddress}</h3>
+                    <p className="text-xs text-muted-foreground mt-0.5">
                       Case: {sale.bidCard.caseNumber} • {sale.bidCard.sheriffNumber}
                     </p>
                   </div>
                   <div className="text-right">
-                    <span className="text-xs text-slate-500 uppercase">Auction Time</span>
-                    <div className="text-sm font-bold text-slate-900">{sale.bidCard.auctionDateTime}</div>
-                    <div className="text-xs text-slate-600">{sale.bidCard.sheriffSaleLocation}</div>
+                    <span className="text-xs text-muted-foreground uppercase">Auction Time</span>
+                    <div className="text-sm font-bold text-foreground">{sale.bidCard.auctionDateTime}</div>
+                    <div className="text-xs text-muted-foreground">{sale.bidCard.sheriffSaleLocation}</div>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 border-b border-slate-300 pb-4 text-center">
-                  <div className="p-3 bg-slate-50 rounded-lg">
-                    <span className="text-[10px] text-slate-500 uppercase block">Deposit Required</span>
-                    <span className="text-base font-bold text-slate-900">{sale.bidCard.requiredDepositPercent}%</span>
-                    <span className="text-xs font-bold text-blue-600 block mt-0.5">
+                  <div className="p-3 bg-muted rounded-lg">
+                    <span className="text-[10px] text-muted-foreground uppercase block">Deposit Required</span>
+                    <span className="text-base font-bold text-foreground">{sale.bidCard.requiredDepositPercent}%</span>
+                    <span className="text-xs font-bold text-primary block mt-0.5">
                       ${sale.bidCard.requiredDepositDollars.toLocaleString()}
                     </span>
                   </div>
-                  <div className="p-3 bg-slate-50 rounded-lg">
-                    <span className="text-[10px] text-slate-500 uppercase block">Opening Bid</span>
-                    <span className="text-base font-bold text-slate-900">${sale.bidCard.openingBid}</span>
-                    <span className="text-[10px] text-slate-500 block mt-0.5">Sheriff Fee</span>
+                  <div className="p-3 bg-muted rounded-lg">
+                    <span className="text-[10px] text-muted-foreground uppercase block">Opening Bid</span>
+                    <span className="text-base font-bold text-foreground">${sale.bidCard.openingBid}</span>
+                    <span className="text-[10px] text-muted-foreground block mt-0.5">Sheriff Fee</span>
                   </div>
-                  <div className="p-3 bg-slate-50 rounded-lg">
-                    <span className="text-[10px] text-slate-500 uppercase block">Plaintiff Upset Limit</span>
+                  <div className="p-3 bg-muted rounded-lg">
+                    <span className="text-[10px] text-muted-foreground uppercase block">Plaintiff Upset Limit</span>
                     <span className="text-base font-bold text-amber-600">
                       ${sale.bidCard.plaintiffUpsetLimit.toLocaleString()}
                     </span>
-                    <span className="text-[10px] text-slate-500 block mt-0.5">Est. Bank Ceiling</span>
+                    <span className="text-[10px] text-muted-foreground block mt-0.5">Est. Bank Ceiling</span>
                   </div>
                   <div className="p-3 bg-slate-900 text-white rounded-lg">
                     <span className="text-[10px] text-slate-400 uppercase block">Hard Stop Ceiling</span>
@@ -632,13 +640,13 @@ export function ListingPanelsModal({
 
                 {/* Pre-Auction Checklist */}
                 <div className="space-y-2">
-                  <span className="text-xs font-bold uppercase text-slate-800 block">Pre-Auction Verification Checklist</span>
+                  <span className="text-xs font-bold uppercase text-foreground block">Pre-Auction Verification Checklist</span>
                   <div className="space-y-1.5 text-xs">
                     {sale.bidCard.checklist.map((item, idx) => (
-                      <div key={idx} className="flex items-start gap-2 p-2 bg-slate-50 rounded">
+                      <div key={idx} className="flex items-start gap-2 p-2 bg-muted rounded">
                         <CheckCircle size={16} className="text-emerald-600 mt-0.5 shrink-0" />
                         <div>
-                          <span className="text-slate-800">{item.item}</span>
+                          <span className="text-foreground">{item.item}</span>
                           {item.warning && <span className="block text-rose-600 text-[11px] font-bold mt-0.5">⚠️ {item.warning}</span>}
                         </div>
                       </div>
@@ -652,25 +660,25 @@ export function ListingPanelsModal({
           {/* “ASK THIS LISTING” AI PANEL */}
           {activePanelTab === 'ask_ai' && (
             <div className="space-y-4">
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl flex items-center justify-between">
-                <div className="flex items-center gap-2 text-blue-900 text-xs font-bold">
-                  <Sparkle size={18} className="text-blue-600" />
+              <div className="p-4 bg-primary/10 border border-blue-200 rounded-xl flex items-center justify-between">
+                <div className="flex items-center gap-2 text-primary text-xs font-bold">
+                  <Sparkle size={18} className="text-primary" />
                   <span>Interactive Intelligence grounded in Docket {sale.caseNumber}</span>
                 </div>
-                <span className="text-[11px] font-mono text-blue-700 bg-blue-100 px-2 py-0.5 rounded">
+                <span className="text-[11px] font-mono text-primary bg-primary/20 px-2 py-0.5 rounded">
                   Gemini Flash AI Workforce
                 </span>
               </div>
 
               {/* Chat Thread */}
-              <div className="h-64 overflow-y-auto p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3 text-xs">
+              <div className="h-64 overflow-y-auto p-4 bg-muted border border-slate-200 rounded-xl space-y-3 text-xs">
                 {chatMessages.map((msg, idx) => (
                   <div
                     key={idx}
                     className={`p-3 rounded-xl max-w-[85%] leading-relaxed ${
                       msg.role === 'user'
-                        ? 'ml-auto bg-blue-600 text-white rounded-br-none'
-                        : 'mr-auto bg-white border border-slate-200 text-slate-800 rounded-bl-none shadow-xs'
+                        ? 'ml-auto bg-primary text-primary-foreground rounded-br-none'
+                        : 'mr-auto bg-card border border-slate-200 text-foreground rounded-bl-none shadow-xs'
                     }`}
                   >
                     <div className="font-bold text-[10px] uppercase opacity-75 mb-1 font-mono">
@@ -680,8 +688,8 @@ export function ListingPanelsModal({
                   </div>
                 ))}
                 {isAnswering && (
-                  <div className="flex items-center gap-2 text-slate-500 text-xs p-2">
-                    <ArrowsClockwise size={16} className="animate-spin text-blue-600" />
+                  <div className="flex items-center gap-2 text-muted-foreground text-xs p-2">
+                    <ArrowsClockwise size={16} className="animate-spin text-primary" />
                     <span>Analyzing docket, NAIP imagery, and municipal lien waterfall…</span>
                   </div>
                 )}
@@ -689,49 +697,50 @@ export function ListingPanelsModal({
 
               {/* Chat Input */}
               <div className="flex gap-2">
-                <input
+                <Input
                   type="text"
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSendQuestion()}
                   placeholder="Ask about surviving liens, debtor adjournments, ceiling bid, or repair scope…"
-                  className="flex-1 px-4 py-2.5 bg-white border border-slate-300 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 px-4 py-2.5 bg-card border border-slate-300 rounded-xl text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                 />
-                <button
+                <Button
                   onClick={handleSendQuestion}
                   disabled={isAnswering || !chatInput.trim()}
-                  className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer"
+                  className="px-5 py-2.5 bg-primary hover:bg-primary/90 disabled:opacity-50 text-primary-foreground text-xs font-bold rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer"
                 >
                   <PaperPlaneTilt size={16} />
                   <span>Ask</span>
-                </button>
+                </Button>
               </div>
 
               {/* Quick Prompt Suggestions */}
               <div className="flex flex-wrap gap-2 text-[11px]">
-                <button
+                <Button
                   onClick={() => setChatInput('What municipal liens survive the sheriff sale?')}
-                  className="px-3 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-700 transition-colors"
+                  className="px-3 py-1 bg-accent hover:bg-accent rounded-lg text-secondary-foreground transition-colors"
                 >
                   "What liens survive?"
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => setChatInput('What is the maximum allowable bid under the 70% rule?')}
-                  className="px-3 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-700 transition-colors"
+                  className="px-3 py-1 bg-accent hover:bg-accent rounded-lg text-secondary-foreground transition-colors"
                 >
                   "Calculate my walk-away ceiling"
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => setChatInput('How many statutory adjournments does the defendant have left?')}
-                  className="px-3 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-700 transition-colors"
+                  className="px-3 py-1 bg-accent hover:bg-accent rounded-lg text-secondary-foreground transition-colors"
                 >
                   "Adjournment status"
-                </button>
+                </Button>
               </div>
             </div>
           )}
         </div>
       </motion.div>
+      )}
     </div>
   );
 }

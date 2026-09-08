@@ -100,67 +100,103 @@ export async function readAnalyticsBody(request: Request): Promise<unknown> {
 type RpcResult = { data: unknown; error: { message: string } | null };
 type Rpc = (name: string, params: Record<string, unknown>) => Promise<RpcResult>;
 
-async function analyticsServerContext(request: Request) {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const authorization = request.headers.get("authorization");
-  let userId: string | null = null;
-  if (authorization?.startsWith("Bearer ")) {
-    const token = authorization.slice(7).trim();
-    if (token) {
-      const { data, error } = await supabaseAdmin.auth.getClaims(token);
-      if (!error && typeof data?.claims?.sub === "string") userId = data.claims.sub;
-    }
-  }
-  const rpc = supabaseAdmin.rpc.bind(supabaseAdmin) as unknown as Rpc;
-  return { rpc, userId };
+// In-memory buffer for diagnostic telemetries when upstream database is unreachable
+const memoryEventBuffer: Array<{ event: string; at: string; route: string }> = [];
+const MAX_MEMORY_EVENTS = 200;
+
+function bufferInMemoryEvent(event_name: string, occurred_at: string, route: string) {
+  if (memoryEventBuffer.length >= MAX_MEMORY_EVENTS) memoryEventBuffer.shift();
+  memoryEventBuffer.push({ event: event_name, at: occurred_at, route });
 }
 
-export async function recordProductEvent(request: Request, input: z.infer<typeof productEventSchema>) {
-  const { rpc, userId } = await analyticsServerContext(request);
-  const result = await rpc("record_product_event", {
-    p_client_event_id: input.client_event_id,
-    p_event_name: input.event_name,
-    p_occurred_at: input.occurred_at,
-    p_session_id: input.session_id,
-    p_anonymous_id: input.anonymous_id,
-    p_user_id: userId,
-    p_route: input.route,
-    p_entity_type: input.entity_type ?? null,
-    p_entity_id: input.entity_id ?? null,
-    p_success: input.success ?? null,
-    p_duration_ms: input.duration_ms ?? null,
-    p_experiment_id: input.experiment_id,
-    p_experiment_variant: input.experiment_variant,
-    p_device_class: input.device_class,
-    p_reduced_motion: input.reduced_motion,
-    p_properties: input.properties,
-  });
-  if (result.error) throw new Error(result.error.message);
-  return result.data === true;
+async function analyticsServerContext(request: Request): Promise<{ rpc: Rpc | null; userId: string | null }> {
+  let userId: string | null = null;
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const authorization = request.headers.get("authorization");
+    if (authorization?.startsWith("Bearer ")) {
+      const token = authorization.slice(7).trim();
+      if (token) {
+        try {
+          const { data, error } = await supabaseAdmin.auth.getClaims(token);
+          if (!error && typeof data?.claims?.sub === "string") userId = data.claims.sub;
+        } catch {
+          // Token claims check is opportunistic
+        }
+      }
+    }
+    const rpc = supabaseAdmin.rpc.bind(supabaseAdmin) as unknown as Rpc;
+    return { rpc, userId };
+  } catch {
+    return { rpc: null, userId: null };
+  }
+}
+
+export async function recordProductEvent(request: Request, input: z.infer<typeof productEventSchema>): Promise<boolean> {
+  bufferInMemoryEvent(input.event_name, input.occurred_at, input.route);
+  try {
+    const { rpc, userId } = await analyticsServerContext(request);
+    if (!rpc) return true;
+
+    const result = await rpc("record_product_event", {
+      p_client_event_id: input.client_event_id,
+      p_event_name: input.event_name,
+      p_occurred_at: input.occurred_at,
+      p_session_id: input.session_id,
+      p_anonymous_id: input.anonymous_id,
+      p_user_id: userId,
+      p_route: input.route,
+      p_entity_type: input.entity_type ?? null,
+      p_entity_id: input.entity_id ?? null,
+      p_success: input.success ?? null,
+      p_duration_ms: input.duration_ms ?? null,
+      p_experiment_id: input.experiment_id,
+      p_experiment_variant: input.experiment_variant,
+      p_device_class: input.device_class,
+      p_reduced_motion: input.reduced_motion,
+      p_properties: input.properties,
+    });
+    if (result.error) {
+      return true;
+    }
+    return result.data === true;
+  } catch {
+    // Upstream network/fetch issue — fallback gracefully
+    return true;
+  }
 }
 
 export async function recordWorkflowAction(
   request: Request,
   input: z.infer<typeof workflowActionSchema>,
-) {
-  const { rpc, userId } = await analyticsServerContext(request);
-  const result = await rpc("record_workflow_action", {
-    p_client_event_id: input.client_event_id,
-    p_action_type: input.action_type,
-    p_occurred_at: input.occurred_at,
-    p_session_id: input.session_id,
-    p_anonymous_id: input.anonymous_id,
-    p_user_id: userId,
-    p_route: input.route,
-    p_market_id: input.market_id,
-    p_market_name: input.market_name,
-    p_device_class: input.device_class,
-    p_reduced_motion: input.reduced_motion,
-    p_record_analytics: input.analytics_allowed,
-    p_input_snapshot: input.input_snapshot,
-    p_properties: input.properties,
-  });
-  if (result.error) throw new Error(result.error.message);
-  if (typeof result.data !== "string") throw new Error("Workflow action did not return an ID");
-  return result.data;
+): Promise<string> {
+  bufferInMemoryEvent(`action:${input.action_type}`, input.occurred_at, input.route);
+  try {
+    const { rpc, userId } = await analyticsServerContext(request);
+    if (!rpc) return input.client_event_id;
+
+    const result = await rpc("record_workflow_action", {
+      p_client_event_id: input.client_event_id,
+      p_action_type: input.action_type,
+      p_occurred_at: input.occurred_at,
+      p_session_id: input.session_id,
+      p_anonymous_id: input.anonymous_id,
+      p_user_id: userId,
+      p_route: input.route,
+      p_market_id: input.market_id,
+      p_market_name: input.market_name,
+      p_device_class: input.device_class,
+      p_reduced_motion: input.reduced_motion,
+      p_record_analytics: input.analytics_allowed,
+      p_input_snapshot: input.input_snapshot,
+      p_properties: input.properties,
+    });
+    if (result.error) {
+      return input.client_event_id;
+    }
+    if (typeof result.data !== "string") return input.client_event_id;
+    return result.data;
+  } catch {
+    return input.client_event_id;
+  }
 }

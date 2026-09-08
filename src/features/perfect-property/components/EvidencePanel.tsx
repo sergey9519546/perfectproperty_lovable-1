@@ -1,3 +1,5 @@
+import { EvidencePanelSkeleton } from '@/components/ui/skeleton-loaders'
+import { Button } from "@/components/ui/button";
 import { ArrowRight, Buildings, ChartLineUp, CheckCircle, Database, House, ShieldCheck, Warning } from '@phosphor-icons/react'
 import { AnimatePresence, motion } from 'motion/react'
 import type { WorkspaceParcel } from '../live'
@@ -12,13 +14,23 @@ export function EvidencePanel({
   isSubmitting = false,
   onOpenFullDossier,
   isFocused = false,
+  loading = false,
 }: {
   parcel: WorkspaceParcel | null
   onUnderwrite: () => void
   isSubmitting?: boolean
   onOpenFullDossier?: (parcelId: string) => void
   isFocused?: boolean
+  loading?: boolean
 }) {
+  if (loading) {
+    return (
+      <aside className="p-6 border-l border-pp-border bg-pp-surface">
+        <EvidencePanelSkeleton />
+      </aside>
+    )
+  }
+
   if (!parcel) {
     return (
       <aside
@@ -83,10 +95,10 @@ export function EvidencePanel({
         >
           {/* Header */}
           <div className="flex-none p-6 pb-5 bg-pp-surface border-b border-pp-border">
-            <div className="mb-3 flex items-center gap-2 text-[10px] font-bold tracking-[0.15em] uppercase text-[#2F5FFF]">
+            <div className="mb-3 flex items-center gap-2 text-[10px] font-bold tracking-[0.15em] uppercase text-primary">
               <span aria-hidden="true" className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#2F5FFF] opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#2F5FFF]"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
               </span>
               <span>Live Underwriting</span>
               {isFocused && (
@@ -123,7 +135,7 @@ export function EvidencePanel({
           <section className="flex-none p-6 bg-pp-surface border-b border-pp-border">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-[11px] font-bold uppercase tracking-[0.14em] text-pp-faint">Perfect Score</h3>
-              <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 text-[#2F5FFF] border border-blue-200">
+              <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-primary/10 text-primary border border-blue-200">
                 {tier.label}
               </span>
             </div>
@@ -196,14 +208,14 @@ export function EvidencePanel({
               <dd className="font-mono text-xs text-pp-text">{parcel.countyFips ?? '—'}</dd>
             </dl>
             {onOpenFullDossier && (
-              <button
+              <Button
                 type="button"
-                className="mt-5 text-xs font-semibold text-[#2F5FFF] hover:text-[#1E40AF] transition-colors flex items-center gap-1.5 cursor-pointer"
+                className="mt-5 text-xs font-semibold text-primary hover:text-primary/20 transition-colors flex items-center gap-1.5 cursor-pointer"
                 onClick={() => onOpenFullDossier(parcel.id)}
               >
                 <span>View Complete Dossier</span>
                 <ArrowRight size={14} weight="bold" />
-              </button>
+              </Button>
             )}
           </section>
 
@@ -220,8 +232,8 @@ export function EvidencePanel({
                 filter={true}
               />
             </div>
-            <button
-              className="group flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-[#0F172A] text-xs font-semibold text-white transition-all hover:bg-[#1E293B] shadow-sm active:scale-[0.99] disabled:cursor-wait disabled:opacity-60 cursor-pointer"
+            <Button
+              className="group flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-foreground text-xs font-semibold text-white transition-all hover:bg-slate-800 shadow-sm active:scale-[0.99] disabled:cursor-wait disabled:opacity-60 cursor-pointer"
               onClick={onUnderwrite}
               type="button"
               disabled={isSubmitting}
@@ -229,7 +241,7 @@ export function EvidencePanel({
               <Buildings size={16} />
               <span>{isSubmitting ? 'Recording Underwrite…' : 'Record Underwrite'}</span>
               <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
-            </button>
+            </Button>
           </section>
         </motion.div>
       </AnimatePresence>

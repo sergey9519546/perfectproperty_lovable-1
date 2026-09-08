@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { Buildings, DownloadSimple, MagnifyingGlass, SignOut, ShieldCheck, ChartLineUp, Compass, BookmarkSimple } from '@phosphor-icons/react'
 import { motion } from 'motion/react'
 import { Brand } from './Brand'
@@ -42,9 +43,9 @@ export function TopBar({
   return (
     <header className="topbar flex h-16 items-center justify-between border-b border-pp-border bg-pp-surface px-6 shadow-none max-md:h-14 max-md:px-4">
       <div className="flex items-center gap-8">
-        <button id="workspace-topbar-home-btn" type="button" onClick={onHome} className="flex-shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-pp-text rounded-sm" aria-label="Return to homepage">
+        <Button id="workspace-topbar-home-btn" type="button" onClick={onHome} className="flex-shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-pp-text rounded-sm" aria-label="Return to homepage">
           <Brand id="workspace-topbar-brand" />
-        </button>
+        </Button>
         <div className="flex items-center gap-2 max-md:hidden text-sm text-pp-text">
           <Buildings size={16} weight="duotone" className="text-pp-muted" />
           <span className="font-semibold tracking-tight">{organizationName}</span>
@@ -52,13 +53,13 @@ export function TopBar({
       </div>
       
       <div className="flex items-center gap-4 flex-1 justify-end max-w-2xl">
-        <button className="group flex h-9 w-full max-w-[320px] items-center gap-2 rounded-full border border-pp-border bg-pp-surface-soft px-3.5 text-sm text-pp-faint transition-all hover:bg-pp-surface hover:border-pp-border-strong hover:shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-pp-text max-md:hidden" onClick={onOpenPalette} type="button">
+        <Button className="group flex h-9 w-full max-w-[320px] items-center gap-2 rounded-full border border-pp-border bg-pp-surface-soft px-3.5 text-sm text-pp-faint transition-all hover:bg-pp-surface hover:border-pp-border-strong hover:shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-pp-text max-md:hidden" onClick={onOpenPalette} type="button">
           <MagnifyingGlass size={16} className="text-pp-muted group-hover:text-pp-text transition-colors" />
           <span className="truncate">Search records…</span>
           <kbd className="ml-auto rounded border border-pp-border bg-pp-surface px-1.5 py-0.5 font-mono text-[10px] font-medium text-pp-muted shadow-none">
             {isMac ? '⌘K' : 'Ctrl K'}
           </kbd>
-        </button>
+        </Button>
         
         <div className="hidden items-center gap-2 text-[11px] font-bold tracking-widest uppercase text-pp-muted xl:flex">
           <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-pp-live" />
@@ -81,7 +82,7 @@ export function TopBar({
         
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button
+            <Button
               id="workspace-topbar-account-btn"
               className="flex h-9 w-9 items-center justify-center rounded-full border border-pp-border bg-pp-surface-soft text-[11px] font-bold text-pp-text hover:bg-pp-surface hover:border-pp-text transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-pp-text focus-visible:ring-offset-2"
               type="button"
@@ -89,7 +90,7 @@ export function TopBar({
               onClick={onAccount}
             >
               {userInitials}
-            </button>
+            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-60 bg-pp-page border-pp-border text-pp-text shadow-xl">
             <DropdownMenuLabel className="font-normal pb-2">

@@ -72,7 +72,7 @@ export function Compare({
       onTouchMove={handleTouchMove}
       onTouchEnd={() => setIsDragging(false)}
       className={cn(
-        'relative overflow-hidden select-none rounded-xl border border-slate-200 bg-slate-100 h-80 w-full',
+        'relative overflow-hidden select-none rounded-xl border border-slate-200 bg-accent h-80 w-full',
         className
       )}
     >
@@ -114,7 +114,7 @@ export function Compare({
       {/* Dividing Handle */}
       {showHandlebar && (
         <div
-          className="absolute top-0 bottom-0 z-30 w-1 bg-white shadow-[0_0_10px_rgba(0,0,0,0.4)] cursor-ew-resize"
+          className="absolute top-0 bottom-0 z-30 w-1 bg-card shadow-[0_0_10px_rgba(0,0,0,0.4)] cursor-ew-resize"
           style={{ left: `${sliderPosition}%` }}
         >
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-slate-900 text-white shadow-md">

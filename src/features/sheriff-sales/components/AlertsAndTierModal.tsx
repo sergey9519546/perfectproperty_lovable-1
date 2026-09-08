@@ -1,3 +1,5 @@
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { useState } from 'react';
 import {
   BellRinging,
@@ -37,7 +39,7 @@ export function AlertsAndTierModal({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm overflow-y-auto">
-      <div className="w-full max-w-3xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden my-8 space-y-6">
+      <div className="w-full max-w-3xl bg-card rounded-2xl shadow-2xl border border-slate-200 overflow-hidden my-8 space-y-6">
         {/* Header */}
         <div className="p-6 bg-slate-900 text-white flex items-center justify-between">
           <div>
@@ -52,44 +54,44 @@ export function AlertsAndTierModal({ onClose }: { onClose: () => void }) {
               Automated deal dispatch for institutional bidders and local flippers.
             </p>
           </div>
-          <button
+          <Button
             onClick={onClose}
             className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors"
           >
             <X size={20} />
-          </button>
+          </Button>
         </div>
 
         {/* Tab Switcher */}
         <div className="flex border-b border-slate-200 px-6 gap-6 text-xs font-bold font-mono">
-          <button
+          <Button
             onClick={() => setActiveTab('alerts')}
             className={`pb-3 transition-all border-b-2 ${
               activeTab === 'alerts'
-                ? 'border-blue-600 text-blue-600'
-                : 'border-transparent text-slate-500 hover:text-slate-800'
+                ? 'border-blue-600 text-primary'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
             }`}
           >
             1. Automated Deal Alerts
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => setActiveTab('pricing')}
             className={`pb-3 transition-all border-b-2 ${
               activeTab === 'pricing'
-                ? 'border-blue-600 text-blue-600'
-                : 'border-transparent text-slate-500 hover:text-slate-800'
+                ? 'border-blue-600 text-primary'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
             }`}
           >
             2. Pro & Institutional Tiers (Stripe)
-          </button>
+          </Button>
         </div>
 
         <div className="p-6 pt-0 space-y-6">
           {/* TAB 1: ALERTS */}
           {activeTab === 'alerts' && (
             <div className="space-y-6 font-sans">
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl space-y-1">
-                <span className="text-xs font-bold text-blue-900 flex items-center gap-1.5 font-mono uppercase">
+              <div className="p-4 bg-primary/10 border border-blue-200 rounded-xl space-y-1">
+                <span className="text-xs font-bold text-primary flex items-center gap-1.5 font-mono uppercase">
                   <BellRinging size={15} /> Real-Time Trigger Rules
                 </span>
                 <p className="text-xs text-blue-800">
@@ -100,11 +102,11 @@ export function AlertsAndTierModal({ onClose }: { onClose: () => void }) {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">Target County</label>
+                  <label className="font-bold text-secondary-foreground block mb-1">Target County</label>
                   <select
                     value={alertCounty}
                     onChange={(e) => setAlertCounty(e.target.value)}
-                    className="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-xs font-semibold text-slate-900"
+                    className="w-full bg-card border border-slate-300 rounded-xl p-2.5 text-xs font-semibold text-foreground"
                   >
                     <option value="Bergen County, NJ">Bergen County, NJ</option>
                     <option value="Middlesex County, NJ">Middlesex County, NJ</option>
@@ -115,11 +117,11 @@ export function AlertsAndTierModal({ onClose }: { onClose: () => void }) {
                 </div>
 
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">Minimum Modeled Equity Spread</label>
+                  <label className="font-bold text-secondary-foreground block mb-1">Minimum Modeled Equity Spread</label>
                   <select
                     value={alertMinSpread}
                     onChange={(e) => setAlertMinSpread(Number(e.target.value))}
-                    className="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-xs font-semibold text-slate-900"
+                    className="w-full bg-card border border-slate-300 rounded-xl p-2.5 text-xs font-semibold text-foreground"
                   >
                     <option value={50000}>$50,000+ Net Margin</option>
                     <option value={75000}>$75,000+ Net Margin (Recommended)</option>
@@ -128,19 +130,19 @@ export function AlertsAndTierModal({ onClose }: { onClose: () => void }) {
                 </div>
               </div>
 
-              <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+              <div className="p-4 bg-muted border border-slate-200 rounded-xl space-y-2">
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input
+                  <Input
                     type="checkbox"
                     checked={alertPeremptoryOnly}
                     onChange={(e) => setAlertPeremptoryOnly(e.target.checked)}
-                    className="rounded text-blue-600 focus:ring-blue-500"
+                    className="rounded text-primary focus:ring-primary"
                   />
-                  <span className="text-xs font-bold text-slate-800">
+                  <span className="text-xs font-bold text-foreground">
                     Peremptory Auctions Only (Exclude sales with debtor adjournments remaining)
                   </span>
                 </label>
-                <p className="text-[11px] text-slate-500 pl-5">
+                <p className="text-[11px] text-muted-foreground pl-5">
                   Filters out deals where defendants might request a 30-day statutory postponement on the day of the sale.
                 </p>
               </div>
@@ -151,13 +153,13 @@ export function AlertsAndTierModal({ onClose }: { onClose: () => void }) {
                     <CheckCircle size={16} /> Alert trigger saved! Running daily 8:00 AM sweep.
                   </span>
                 )}
-                <button
+                <Button
                   onClick={handleSaveAlert}
-                  className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer ml-auto"
+                  className="px-5 py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer ml-auto"
                 >
                   <BellRinging size={15} />
                   <span>Activate Watchlist Alert</span>
-                </button>
+                </Button>
               </div>
             </div>
           )}
@@ -165,10 +167,10 @@ export function AlertsAndTierModal({ onClose }: { onClose: () => void }) {
           {/* TAB 2: PRICING & STRIPE */}
           {activeTab === 'pricing' && (
             <div className="space-y-6">
-              <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between text-xs">
+              <div className="p-4 bg-muted border border-slate-200 rounded-xl flex items-center justify-between text-xs">
                 <div>
-                  <span className="font-bold text-slate-900 block font-mono">Community Free List Threshold</span>
-                  <span className="text-slate-600 text-[11px]">
+                  <span className="font-bold text-foreground block font-mono">Community Free List Threshold</span>
+                  <span className="text-muted-foreground text-[11px]">
                     Current subscriber count: <strong>1,140 investors</strong> (Paid tier activated per build sequence).
                   </span>
                 </div>
@@ -183,19 +185,19 @@ export function AlertsAndTierModal({ onClose }: { onClose: () => void }) {
                 <div
                   onClick={() => setSelectedPlan('PRO')}
                   className={`p-5 rounded-2xl border-2 cursor-pointer transition-all ${
-                    selectedPlan === 'PRO' ? 'border-blue-600 bg-blue-50/50 shadow-md' : 'border-slate-200 bg-white'
+                    selectedPlan === 'PRO' ? 'border-blue-600 bg-primary/10/50 shadow-md' : 'border-slate-200 bg-card'
                   }`}
                 >
                   <div className="flex justify-between items-start">
                     <div>
-                      <span className="text-xs font-mono font-bold text-blue-600 uppercase">PRO INVESTOR</span>
-                      <h3 className="text-2xl font-black text-slate-900 mt-1">
-                        $99 <span className="text-xs font-normal text-slate-500">/ month</span>
+                      <span className="text-xs font-mono font-bold text-primary uppercase">PRO INVESTOR</span>
+                      <h3 className="text-2xl font-black text-foreground mt-1">
+                        $99 <span className="text-xs font-normal text-muted-foreground">/ month</span>
                       </h3>
                     </div>
-                    {selectedPlan === 'PRO' && <CheckCircle size={22} className="text-blue-600" />}
+                    {selectedPlan === 'PRO' && <CheckCircle size={22} className="text-primary" />}
                   </div>
-                  <ul className="mt-4 space-y-2 text-xs text-slate-700">
+                  <ul className="mt-4 space-y-2 text-xs text-secondary-foreground">
                     <li className="flex items-center gap-1.5">
                       <CheckCircle size={14} className="text-emerald-600 shrink-0" />
                       <span>Full 17 NJ counties + PA/OH/TX sheets</span>
@@ -219,19 +221,19 @@ export function AlertsAndTierModal({ onClose }: { onClose: () => void }) {
                 <div
                   onClick={() => setSelectedPlan('INSTITUTIONAL')}
                   className={`p-5 rounded-2xl border-2 cursor-pointer transition-all ${
-                    selectedPlan === 'INSTITUTIONAL' ? 'border-indigo-600 bg-indigo-50/50 shadow-md' : 'border-slate-200 bg-white'
+                    selectedPlan === 'INSTITUTIONAL' ? 'border-indigo-600 bg-indigo-50/50 shadow-md' : 'border-slate-200 bg-card'
                   }`}
                 >
                   <div className="flex justify-between items-start">
                     <div>
                       <span className="text-xs font-mono font-bold text-indigo-600 uppercase">INSTITUTIONAL / FUND</span>
-                      <h3 className="text-2xl font-black text-slate-900 mt-1">
-                        $499 <span className="text-xs font-normal text-slate-500">/ month</span>
+                      <h3 className="text-2xl font-black text-foreground mt-1">
+                        $499 <span className="text-xs font-normal text-muted-foreground">/ month</span>
                       </h3>
                     </div>
                     {selectedPlan === 'INSTITUTIONAL' && <CheckCircle size={22} className="text-indigo-600" />}
                   </div>
-                  <ul className="mt-4 space-y-2 text-xs text-slate-700">
+                  <ul className="mt-4 space-y-2 text-xs text-secondary-foreground">
                     <li className="flex items-center gap-1.5">
                       <CheckCircle size={14} className="text-indigo-600 shrink-0" />
                       <span>Everything in Pro plus Multi-Seat Access</span>
@@ -259,14 +261,14 @@ export function AlertsAndTierModal({ onClose }: { onClose: () => void }) {
                   <div className="text-[11px] font-normal">Welcome to {selectedPlan} Tier. All pro features and real-time feeds are unlocked.</div>
                 </div>
               ) : (
-                <button
+                <Button
                   onClick={handleSubscribe}
                   disabled={isSubscribing}
                   className="w-full py-3.5 bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-white rounded-xl text-xs font-bold font-mono flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md"
                 >
                   <CreditCard size={18} />
                   <span>{isSubscribing ? 'Processing Stripe Checkout…' : `Start 14-Day Trial of ${selectedPlan} Tier`}</span>
-                </button>
+                </Button>
               )}
             </div>
           )}

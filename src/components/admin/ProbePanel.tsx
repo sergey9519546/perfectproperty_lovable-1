@@ -1,3 +1,5 @@
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -71,7 +73,7 @@ export function ProbePanel({ onDiscoverUrl }: { onDiscoverUrl: (url: string) => 
       </div>
       <div className="mt-2 rounded-lg border border-border bg-surface p-3">
         <div className="flex flex-wrap gap-2">
-          <input
+          <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="https://recorder.county.gov/foreclosure-calendar"
@@ -87,14 +89,14 @@ export function ProbePanel({ onDiscoverUrl }: { onDiscoverUrl: (url: string) => 
             <option value="zyte">zyte http (rotating proxy)</option>
             <option value="browser">zyte browser (JS render)</option>
           </select>
-          <button
+          <Button
             onClick={() => input && probe.mutate({ url: input, tier })}
             disabled={!input || probe.isPending}
             className="inline-flex items-center gap-2 rounded-md primary-button disabled:opacity-50"
           >
             <MagnifyingGlass className="h-4 w-4" />
             {probe.isPending ? "Fetching…" : "Probe URL"}
-          </button>
+          </Button>
         </div>
         <div className="mt-2 text-[11px] text-muted-foreground">
           Plain = free direct fetch (~40% of county HTML). Zyte = anti-bot proxy (~$0.0002/req,
@@ -121,13 +123,13 @@ export function ProbePanel({ onDiscoverUrl }: { onDiscoverUrl: (url: string) => 
               </span>
               <span className="text-muted-foreground">{(result.bytes / 1024).toFixed(1)} KB</span>
               <span className="text-muted-foreground">{result.duration_ms} ms</span>
-              <button
+              <Button
                 onClick={() => onDiscoverUrl(input || result.final_url)}
                 className="ml-auto inline-flex items-center gap-1 rounded-md bg-opportunity px-2 py-1 text-[11px] font-medium text-black transition-opacity hover:opacity-90"
               >
                 <MagicWand className="h-3 w-3" />
                 Discover schema
-              </button>
+              </Button>
             </div>
             {result.title && <div className="mt-2 font-medium">{result.title}</div>}
             <div className="mt-1 truncate text-[11px] text-muted-foreground">{result.final_url}</div>

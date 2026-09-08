@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { motion } from 'motion/react'
 import { ArrowRight, Database, Server, Webhook, Zap, CheckCircle2 } from 'lucide-react'
 import { IntegrationBar } from './IntegrationBar'
@@ -33,8 +34,8 @@ export const GTMSection = ({ onExplore }: { onExplore: () => void }) => {
       <IntegrationBar />
 
       {/* Enterprise GTM & Data Architecture Section */}
-      <section className="py-28 bg-[#0B0F17] text-white relative overflow-hidden border-t border-slate-800">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(47,95,255,0.15),rgba(255,255,255,0))]" />
+      <section className="py-28 bg-background text-white relative overflow-hidden border-t border-slate-800">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(239,170,45,0.15),rgba(255,255,255,0))]" />
 
         <div className="max-w-[1200px] mx-auto px-6 relative z-10">
           <div className="grid lg:grid-cols-2 gap-16 items-center mb-20">
@@ -50,13 +51,13 @@ export const GTMSection = ({ onExplore }: { onExplore: () => void }) => {
               </p>
 
               <div className="mt-8 flex flex-col sm:flex-row gap-4">
-                <button
+                <Button
                   onClick={onExplore}
-                  className="h-12 px-7 bg-[#2F5FFF] hover:bg-[#2555FF] text-white text-[14px] font-bold rounded-xl shadow-lg shadow-blue-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  className="h-12 px-7 bg-primary hover:bg-primary/90 text-primary-foreground text-[14px] font-bold rounded-xl shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <span>Explore Deal Engine</span>
                   <ArrowRight size={16} />
-                </button>
+                </Button>
               </div>
             </div>
 
@@ -70,7 +71,7 @@ export const GTMSection = ({ onExplore }: { onExplore: () => void }) => {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.6, delay: i * 0.1 }}
-                    className="p-6 rounded-2xl bg-white/[0.04] border border-white/[0.08] hover:border-white/[0.16] hover:bg-white/[0.06] transition-all"
+                    className="p-6 rounded-2xl bg-card/[0.04] border border-white/[0.08] hover:border-white/[0.16] hover:bg-card/[0.06] transition-all"
                   >
                     <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 mb-4">
                       <Icon size={20} />

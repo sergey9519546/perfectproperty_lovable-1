@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import React, { useState } from 'react'
 import { motion } from 'motion/react'
 import { cn } from '@/lib/utils'
@@ -48,20 +49,20 @@ export function AnimatedTabs({
     <div className="flex flex-col items-center w-full">
       <div
         className={cn(
-          'flex flex-row items-center justify-center [perspective:1000px] relative overflow-auto sm:overflow-visible no-visible-scrollbar max-w-full p-1.5 bg-slate-100/90 border border-slate-200 rounded-full',
+          'flex flex-row items-center justify-center [perspective:1000px] relative overflow-auto sm:overflow-visible no-visible-scrollbar max-w-full p-1.5 bg-accent/90 border border-slate-200 rounded-full',
           containerClassName
         )}
       >
         {tabs.map((tab) => {
           const isActive = active.value === tab.value
           return (
-            <button
+            <Button
               key={tab.value}
               type="button"
               onClick={() => handleSelect(tab)}
               className={cn(
                 'relative px-5 py-2 rounded-full text-xs sm:text-sm font-semibold transition-colors duration-200 cursor-pointer flex items-center gap-2',
-                isActive ? 'text-slate-900' : 'text-slate-500 hover:text-slate-800',
+                isActive ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
                 tabClassName
               )}
               style={{ transformStyle: 'preserve-3d' }}
@@ -71,7 +72,7 @@ export function AnimatedTabs({
                   layoutId="clickedbutton"
                   transition={{ type: 'spring', bounce: 0.25, duration: 0.5 }}
                   className={cn(
-                    'absolute inset-0 bg-white rounded-full shadow-[0_2px_8px_rgba(15,23,42,0.08)]',
+                    'absolute inset-0 bg-card rounded-full shadow-[0_2px_8px_rgba(15,23,42,0.08)]',
                     activeTabClassName
                   )}
                 />
@@ -81,12 +82,12 @@ export function AnimatedTabs({
                 {tab.icon}
                 <span>{tab.title}</span>
                 {tab.badge && (
-                  <span className="rounded-full bg-blue-100 text-blue-700 px-2 py-0.2 text-[10px] font-bold">
+                  <span className="rounded-full bg-primary/20 text-primary px-2 py-0.2 text-[10px] font-bold">
                     {tab.badge}
                   </span>
                 )}
               </span>
-            </button>
+            </Button>
           )
         })}
       </div>

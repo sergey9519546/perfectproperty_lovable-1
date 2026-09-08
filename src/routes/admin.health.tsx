@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -456,7 +457,7 @@ function ScheduleButton({
   pending: boolean;
 }) {
   return (
-    <button
+    <Button
       disabled={pending}
       onClick={() => {
         const spider = window.prompt("Spider name to schedule (as configured in Scrapy Cloud):");
@@ -471,7 +472,7 @@ function ScheduleButton({
       className="rounded-md border border-pp-border px-3 py-1 text-[11px] hover:bg-pp-surface disabled:opacity-50"
     >
       {pending ? "Scheduling…" : "Schedule job"}
-    </button>
+    </Button>
   );
 }
 
@@ -488,7 +489,7 @@ function HealthError({ error, reset }: { error: Error; reset: () => void }) {
   return (
     <div className="p-8 text-sm">
       <div className="text-destructive">{error.message}</div>
-      <button
+      <Button
         onClick={() => {
           router.invalidate();
           reset();
@@ -496,7 +497,7 @@ function HealthError({ error, reset }: { error: Error; reset: () => void }) {
         className="mt-3 rounded-md border border-pp-border px-3 py-1"
       >
         Retry
-      </button>
+      </Button>
     </div>
   );
 }

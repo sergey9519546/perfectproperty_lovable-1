@@ -1,3 +1,5 @@
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { motion } from 'motion/react'
 import { ArrowRight, Sparkles, Building2, EyeOff } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
@@ -57,9 +59,9 @@ export const Hero = ({ onExplore }: { onExplore: (query?: string, mode?: 'Deals'
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-blue-50/90 border border-blue-200/80 text-blue-800 text-xs font-bold tracking-wider uppercase mb-6 shadow-xs"
+          className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-primary/10/90 border border-blue-200/80 text-blue-800 text-xs font-bold tracking-wider uppercase mb-6 shadow-xs"
         >
-          <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+          <Sparkles className="w-3.5 h-3.5 text-primary" />
           <span>Perfect Property Intelligence Engine</span>
         </motion.div>
 
@@ -68,7 +70,7 @@ export const Hero = ({ onExplore }: { onExplore: (query?: string, mode?: 'Deals'
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="text-[46px] sm:text-[56px] md:text-[72px] font-bold leading-[1.05] tracking-[-0.04em] text-[#0F172A] max-w-[880px] mb-6"
+          className="text-[46px] sm:text-[56px] md:text-[72px] font-bold leading-[1.05] tracking-[-0.04em] text-foreground max-w-[880px] mb-6"
         >
           Every parcel underwritten. Every signal verified.
         </motion.h1>
@@ -77,7 +79,7 @@ export const Hero = ({ onExplore }: { onExplore: (query?: string, mode?: 'Deals'
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-          className="text-[17px] sm:text-[20px] md:text-[22px] text-[#475569] max-w-[720px] mb-10 leading-[1.45] font-medium"
+          className="text-[17px] sm:text-[20px] md:text-[22px] text-muted-foreground max-w-[720px] mb-10 leading-[1.45] font-medium"
         >
           Institutional-grade property deal scoring, spatial parcel boundaries, and real-time ground truth across Florida real estate markets.
         </motion.p>
@@ -88,44 +90,44 @@ export const Hero = ({ onExplore }: { onExplore: (query?: string, mode?: 'Deals'
           initial={{ opacity: 0, y: 25 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-          className="inline-flex p-1.5 bg-[#F1F5F9] border border-[#E2E8F0] rounded-full mb-8 shadow-inner relative"
+          className="inline-flex p-1.5 bg-muted border border-border rounded-full mb-8 shadow-inner relative"
         >
-          <button
+          <Button
             id="toggle-mode-deals"
             type="button"
             onClick={() => setActiveMode('Deals')}
             className={`relative z-10 flex items-center gap-2 px-7 py-2.5 text-[14px] font-semibold rounded-full transition-colors duration-200 cursor-pointer ${
-              activeMode === 'Deals' ? 'text-[#0F172A]' : 'text-[#64748B] hover:text-[#0F172A]'
+              activeMode === 'Deals' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             {activeMode === 'Deals' && (
               <motion.div
                 layoutId="hero-active-pill"
                 transition={{ type: 'spring', bounce: 0.2, duration: 0.5 }}
-                className="absolute inset-0 bg-white rounded-full shadow-[0_2px_8px_rgba(15,23,42,0.08)] z-[-1]"
+                className="absolute inset-0 bg-card rounded-full shadow-[0_2px_8px_rgba(15,23,42,0.08)] z-[-1]"
               />
             )}
-            <Building2 className={`w-4 h-4 ${activeMode === 'Deals' ? 'text-blue-600' : 'text-slate-400'}`} />
+            <Building2 className={`w-4 h-4 ${activeMode === 'Deals' ? 'text-primary' : 'text-slate-400'}`} />
             <span>Deals</span>
-          </button>
-          <button
+          </Button>
+          <Button
             id="toggle-mode-shadow"
             type="button"
             onClick={() => setActiveMode('Shadow')}
             className={`relative z-10 flex items-center gap-2 px-7 py-2.5 text-[14px] font-semibold rounded-full transition-colors duration-200 cursor-pointer ${
-              activeMode === 'Shadow' ? 'text-[#0F172A]' : 'text-[#64748B] hover:text-[#0F172A]'
+              activeMode === 'Shadow' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             {activeMode === 'Shadow' && (
               <motion.div
                 layoutId="hero-active-pill"
                 transition={{ type: 'spring', bounce: 0.2, duration: 0.5 }}
-                className="absolute inset-0 bg-white rounded-full shadow-[0_2px_8px_rgba(15,23,42,0.08)] z-[-1]"
+                className="absolute inset-0 bg-card rounded-full shadow-[0_2px_8px_rgba(15,23,42,0.08)] z-[-1]"
               />
             )}
             <EyeOff className={`w-4 h-4 ${activeMode === 'Shadow' ? 'text-indigo-600' : 'text-slate-400'}`} />
             <span>Shadow</span>
-          </button>
+          </Button>
         </motion.div>
 
         {/* URL Input Field with Blue Circular Submit Button Inside */}
@@ -137,24 +139,24 @@ export const Hero = ({ onExplore }: { onExplore: (query?: string, mode?: 'Deals'
           transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
           className="relative w-full max-w-[560px] group mb-6"
         >
-          <div className="absolute inset-0 bg-blue-500/10 rounded-full blur-xl group-hover:bg-blue-500/15 transition-all opacity-70 group-hover:opacity-100" />
-          <div className="relative flex items-center bg-white rounded-full border border-slate-200 shadow-[0_4px_24px_rgba(15,23,42,0.08)] p-2 focus-within:border-blue-600 focus-within:ring-4 focus-within:ring-blue-100 transition-all">
-            <input 
+          <div className="absolute inset-0 bg-primary/15 rounded-full blur-xl group-hover:bg-primary/25 transition-all opacity-70 group-hover:opacity-100" />
+          <div className="relative flex items-center bg-card rounded-full border border-slate-200 shadow-[0_4px_24px_rgba(15,23,42,0.08)] p-2 focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/20 transition-all">
+            <Input 
               id="hero-url-input"
               type="text" 
               value={urlInput}
               onChange={(e) => setUrlInput(e.target.value)}
               placeholder={activeMode === 'Deals' ? 'Paste Redfin/Zillow URL or County Assessor APN...' : 'Enter auction docket, tax lien, or notice ID...'}
-              className="flex-1 h-12 pl-6 pr-3 bg-transparent border-none focus:outline-none focus:ring-0 text-[15px] sm:text-[16px] text-slate-900 placeholder:text-slate-400"
+              className="flex-1 h-12 pl-6 pr-3 bg-transparent border-none focus:outline-none focus:ring-0 text-[15px] sm:text-[16px] text-foreground placeholder:text-slate-400"
             />
-            <button 
+            <Button 
               id="hero-submit-btn"
               type="submit"
               title="Analyze Parcel"
-              className="h-11 w-11 bg-blue-600 hover:bg-blue-700 text-white rounded-full flex items-center justify-center shadow-md shadow-blue-600/30 active:scale-95 transition-all cursor-pointer shrink-0"
+              className="h-11 w-11 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full flex items-center justify-center shadow-md shadow-primary/30 active:scale-95 transition-all cursor-pointer shrink-0"
             >
               <ArrowRight size={20} strokeWidth={2.5} />
-            </button>
+            </Button>
           </div>
         </motion.form>
 
@@ -163,29 +165,29 @@ export const Hero = ({ onExplore }: { onExplore: (query?: string, mode?: 'Deals'
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.4 }}
-          className="flex flex-wrap items-center justify-center gap-3 text-xs text-slate-500 mb-8"
+          className="flex flex-wrap items-center justify-center gap-3 text-xs text-muted-foreground mb-8"
         >
           <span className="font-medium text-slate-400">Quick sample:</span>
-          <button 
+          <Button 
             type="button"
             onClick={() => handleSampleClick('https://assessor.lacounty.gov/parcel/5542-012-004')}
-            className="text-blue-600 hover:text-blue-800 underline decoration-blue-200 underline-offset-2 hover:decoration-blue-500 transition-all cursor-pointer"
+            className="text-primary hover:text-blue-800 underline decoration-blue-200 underline-offset-2 hover:decoration-blue-500 transition-all cursor-pointer"
           >
             LA County APN 5542-012-004
-          </button>
+          </Button>
           <span className="text-slate-300">•</span>
-          <button 
+          <Button 
             type="button"
             onClick={() => handleSampleClick('https://redfin.com/CA/Los-Angeles/742-Evergreen-Terrace/home/1283910')}
-            className="text-blue-600 hover:text-blue-800 underline decoration-blue-200 underline-offset-2 hover:decoration-blue-500 transition-all cursor-pointer"
+            className="text-primary hover:text-blue-800 underline decoration-blue-200 underline-offset-2 hover:decoration-blue-500 transition-all cursor-pointer"
           >
             Redfin Listing
-          </button>
+          </Button>
           <span className="text-slate-300">•</span>
           <HoverBorderGradient
             onClick={() => onExplore()}
             containerClassName="shadow-xs hover:shadow-md"
-            className="text-xs py-1.5 px-3.5 text-blue-600 font-semibold flex items-center gap-1.5"
+            className="text-xs py-1.5 px-3.5 text-primary font-semibold flex items-center gap-1.5"
           >
             <span>Launch Interactive Workspace</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -198,12 +200,12 @@ export const Hero = ({ onExplore }: { onExplore: (query?: string, mode?: 'Deals'
             Ingestion across enterprise data feeds
           </p>
           <div className="flex flex-wrap justify-center items-center gap-x-12 sm:gap-x-16 gap-y-6 grayscale pointer-events-none opacity-80">
-            <div className="text-[18px] sm:text-[20px] font-extrabold tracking-tighter text-slate-700">SERVICELINK</div>
-            <div className="text-[18px] sm:text-[20px] font-extrabold tracking-tighter text-slate-700">ZYTE</div>
-            <div className="text-[18px] sm:text-[20px] font-extrabold tracking-tighter text-slate-700">SCRAPY</div>
-            <div className="text-[18px] sm:text-[20px] font-extrabold tracking-tighter text-slate-700">REALIE</div>
-            <div className="text-[18px] sm:text-[20px] font-extrabold tracking-tighter text-slate-700">ATTOM</div>
-            <div className="text-[18px] sm:text-[20px] font-extrabold tracking-tighter text-slate-700">CADASTRAL</div>
+            <div className="text-[18px] sm:text-[20px] font-extrabold tracking-tighter text-secondary-foreground">SERVICELINK</div>
+            <div className="text-[18px] sm:text-[20px] font-extrabold tracking-tighter text-secondary-foreground">ZYTE</div>
+            <div className="text-[18px] sm:text-[20px] font-extrabold tracking-tighter text-secondary-foreground">SCRAPY</div>
+            <div className="text-[18px] sm:text-[20px] font-extrabold tracking-tighter text-secondary-foreground">REALIE</div>
+            <div className="text-[18px] sm:text-[20px] font-extrabold tracking-tighter text-secondary-foreground">ATTOM</div>
+            <div className="text-[18px] sm:text-[20px] font-extrabold tracking-tighter text-secondary-foreground">CADASTRAL</div>
           </div>
         </div>
       </div>

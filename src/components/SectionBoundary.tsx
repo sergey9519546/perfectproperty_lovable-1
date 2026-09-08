@@ -1,9 +1,10 @@
+import { Button } from "@/components/ui/button";
 /**
  * Progressive-disclosure error boundary. Replaces a crashing section with a
  * minimalist wireframe fallback instead of white-screening the whole page.
  */
 import React from "react";
-import { reportLovableError } from "@/lib/lovable-error-reporting";
+import { captureBoundaryCrash } from "@/lib/error-monitor";
 
 interface Props {
   label?: string;
@@ -16,7 +17,12 @@ export class SectionBoundary extends React.Component<Props, State> {
   state: State = { error: null };
   static getDerivedStateFromError(error: Error): State { return { error }; }
   componentDidCatch(error: Error, info: React.ErrorInfo) {
-    reportLovableError(error, { boundary: "SectionBoundary", label: this.props.label, componentStack: info.componentStack });
+    captureBoundaryCrash(error, {
+      boundary: "SectionBoundary",
+      componentName: this.props.label || "SectionBoundary",
+      componentStack: info.componentStack || undefined,
+      metadata: { label: this.props.label },
+    });
   }
   reset = () => this.setState({ error: null });
   render() {
@@ -36,12 +42,12 @@ export class SectionBoundary extends React.Component<Props, State> {
           {this.props.label ?? "Data unavailable"}
         </div>
         <div className="text-[11px] text-pp-muted">This section couldn't render. The rest of the page still works.</div>
-        <button
+        <Button
           onClick={this.reset}
           className="mt-2 rounded-md border border-pp-border bg-pp-page px-3 py-1 text-[11px] text-pp-muted hover:text-pp-text"
         >
           Try again
-        </button>
+        </Button>
       </div>
     );
   }

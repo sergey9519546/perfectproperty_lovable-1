@@ -1,3 +1,5 @@
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import React, { useState } from "react";
 import {
   MapPin,
@@ -151,7 +153,7 @@ export function GroundedIntelligenceSection({
         </div>
 
         {user && (
-          <button
+          <Button
             type="button"
             onClick={handleSaveToPortfolio}
             disabled={savingToPortfolio}
@@ -163,13 +165,13 @@ export function GroundedIntelligenceSection({
               <BookmarkPlus className="h-3 w-3" />
             )}
             <span>Save to Portfolio</span>
-          </button>
+          </Button>
         )}
       </div>
 
       {/* Tabs */}
       <div className="mt-3 flex gap-1.5 border-b border-pp-border pb-2 text-xs">
-        <button
+        <Button
           type="button"
           onClick={() => {
             setActiveTab("maps");
@@ -184,9 +186,9 @@ export function GroundedIntelligenceSection({
         >
           <MapPin className="h-3.5 w-3.5 text-blue-400" />
           <span>Maps Grounding</span>
-        </button>
+        </Button>
 
-        <button
+        <Button
           type="button"
           onClick={() => {
             setActiveTab("search");
@@ -201,9 +203,9 @@ export function GroundedIntelligenceSection({
         >
           <Globe className="h-3.5 w-3.5 text-emerald-400" />
           <span>Search Grounding</span>
-        </button>
+        </Button>
 
-        <button
+        <Button
           type="button"
           onClick={() => {
             setActiveTab("comprehensive");
@@ -218,12 +220,12 @@ export function GroundedIntelligenceSection({
         >
           <Building className="h-3.5 w-3.5 text-purple-400" />
           <span>Full Dual Audit</span>
-        </button>
+        </Button>
       </div>
 
       {/* Custom Inquiry input */}
       <div className="mt-2.5 flex gap-2">
-        <input
+        <Input
           type="text"
           placeholder="Optional: Enter specific prompt (e.g. proximity to light rail, tax lien risk, zoning restrictions)..."
           value={customInquiry}
@@ -233,7 +235,7 @@ export function GroundedIntelligenceSection({
           }}
           className="h-8 flex-1 rounded border border-pp-border bg-pp-page px-2.5 text-xs text-pp-text placeholder:text-pp-muted/70 focus:border-amber-500/60 focus:outline-none"
         />
-        <button
+        <Button
           type="button"
           onClick={() => handleRunAnalysis(activeTab)}
           disabled={loading}
@@ -250,7 +252,7 @@ export function GroundedIntelligenceSection({
               <span>Query Gemini</span>
             </>
           )}
-        </button>
+        </Button>
       </div>
 
       {/* Result Display */}

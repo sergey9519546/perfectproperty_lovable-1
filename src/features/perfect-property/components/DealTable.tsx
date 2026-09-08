@@ -1,3 +1,5 @@
+import { TableSkeleton } from '@/components/ui/skeleton-loaders'
+import { Input } from "@/components/ui/input";
 import { MagnifyingGlass } from '@phosphor-icons/react'
 import { useEffect, useMemo, useState } from 'react'
 import type { WorkspaceParcel } from '../live'
@@ -46,7 +48,7 @@ export function DealTable({
         </strong>
         <label className="relative ml-auto w-[280px]">
           <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-pp-muted" size={16} />
-          <input
+          <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="h-9 w-full rounded-full border border-pp-border bg-pp-surface-soft pl-9 pr-4 text-xs font-medium text-pp-text outline-none placeholder:text-pp-faint focus:border-pp-text focus:bg-pp-surface transition-colors"
@@ -119,10 +121,20 @@ export function DealTable({
           </div>
         )}
         {loading && (
-          <div className="space-y-4 p-6" aria-busy="true">
-            <div className="skeleton h-10 w-full" />
-            <div className="skeleton h-10 w-full" />
-            <div className="skeleton h-10 w-3/4" />
+          <div className="p-4" aria-busy="true">
+            <TableSkeleton
+              rows={8}
+              columns={[
+                { width: 'w-1/4' },
+                { width: 'w-1/6' },
+                { width: 'w-1/8' },
+                { width: 'w-1/8', align: 'right' },
+                { width: 'w-1/8', align: 'right' },
+                { width: 'w-1/8', align: 'right' },
+                { width: 'w-1/8', align: 'right' },
+                { width: 'w-1/8', align: 'right' },
+              ]}
+            />
           </div>
         )}
       </div>

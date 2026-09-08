@@ -1,7 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { ProtectedLayout } from "@/components/ProtectedLayout";
 import { SectionBoundary } from "@/components/SectionBoundary";
 import { SheriffSalesView } from "@/features/sheriff-sales/components/SheriffSalesView";
+import { SheriffSalesAuthGuard } from "@/features/sheriff-sales/components/SheriffSalesAuthGuard";
 import { getAuthenticatedFirebaseUser } from "@/integrations/firebase";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -10,6 +10,9 @@ export const Route = createFileRoute("/sheriff-sales")({
   beforeLoad: async () => {
     const firebaseUser = await getAuthenticatedFirebaseUser();
     if (!firebaseUser) {
+      if (typeof localStorage !== "undefined" && localStorage.getItem("pp_demo_session")) {
+        return;
+      }
       const { data } = await supabase.auth.getUser();
       if (!data.user) {
         throw redirect({ to: "/auth", search: { next: "/sheriff-sales" } });
@@ -27,10 +30,11 @@ export const Route = createFileRoute("/sheriff-sales")({
     ],
   }),
   component: () => (
-    <ProtectedLayout>
+    <SheriffSalesAuthGuard mode="page" redirectTo="/auth">
       <SectionBoundary label="Sheriff sales intelligence unavailable" minHeight={400}>
         <SheriffSalesView />
       </SectionBoundary>
-    </ProtectedLayout>
+    </SheriffSalesAuthGuard>
   ),
 });
+

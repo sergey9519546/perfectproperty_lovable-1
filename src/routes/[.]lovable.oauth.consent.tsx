@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -87,20 +88,20 @@ function Consent() {
         )}
         {error && <p role="alert" className="mt-3 text-sm text-destructive">{error}</p>}
         <div className="mt-6 flex gap-2">
-          <button
+          <Button
             disabled={busy}
             onClick={() => decide(true)}
             className="flex-1 rounded-md primary-button disabled:opacity-50"
           >
             Approve
-          </button>
-          <button
+          </Button>
+          <Button
             disabled={busy}
             onClick={() => decide(false)}
             className="flex-1 rounded-md border border-pp-border bg-pp-page px-4 py-2 text-sm text-pp-text disabled:opacity-50"
           >
             Cancel connection
-          </button>
+          </Button>
         </div>
       </div>
     </main>

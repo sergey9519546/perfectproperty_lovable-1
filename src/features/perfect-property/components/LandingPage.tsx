@@ -1,3 +1,5 @@
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { useState, type FormEvent } from "react";
 import { Link } from "@tanstack/react-router";
 import { Brand } from "./Brand";
@@ -108,22 +110,22 @@ export function LandingPage({ onExplore, onSignIn }: LandingPageProps) {
           </div>
 
           <div className="flex items-center gap-3">
-            <button
+            <Button
               id="landing-signin-btn"
               type="button"
               onClick={onSignIn}
               className="rounded-md border border-pp-border/80 bg-pp-surface px-4 py-2 text-xs font-semibold text-pp-text transition-colors hover:bg-pp-surface-raised cursor-pointer"
             >
               Sign In
-            </button>
-            <button
+            </Button>
+            <Button
               id="landing-launch-btn"
               type="button"
               onClick={() => onExplore()}
               className="rounded-md bg-pp-gold px-4 py-2 text-xs font-semibold text-black transition-all hover:bg-pp-gold-bright cursor-pointer"
             >
               Launch Terminal
-            </button>
+            </Button>
           </div>
         </div>
       </header>
@@ -150,7 +152,7 @@ export function LandingPage({ onExplore, onSignIn }: LandingPageProps) {
           <div id="landing-command-box" className="mt-8 rounded-xl border border-pp-border/80 bg-pp-surface p-4 sm:p-5 shadow-2xl">
             <div className="flex items-center justify-between border-b border-pp-border/60 pb-3 mb-3">
               <div className="flex items-center gap-2">
-                <button
+                <Button
                   id="mode-deals-tab"
                   type="button"
                   onClick={() => setActiveMode("Deals")}
@@ -161,8 +163,8 @@ export function LandingPage({ onExplore, onSignIn }: LandingPageProps) {
                   }`}
                 >
                   On & Pre-Market Deals
-                </button>
-                <button
+                </Button>
+                <Button
                   id="mode-shadow-tab"
                   type="button"
                   onClick={() => setActiveMode("Shadow")}
@@ -173,7 +175,7 @@ export function LandingPage({ onExplore, onSignIn }: LandingPageProps) {
                   }`}
                 >
                   Shadow Distress Signals
-                </button>
+                </Button>
               </div>
               <span className="text-[11px] text-pp-muted hidden sm:inline">
                 Press Enter to inspect parcel
@@ -183,7 +185,7 @@ export function LandingPage({ onExplore, onSignIn }: LandingPageProps) {
             <form onSubmit={handleSearchSubmit} className="flex flex-col sm:flex-row gap-2.5">
               <div className="relative flex-1">
                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-pp-muted" />
-                <input
+                <Input
                   id="landing-search-input"
                   type="text"
                   value={searchInput}
@@ -192,42 +194,42 @@ export function LandingPage({ onExplore, onSignIn }: LandingPageProps) {
                   className="w-full rounded-lg border border-pp-border bg-pp-page py-2.5 pl-10 pr-4 text-sm text-pp-text placeholder:text-pp-faint focus:border-pp-gold focus:outline-none focus:ring-1 focus:ring-pp-gold font-sans"
                 />
               </div>
-              <button
+              <Button
                 id="landing-search-submit"
                 type="submit"
                 className="flex items-center justify-center gap-2 rounded-lg bg-pp-gold px-5 py-2.5 text-xs font-bold text-black hover:bg-pp-gold-bright transition-colors cursor-pointer whitespace-nowrap"
               >
                 <span>Inspect Parcel</span>
                 <ArrowRight className="h-4 w-4" />
-              </button>
+              </Button>
             </form>
 
             {/* Quick Samples */}
             <div className="mt-3 flex flex-wrap items-center gap-2 text-[12px] text-pp-muted">
               <span className="text-pp-faint">Verified notices:</span>
-              <button
+              <Button
                 type="button"
                 onClick={() => handleSampleClick("184 Clinton Pl, Hackensack, NJ")}
                 className="hover:text-pp-gold hover:underline cursor-pointer"
               >
                 184 Clinton Pl (Bergen)
-              </button>
+              </Button>
               <span>•</span>
-              <button
+              <Button
                 type="button"
                 onClick={() => handleSampleClick("291 S Harrison St, East Orange, NJ")}
                 className="hover:text-pp-gold hover:underline cursor-pointer"
               >
                 291 S Harrison St (Essex)
-              </button>
+              </Button>
               <span>•</span>
-              <button
+              <Button
                 type="button"
                 onClick={() => handleSampleClick("452 Elm St, Hackensack, NJ")}
                 className="hover:text-pp-gold hover:underline cursor-pointer"
               >
                 452 Elm St (Chancery)
-              </button>
+              </Button>
             </div>
           </div>
         </section>

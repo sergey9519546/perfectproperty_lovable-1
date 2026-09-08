@@ -66,27 +66,27 @@ function MonitoringPage() {
       {q.isLoading && (
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="rounded-xl border border-[#E2E8F0] bg-white p-5 space-y-2 shadow-sm">
-              <div className="skeleton h-3 w-1/2 rounded bg-[#F1F5F9]" />
-              <div className="skeleton mt-2 h-6 w-3/4 rounded bg-[#F1F5F9]" />
+            <div key={i} className="rounded-xl border border-border bg-card p-5 space-y-2 shadow-sm">
+              <div className="skeleton h-3 w-1/2 rounded bg-muted" />
+              <div className="skeleton mt-2 h-6 w-3/4 rounded bg-muted" />
             </div>
           ))}
         </div>
       )}
 
       {!q.isLoading && !latest && (
-        <div id="monitoring-empty-state" className="rounded-xl border border-dashed border-[#CBD5E1] bg-white px-6 py-8 text-center text-xs text-[#64748B]">
+        <div id="monitoring-empty-state" className="rounded-xl border border-dashed border-border-strong bg-card px-6 py-8 text-center text-xs text-muted-foreground">
           No monitoring snapshot recorded yet. The nightly risk engine cron will populate this after its first run.
         </div>
       )}
 
       {latest && (
         <>
-          <div id="monitoring-snapshot-badge" className="flex items-center justify-between text-xs text-[#64748B] bg-white border border-[#E2E8F0] rounded-xl px-4 py-3 shadow-sm">
+          <div id="monitoring-snapshot-badge" className="flex items-center justify-between text-xs text-muted-foreground bg-card border border-border rounded-xl px-4 py-3 shadow-sm">
             <span>
-              Latest snapshot: <strong className="text-[#0F172A]">{new Date(latest.computed_at).toLocaleString()}</strong>
+              Latest snapshot: <strong className="text-foreground">{new Date(latest.computed_at).toLocaleString()}</strong>
             </span>
-            <span className="px-2.5 py-1 rounded-md bg-[#F1F5F9] border border-[#E2E8F0] text-[#0F172A] font-semibold text-[11px]">
+            <span className="px-2.5 py-1 rounded-md bg-muted border border-border text-foreground font-semibold text-[11px]">
               {latest.n_deals} active deals in pool
             </span>
           </div>
@@ -126,16 +126,16 @@ function MonitoringPage() {
             <Metric id="monitoring-metric-deals" label="Deals in portfolio" v={<span>{latest.n_deals}</span>} />
           </div>
 
-          <p className="text-xs text-[#64748B]">
+          <p className="text-xs text-muted-foreground">
             Expected loss is the typical hit across all open deals. Bad-month loss is what the worst 5% of outcomes cost. Cash to hold back is the liquidity buffer that covers it.
           </p>
 
-          <details id="monitoring-risk-details" className="group rounded-xl border border-[#E2E8F0] bg-white p-5 shadow-sm transition-all">
-            <summary className="cursor-pointer text-xs font-bold uppercase tracking-wider text-[#2F5FFF] hover:text-blue-700 flex items-center justify-between">
+          <details id="monitoring-risk-details" className="group rounded-xl border border-border bg-card p-5 shadow-sm transition-all">
+            <summary className="cursor-pointer text-xs font-bold uppercase tracking-wider text-primary hover:text-primary flex items-center justify-between">
               <span>Detailed Risk Model Indicators</span>
-              <span className="text-[#64748B] group-open:rotate-180 transition-transform text-sm">▾</span>
+              <span className="text-muted-foreground group-open:rotate-180 transition-transform text-sm">▾</span>
             </summary>
-            <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4 pt-4 border-t border-[#E2E8F0]">
+            <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4 pt-4 border-t border-border">
               <Metric label="VaR (95%)" v={fmt$(Number(latest.var_95 ?? 0))} />
               <Metric label="Return on risk capital" v={fmtPct(Number(latest.raroc ?? 0))} />
               <Metric label="County concentration" v={Number(latest.hhi_county ?? 0).toFixed(3)} />
@@ -168,13 +168,13 @@ function MonitoringPage() {
           </details>
 
           <div id="monitoring-history-section" className="space-y-3">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-[#0F172A]">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">
               Recent Nightly Integrity Checks
             </h3>
-            <div className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white shadow-sm">
+            <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
               <div className="overflow-x-auto">
                 <table id="monitoring-history-table" className="w-full text-xs">
-                  <thead className="bg-[#F8FAFC] border-b border-[#E2E8F0] text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
+                  <thead className="bg-muted border-b border-border text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                     <tr>
                       <th className="px-4 py-3 text-left">Timestamp</th>
                       <th className="px-4 py-3 text-right">Deals</th>
@@ -186,17 +186,17 @@ function MonitoringPage() {
                       <th className="px-4 py-3 text-left">Alerts</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#E2E8F0]">
+                  <tbody className="divide-y divide-border">
                     {history.map((h) => (
-                      <tr key={h.id} className="hover:bg-[#F8FAFC] transition-colors">
-                        <td className="px-4 py-3 text-[#64748B] font-mono">
+                      <tr key={h.id} className="hover:bg-muted transition-colors">
+                        <td className="px-4 py-3 text-muted-foreground font-mono">
                           {new Date(h.computed_at).toLocaleString()}
                         </td>
-                        <td className="num px-4 py-3 text-right font-bold text-[#0F172A]">{h.n_deals}</td>
+                        <td className="num px-4 py-3 text-right font-bold text-foreground">{h.n_deals}</td>
                         <td className="num px-4 py-3 text-right text-rose-600 font-bold">{fmt$(Number(h.el ?? 0))}</td>
-                        <td className="num px-4 py-3 text-right text-[#2F5FFF] font-bold">{fmt$(Number(h.cvar_95 ?? 0))}</td>
-                        <td className="num px-4 py-3 text-right text-[#0F172A]">{fmt$(Number(h.ec ?? 0))}</td>
-                        <td className="num px-4 py-3 text-right text-[#64748B]">
+                        <td className="num px-4 py-3 text-right text-primary font-bold">{fmt$(Number(h.cvar_95 ?? 0))}</td>
+                        <td className="num px-4 py-3 text-right text-foreground">{fmt$(Number(h.ec ?? 0))}</td>
+                        <td className="num px-4 py-3 text-right text-muted-foreground">
                           {Number(h.hhi_county ?? 0).toFixed(3)}
                         </td>
                         <td
@@ -243,11 +243,11 @@ function Metric({
     tone === "skeptic"
       ? "text-rose-600"
       : tone === "blue"
-        ? "text-[#2F5FFF]"
-        : "text-[#0F172A]";
+        ? "text-primary"
+        : "text-foreground";
   return (
-    <div id={id} className="rounded-xl border border-[#E2E8F0] bg-white p-4 shadow-sm">
-      <div className="text-[10px] uppercase font-bold tracking-wider text-[#64748B]">{label}</div>
+    <div id={id} className="rounded-xl border border-border bg-card p-4 shadow-sm">
+      <div className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">{label}</div>
       <div className={`mt-1 text-xl font-bold ${colorClass}`}>
         {v}
       </div>

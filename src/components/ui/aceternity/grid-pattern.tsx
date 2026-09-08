@@ -94,12 +94,12 @@ export function DotBackground({
   return (
     <div
       className={cn(
-        'relative flex w-full items-center justify-center bg-white',
+        'relative flex w-full items-center justify-center bg-card',
         'bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:24px_24px]',
         className
       )}
     >
-      <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-white [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]" />
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-card [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]" />
       {children}
     </div>
   )

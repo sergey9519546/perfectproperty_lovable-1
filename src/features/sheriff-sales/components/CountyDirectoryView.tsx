@@ -1,8 +1,9 @@
+import { CountyDirectorySkeleton } from '@/components/ui/skeleton-loaders';
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { useState } from 'react';
 import {
   COUNTY_COVERAGE_REGISTRY,
-  getCountyCoverage,
-  isCountySupported,
 } from '../counties-config';
 import { NJ_EQUALIZATION_RATIOS_2026, calculateNJTrueMarketValue } from '../nj-equalization';
 import {
@@ -12,14 +13,12 @@ import {
   Clock,
   ArrowSquareOut,
   Scales,
-  FileText,
   Calculator,
-  ShieldCheck,
   PaperPlaneTilt,
 } from '@phosphor-icons/react';
 import type { JurisdictionState } from '../types';
 
-export function CountyDirectoryView() {
+export function CountyDirectoryView({ loading = false }: { loading?: boolean } = {}) {
   const [selectedState, setSelectedState] = useState<'ALL' | JurisdictionState>('ALL');
   const [ohioAccessRequested, setOhioAccessRequested] = useState(false);
   const [texasTrialActive, setTexasTrialActive] = useState(false);
@@ -27,6 +26,14 @@ export function CountyDirectoryView() {
   // NJ Equalization quick calculator state
   const [calcMuni, setCalcMuni] = useState('Hackensack');
   const [calcAssessed, setCalcAssessed] = useState(409400);
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <CountyDirectorySkeleton count={8} />
+      </div>
+    );
+  }
 
   const calcResult = calculateNJTrueMarketValue(calcAssessed, calcMuni, 'Bergen');
 
@@ -36,69 +43,69 @@ export function CountyDirectoryView() {
   });
 
   return (
-    <div id="county-directory-view" className="space-y-8">
+    <div id="county-directory-view" className="space-y-6">
       {/* Header */}
-      <div id="county-directory-header" className="bg-pp-surface border border-pp-border/70 rounded-xl p-6 shadow-xs flex flex-wrap items-center justify-between gap-4">
-        <div>
+      <div id="county-directory-header" className="bg-card border border-pp-border rounded-2xl p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <span className="px-2.5 py-0.5 rounded bg-pp-gold/15 text-pp-gold border border-pp-gold/30 text-xs font-mono font-bold">
+            <span className="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary border border-blue-200 text-xs font-mono font-bold">
               COUNTY COVERAGE REGISTRY & SOURCES
             </span>
-            <span className="text-xs text-pp-muted font-mono">Phase 2–4 Roadmap</span>
+            <span className="text-xs text-muted-foreground font-mono">17 Active & Integrated Jurisdictions</span>
           </div>
-          <h2 className="text-lg font-bold text-pp-text mt-1">
+          <h2 className="text-xl font-bold text-foreground">
             Statewide County Ingestion Portals & Court Rules
           </h2>
-          <p className="text-xs text-pp-muted mt-0.5">
+          <p className="text-xs text-muted-foreground">
             17 New Jersey Counties, Pennsylvania Metro Corridors, Ohio Realauction, and Texas Smart Search.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <button
+        <div className="flex flex-wrap items-center gap-2.5">
+          <Button
             id="request-ohio-access-btn"
             type="button"
             onClick={() => setOhioAccessRequested(true)}
             disabled={ohioAccessRequested}
-            className={`px-3.5 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer ${
+            className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer font-mono ${
               ohioAccessRequested
-                ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-500/30'
-                : 'bg-pp-gold hover:bg-pp-gold-bright text-black shadow-xs font-mono'
+                ? 'bg-emerald-50 text-emerald-700 border border-emerald-300'
+                : 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm'
             }`}
           >
             {ohioAccessRequested ? <CheckCircle size={15} /> : <PaperPlaneTilt size={15} />}
             <span>{ohioAccessRequested ? 'Ohio Realauction Requested' : 'Request Ohio Realauction Access'}</span>
-          </button>
+          </Button>
 
-          <button
+          <Button
             id="start-texas-trial-btn"
             type="button"
             onClick={() => setTexasTrialActive(true)}
             disabled={texasTrialActive}
-            className={`px-3.5 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer ${
+            className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer font-mono ${
               texasTrialActive
-                ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-500/30'
-                : 'bg-pp-surface-raised hover:bg-pp-border text-pp-text border border-pp-border/70 shadow-xs font-mono'
+                ? 'bg-emerald-50 text-emerald-700 border border-emerald-300'
+                : 'bg-muted hover:bg-accent text-foreground border border-slate-200 shadow-xs'
             }`}
           >
             {texasTrialActive ? <CheckCircle size={15} /> : <PaperPlaneTilt size={15} />}
             <span>{texasTrialActive ? 'Texas Smart Search Active' : 'Start Texas Smart Search Trial'}</span>
-          </button>
+          </Button>
         </div>
       </div>
 
       {/* State Filter Buttons */}
       <div id="county-state-filter-bar" className="flex items-center gap-2 text-xs font-medium flex-wrap">
         {(['ALL', 'NJ', 'PA', 'OH', 'TX', 'FL'] as const).map((st) => (
-          <button
+          <Button
             key={st}
             id={`county-filter-state-${st.toLowerCase()}-btn`}
             type="button"
             onClick={() => setSelectedState(st)}
-            className={`px-4 py-2 rounded-lg font-mono transition-all cursor-pointer ${
+            className={`px-4 py-2 rounded-xl font-mono transition-all cursor-pointer ${
               selectedState === st
-                ? 'bg-pp-gold text-black font-bold shadow-xs'
-                : 'bg-pp-surface border border-pp-border/70 text-pp-muted hover:text-pp-text'
+                ? 'bg-slate-900 text-white font-bold shadow-xs'
+                : 'bg-card border border-slate-200 text-muted-foreground hover:text-foreground hover:bg-muted'
             }`}
           >
             {st === 'ALL'
@@ -112,37 +119,37 @@ export function CountyDirectoryView() {
               : st === 'TX'
               ? 'Texas (Smart Search)'
               : 'Florida (RealForeclose)'}
-          </button>
+          </Button>
         ))}
       </div>
 
       {/* NJ Director's Ratio Chapter 123 Quick Tool */}
-      <div id="nj-directors-ratio-tool" className="bg-pp-surface border border-pp-border/70 rounded-xl p-6 space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-pp-text font-bold text-sm">
-            <Calculator size={18} className="text-pp-gold" />
+      <div id="nj-directors-ratio-tool" className="bg-card border border-pp-border rounded-2xl p-6 space-y-4 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div className="flex items-center gap-2 text-foreground font-bold text-sm">
+            <Calculator size={18} className="text-primary" />
             <span>NJ Chapter 123 Director's Ratio Equalization Calculator</span>
           </div>
-          <span className="text-[11px] font-mono text-pp-gold bg-pp-gold/15 border border-pp-gold/30 px-2.5 py-0.5 rounded">
-            Official NJ Division of Taxation Table
+          <span className="text-[11px] font-mono text-primary bg-primary/10 border border-blue-200 px-3 py-1 rounded-full font-bold self-start sm:self-auto">
+            Official NJ Division of Taxation Ratios
           </span>
         </div>
-        <p className="text-xs text-pp-muted leading-relaxed">
-          In NJ, tax assessments do not reflect 100% of fair market value. The State publishes the Director's Ratio annually.
-          Divide the assessed value by the municipality's Director's Ratio to calculate statutory Equalized True Value.
+        <p className="text-xs text-muted-foreground leading-relaxed max-w-3xl">
+          In New Jersey, property tax assessments do not reflect 100% of fair market value. The State Division of Taxation publishes the Director's Ratio annually.
+          Divide the assessed value by the municipality's Director's Ratio to compute the legally recognized <strong>Equalized True Market Value</strong>.
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
           <div>
-            <label className="text-[11px] font-mono uppercase text-pp-muted block mb-1">Municipality</label>
+            <label className="text-[11px] font-mono uppercase text-muted-foreground block mb-1">Select Municipality</label>
             <select
               id="nj-calc-muni-select"
               value={calcMuni}
               onChange={(e) => setCalcMuni(e.target.value)}
-              className="w-full bg-pp-page border border-pp-border rounded-lg p-2.5 text-xs font-semibold text-pp-text focus:outline-none focus:ring-1 focus:ring-pp-gold"
+              className="w-full bg-muted border border-slate-200 rounded-xl p-2.5 text-xs font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-blue-500 cursor-pointer"
             >
               {NJ_EQUALIZATION_RATIOS_2026.map((m) => (
-                <option key={m.municipality} value={m.municipality} className="bg-pp-surface text-pp-text">
+                <option key={m.municipality} value={m.municipality} className="bg-card text-foreground">
                   {m.municipality} ({m.county} County) - {(m.directorsRatio * 100).toFixed(1)}%
                 </option>
               ))}
@@ -150,22 +157,22 @@ export function CountyDirectoryView() {
           </div>
 
           <div>
-            <label className="text-[11px] font-mono uppercase text-pp-muted block mb-1">Assessed Value ($)</label>
-            <input
+            <label className="text-[11px] font-mono uppercase text-muted-foreground block mb-1">County Assessed Value ($)</label>
+            <Input
               id="nj-calc-assessed-input"
               type="number"
               value={calcAssessed}
               onChange={(e) => setCalcAssessed(Number(e.target.value))}
-              className="w-full bg-pp-page border border-pp-border rounded-lg p-2 text-xs font-mono font-bold text-pp-text focus:outline-none focus:ring-1 focus:ring-pp-gold"
+              className="w-full bg-muted border border-slate-200 rounded-xl p-2.5 text-xs font-mono font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-blue-500"
             />
           </div>
 
-          <div className="bg-pp-page border border-pp-gold/30 rounded-lg p-3 flex flex-col justify-center font-mono">
-            <span className="text-[10px] uppercase text-pp-muted">Equalized True Market Value</span>
-            <span className="text-xl font-bold text-pp-gold">
+          <div className="bg-primary/10/60 border border-blue-200 rounded-xl p-3.5 flex flex-col justify-center font-mono">
+            <span className="text-[10px] uppercase text-muted-foreground font-bold">Equalized True Market Value</span>
+            <span className="text-2xl font-bold text-primary">
               ${calcResult?.equalizedTrueMarketValue.toLocaleString() || '—'}
             </span>
-            <span className="text-[10px] text-pp-muted mt-0.5">
+            <span className="text-[10px] text-muted-foreground mt-0.5 font-medium">
               Director's Ratio: {((calcResult?.directorsRatio || 1) * 100).toFixed(2)}%
             </span>
           </div>
@@ -178,44 +185,44 @@ export function CountyDirectoryView() {
           <div
             key={county.countyName}
             id={`county-card-${county.countyName.toLowerCase().replace(/\s+/g, '-')}`}
-            className="bg-pp-surface border border-pp-border/70 rounded-xl p-5 space-y-3 shadow-xs hover:border-pp-gold/50 transition-all flex flex-col justify-between"
+            className="bg-card border border-pp-border rounded-2xl p-5 space-y-3.5 shadow-sm hover:border-blue-300 hover:shadow-md transition-all flex flex-col justify-between"
           >
             <div>
               <div className="flex items-center justify-between">
-                <span className="px-2 py-0.5 rounded bg-pp-page text-pp-muted border border-pp-border/70 font-mono text-[10px] font-bold">
+                <span className="px-2.5 py-0.5 rounded-md bg-accent text-secondary-foreground border border-slate-200 font-mono text-[10px] font-bold">
                   {county.state} • {county.sourceType}
                 </span>
                 <span
-                  className={`px-2 py-0.5 rounded text-[10px] font-bold font-mono ${
-                    county.activeCount > 0 ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-500/30' : 'bg-pp-page text-pp-muted border border-pp-border/70'
+                  className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono ${
+                    county.activeCount > 0 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-muted text-muted-foreground border border-slate-200'
                   }`}
                 >
-                  {county.activeCount} active
+                  {county.activeCount} active deals
                 </span>
               </div>
 
-              <h3 className="text-base font-bold text-pp-text mt-2">{county.countyName}</h3>
-              <p className="text-xs text-pp-muted mt-0.5">{county.sheriffOfficeAddress}</p>
+              <h3 className="text-base font-bold text-foreground mt-2.5">{county.countyName}</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">{county.sheriffOfficeAddress}</p>
 
-              <div className="mt-3 space-y-1.5 text-xs text-pp-muted font-mono">
+              <div className="mt-3.5 space-y-1.5 text-xs text-muted-foreground font-mono">
                 <div className="flex items-center gap-1.5">
-                  <MapPin size={14} className="text-pp-faint shrink-0" />
+                  <MapPin size={14} className="text-slate-400 shrink-0" />
                   <span className="truncate">{county.sheriffOfficeAddress}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <Clock size={14} className="text-pp-faint shrink-0" />
-                  <span>Deposit: {county.depositRule}</span>
+                  <Clock size={14} className="text-slate-400 shrink-0" />
+                  <span className="truncate">Deposit: {county.depositRule}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <Scales size={14} className="text-pp-faint shrink-0" />
+                  <Scales size={14} className="text-slate-400 shrink-0" />
                   <span className="truncate">Statute: {county.verifiedAugust2026Statute}</span>
                 </div>
               </div>
             </div>
 
-            <div className="pt-3 border-t border-pp-border/70 flex items-center justify-between text-xs">
-              <span className="text-[11px] font-mono text-pp-muted">
-                Next auction: {county.nextAuctionDate}
+            <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+              <span className="text-[11px] font-mono text-muted-foreground">
+                Next sale: {county.nextAuctionDate}
               </span>
               {county.sheriffWebsiteUrl && (
                 <a
@@ -223,7 +230,7 @@ export function CountyDirectoryView() {
                   href={county.sheriffWebsiteUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-pp-gold hover:text-pp-gold-bright font-bold flex items-center gap-1"
+                  className="text-primary hover:text-primary font-bold flex items-center gap-1 font-mono text-xs"
                 >
                   <span>Portal</span>
                   <ArrowSquareOut size={13} />

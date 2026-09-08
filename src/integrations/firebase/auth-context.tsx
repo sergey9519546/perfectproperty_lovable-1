@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import React, { useEffect, useState, useMemo } from "react";
 import {
   type User,
@@ -316,13 +317,13 @@ export function FirebaseAuthProvider({
             <span className="font-semibold uppercase tracking-wider text-red-400">Auth Notice:</span>
             <span>{error}</span>
           </div>
-          <button
+          <Button
             type="button"
             onClick={clearError}
             className="ml-4 rounded border border-red-500/30 bg-red-900/40 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-red-300 hover:bg-red-800/50 hover:text-white"
           >
             Dismiss
-          </button>
+          </Button>
         </div>
       )}
       {fallback && isInitializing ? fallback : children}

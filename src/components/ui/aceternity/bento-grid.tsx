@@ -41,7 +41,7 @@ export function BentoGridItem({
   return (
     <div
       className={cn(
-        'group/bento relative flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:border-slate-300',
+        'group/bento relative flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200/80 bg-card p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:border-slate-300',
         className
       )}
     >
@@ -52,25 +52,25 @@ export function BentoGridItem({
       <div className="flex flex-col gap-2 transition-transform duration-200 group-hover/bento:translate-x-0.5">
         <div className="flex items-center justify-between gap-2">
           {icon && (
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-blue-600 border border-blue-100">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary border border-blue-100">
               {icon}
             </div>
           )}
           {badge && (
-            <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-slate-600">
+            <span className="rounded-full bg-accent px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
               {badge}
             </span>
           )}
         </div>
 
         {title && (
-          <div className="font-sans font-bold text-slate-900 text-lg tracking-tight mt-1">
+          <div className="font-sans font-bold text-foreground text-lg tracking-tight mt-1">
             {title}
           </div>
         )}
 
         {description && (
-          <div className="font-sans font-normal text-slate-600 text-sm leading-relaxed">
+          <div className="font-sans font-normal text-muted-foreground text-sm leading-relaxed">
             {description}
           </div>
         )}

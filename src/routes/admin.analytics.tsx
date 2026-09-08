@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -141,7 +142,7 @@ function AnalyticsView() {
 
 function AnalyticsError({ error, reset }: { error: Error; reset: () => void }) {
   const router = useRouter();
-  return <div className="p-8 text-sm"><p className="text-destructive">{error.message}</p><button type="button" className="mt-3 rounded-md border border-pp-border px-3 py-1" onClick={() => { router.invalidate(); reset(); }}>Retry</button></div>;
+  return <div className="p-8 text-sm"><p className="text-destructive">{error.message}</p><Button type="button" className="mt-3 rounded-md border border-pp-border px-3 py-1" onClick={() => { router.invalidate(); reset(); }}>Retry</Button></div>;
 }
 
 export const Route = createFileRoute("/admin/analytics")({

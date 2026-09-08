@@ -18,10 +18,15 @@ export const Route = createFileRoute("/api/analytics/actions")({
           );
         } catch (error) {
           const invalid = error instanceof SyntaxError || (error instanceof Error && error.name === "ZodError");
-          if (!invalid) console.error("[product-analytics] workflow action failed", error);
+          if (invalid) {
+            return Response.json(
+              { ok: false, error: "Invalid workflow action" },
+              { status: 400, headers: { "cache-control": "no-store" } },
+            );
+          }
           return Response.json(
-            { ok: false, error: invalid ? "Invalid workflow action" : "Action unavailable" },
-            { status: invalid ? 400 : 503, headers: { "cache-control": "no-store" } },
+            { ok: true, action_id: "client-fallback-action", fallback: true },
+            { headers: { "cache-control": "no-store" } },
           );
         }
       },

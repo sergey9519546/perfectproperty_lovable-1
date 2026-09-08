@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -99,7 +100,7 @@ export function WhyThisScorePanel({ parcelId }: { parcelId: string }) {
           const hist = d.history[f] ?? [];
           return (
             <div key={f} className="py-2">
-              <button
+              <Button
                 onClick={() => setOpenField(isOpen ? null : f)}
                 className="flex w-full items-center gap-3 text-left text-[12px] hover:bg-pp-header/40"
               >
@@ -112,7 +113,7 @@ export function WhyThisScorePanel({ parcelId }: { parcelId: string }) {
                 <span className="ml-auto text-[11px] text-pp-muted">
                   {row.observed_at ? new Date(row.observed_at).toISOString().slice(0, 10) : "—"}
                 </span>
-              </button>
+              </Button>
               {isOpen && hist.length > 1 && (
                 <div className="mt-2 ml-6 space-y-1 rounded-md border border-pp-border/60 bg-pp-page/40 p-2 text-[11px] text-pp-muted">
                   {hist.map((h: any, i: number) => (

@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
@@ -60,20 +61,20 @@ function ShadowPage() {
 
         {/* Metrics Bar */}
         <div id="shadow-metrics-bar" className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-white border border-[#E2E8F0] rounded-xl p-5 shadow-sm">
-            <span className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider block">Off-Market Inventory</span>
-            <span className="text-2xl font-bold text-[#0F172A] mt-1 block">
-              {q.isLoading ? "—" : totalCount} <span className="text-xs text-[#64748B] font-normal">assets tracked</span>
+          <div className="bg-card border border-border rounded-xl p-5 shadow-sm">
+            <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block">Off-Market Inventory</span>
+            <span className="text-2xl font-bold text-foreground mt-1 block">
+              {q.isLoading ? "—" : totalCount} <span className="text-xs text-muted-foreground font-normal">assets tracked</span>
             </span>
           </div>
-          <div className="bg-white border border-[#E2E8F0] rounded-xl p-5 shadow-sm">
-            <span className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider block">Average Deal Score</span>
-            <span className="text-2xl font-bold text-[#2F5FFF] mt-1 block">
+          <div className="bg-card border border-border rounded-xl p-5 shadow-sm">
+            <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block">Average Deal Score</span>
+            <span className="text-2xl font-bold text-primary mt-1 block">
               {q.isLoading ? "—" : `${avgScore}/100`}
             </span>
           </div>
-          <div className="bg-white border border-[#E2E8F0] rounded-xl p-5 shadow-sm">
-            <span className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider block">Aggregate Modeled Profit</span>
+          <div className="bg-card border border-border rounded-xl p-5 shadow-sm">
+            <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block">Aggregate Modeled Profit</span>
             <span className="text-2xl font-bold text-emerald-600 mt-1 block">
               {q.isLoading ? "—" : fmt$(totalProfit)}
             </span>
@@ -83,19 +84,19 @@ function ShadowPage() {
         {q.isError && (
           <div id="shadow-error-banner" className="rounded-xl border border-rose-200 bg-rose-50 p-6 text-center text-sm text-rose-700">
             Unable to load off-market properties: {q.error instanceof Error ? q.error.message : "Query failed"}
-            <button
+            <Button
               id="shadow-retry-btn"
               type="button"
               onClick={() => q.refetch()}
               className="ml-3 font-semibold text-rose-800 underline hover:text-rose-900 cursor-pointer"
             >
               Retry
-            </button>
+            </Button>
           </div>
         )}
 
         {q.data && q.data.length === 0 && !q.isError && (
-          <div id="shadow-empty-state" className="rounded-xl border border-dashed border-[#CBD5E1] bg-white p-8 text-center text-sm text-[#64748B]">
+          <div id="shadow-empty-state" className="rounded-xl border border-dashed border-border-strong bg-card p-8 text-center text-sm text-muted-foreground">
             No off-market properties found matching current criteria.
           </div>
         )}
@@ -103,28 +104,28 @@ function ShadowPage() {
         <div id="shadow-cards-grid" className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {q.isLoading &&
             Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="rounded-xl border border-[#E2E8F0] bg-white p-5 space-y-3 shadow-sm">
-                <div className="skeleton h-5 w-3/4 rounded bg-[#F1F5F9]" />
-                <div className="skeleton mt-3 h-4 w-1/2 rounded bg-[#F1F5F9]" />
-                <div className="skeleton mt-2 h-4 w-2/3 rounded bg-[#F1F5F9]" />
+              <div key={i} className="rounded-xl border border-border bg-card p-5 space-y-3 shadow-sm">
+                <div className="skeleton h-5 w-3/4 rounded bg-muted" />
+                <div className="skeleton mt-3 h-4 w-1/2 rounded bg-muted" />
+                <div className="skeleton mt-2 h-4 w-2/3 rounded bg-muted" />
               </div>
             ))}
 
           {(q.data ?? []).map((r: any, i: number) => {
             const flags = (r.skeptic_flags as string[]) ?? [];
             return (
-              <button
+              <Button
                 key={r.parcel_id}
                 id={`shadow-card-${r.parcel_id}`}
                 type="button"
                 onClick={() => setSel(r.parcel_id)}
                 style={{ animationDelay: `${Math.min(i * 50, 500)}ms` }}
-                className="cursor-pointer text-left rounded-xl border border-[#E2E8F0] bg-white p-5 transition-all hover:border-[#2F5FFF]/50 hover:shadow-md shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-300 fill-mode-backwards"
+                className="cursor-pointer text-left rounded-xl border border-border bg-card p-5 transition-all hover:border-primary/50 hover:shadow-md shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-300 fill-mode-backwards"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
-                    <h3 className="truncate text-sm font-bold text-[#0F172A]">{r.parcels?.address || "Unaddressed Parcel"}</h3>
-                    <p className="truncate text-xs text-[#64748B]">
+                    <h3 className="truncate text-sm font-bold text-foreground">{r.parcels?.address || "Unaddressed Parcel"}</h3>
+                    <p className="truncate text-xs text-muted-foreground">
                       {r.parcels?.city || ""}{r.parcels?.state ? `, ${r.parcels.state}` : ""}
                     </p>
                   </div>
@@ -141,7 +142,7 @@ function ShadowPage() {
                     {flags.length} risk flag{flags.length > 1 ? "s" : ""}
                   </div>
                 )}
-              </button>
+              </Button>
             );
           })}
         </div>
@@ -153,9 +154,9 @@ function ShadowPage() {
 
 function Metric({ label, v, accent }: { label: string; v: string; accent?: boolean }) {
   return (
-    <div className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2">
-      <div className="text-[10px] font-bold uppercase tracking-wider text-[#64748B]">{label}</div>
-      <div className={"font-bold text-xs mt-0.5 num " + (accent ? "text-emerald-600" : "text-[#0F172A]")}>{v}</div>
+    <div className="rounded-lg border border-border bg-muted px-3 py-2">
+      <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{label}</div>
+      <div className={"font-bold text-xs mt-0.5 num " + (accent ? "text-emerald-600" : "text-foreground")}>{v}</div>
     </div>
   );
 }

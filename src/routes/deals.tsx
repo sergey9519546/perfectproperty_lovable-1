@@ -1,3 +1,5 @@
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -156,44 +158,44 @@ function DealsPage() {
         <HelpStrip />
 
         {/* View mode toggle */}
-        <div id="deals-view-bar" className="mt-6 flex flex-wrap items-center justify-between gap-4 border-b border-[#E2E8F0] pb-3.5">
+        <div id="deals-view-bar" className="mt-6 flex flex-wrap items-center justify-between gap-4 border-b border-border pb-3.5">
           <div className="flex items-center gap-2">
-            <button
+            <Button
               id="deals-view-all-btn"
               type="button"
               onClick={() => setViewMode("all")}
               className={`rounded-lg px-3.5 py-2 text-xs font-semibold transition-all cursor-pointer ${
                 viewMode === "all"
-                  ? "bg-white text-[#0F172A] border border-[#CBD5E1] shadow-2xs"
-                  : "text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9]"
+                  ? "bg-card text-foreground border border-border-strong shadow-2xs"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
               }`}
             >
               All Ranked Deals ({q.data?.length ?? 0})
-            </button>
-            <button
+            </Button>
+            <Button
               id="deals-view-saved-btn"
               type="button"
               onClick={() => setViewMode("saved")}
               className={`flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-xs font-semibold transition-all cursor-pointer ${
                 viewMode === "saved"
                   ? "bg-amber-50 text-amber-900 border border-amber-300 shadow-2xs"
-                  : "text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9]"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
               }`}
             >
               <Bookmark className="h-3.5 w-3.5" />
               <span>Saved Portfolio ({savedQ.data?.length ?? 0})</span>
-            </button>
+            </Button>
           </div>
 
-          <div id="deals-count-indicator" className="text-[13px] text-[#64748B]">
-            Showing <span className="font-semibold text-[#0F172A]">{displayData.length}</span>{" "}
+          <div id="deals-count-indicator" className="text-[13px] text-muted-foreground">
+            Showing <span className="font-semibold text-foreground">{displayData.length}</span>{" "}
             {viewMode === "saved" ? "saved watchlist properties" : "live scored properties"}
           </div>
         </div>
 
-        <div id="deals-table-wrapper" className="mt-6 overflow-x-auto rounded-xl border border-[#E2E8F0] bg-white shadow-sm">
+        <div id="deals-table-wrapper" className="mt-6 overflow-x-auto rounded-xl border border-border bg-card shadow-sm">
           <table id="deals-data-table" className="w-full text-[14px]">
-            <thead className="bg-[#F8FAFC] border-b border-[#E2E8F0] text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
+            <thead className="bg-muted border-b border-border text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
               <tr>
                 <th className="px-4 py-3 text-left">Property</th>
 
@@ -212,7 +214,7 @@ function DealsPage() {
                 <th className="px-4 py-3 text-left" title="Recommended renovation plan.">
                   Plan
                 </th>
-                <th className="border-l border-[#E2E8F0] px-4 py-3 text-right" title="What we'd offer the seller today.">
+                <th className="border-l border-border px-4 py-3 text-right" title="What we'd offer the seller today.">
                   Our offer
                 </th>
                 <th
@@ -227,7 +229,7 @@ function DealsPage() {
                 >
                   Typical · Worst case
                 </th>
-                <th className="border-l border-[#E2E8F0] px-4 py-3 text-right" title="Chance the deal loses money.">
+                <th className="border-l border-border px-4 py-3 text-right" title="Chance the deal loses money.">
                   Loss risk
                 </th>
                 <th className="px-4 py-3 text-right" title="Chance the seller accepts our offer.">
@@ -253,13 +255,13 @@ function DealsPage() {
                 <tr>
                   <td colSpan={11} className="px-4 py-8 text-center text-sm text-rose-500">
                     Failed to load ranked deals: {q.error instanceof Error ? q.error.message : "Database error"}
-                    <button
+                    <Button
                       type="button"
                       onClick={() => q.refetch()}
                       className="ml-3 font-medium underline hover:text-rose-600"
                     >
                       Retry
-                    </button>
+                    </Button>
                   </td>
                 </tr>
               )}
@@ -267,19 +269,19 @@ function DealsPage() {
                 <tr>
                   <td colSpan={11} className="px-4 py-8 text-center text-sm text-rose-500">
                     Failed to load Firestore portfolio: {savedQ.error instanceof Error ? savedQ.error.message : "Firestore error"}
-                    <button
+                    <Button
                       type="button"
                       onClick={() => savedQ.refetch()}
                       className="ml-3 font-medium underline hover:text-rose-600"
                     >
                       Retry
-                    </button>
+                    </Button>
                   </td>
                 </tr>
               )}
               {!(viewMode === "all" ? q.isLoading : savedQ.isLoading) && displayData.length === 0 && (
                 <tr>
-                  <td colSpan={11} className="px-4 py-8 text-center text-sm text-[#64748B]">
+                  <td colSpan={11} className="px-4 py-8 text-center text-sm text-muted-foreground">
                     {viewMode === "saved"
                       ? "No deals saved in your Firestore portfolio yet. Click any property in the workspace or ranked list, open its Dossier, and click 'Save to Portfolio'."
                       : "No properties found matching current criteria."}
@@ -294,14 +296,14 @@ function DealsPage() {
                     key={r.parcel_id}
                     onClick={() => setSelected(r.parcel_id)}
                     style={{ animationDelay: `${Math.min(i * 35, 600)}ms` }}
-                    className="group cursor-pointer border-t border-[#E2E8F0] transition-colors hover:bg-[#F8FAFC] animate-in fade-in slide-in-from-bottom-1 duration-300 fill-mode-backwards"
+                    className="group cursor-pointer border-t border-border transition-colors hover:bg-muted animate-in fade-in slide-in-from-bottom-1 duration-300 fill-mode-backwards"
                   >
                     
-                    <td className="sticky left-0 z-10 bg-white px-4 py-3 group-hover:bg-[#F8FAFC]">
+                    <td className="sticky left-0 z-10 bg-card px-4 py-3 group-hover:bg-muted">
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0 flex-1">
-                          <div className="font-semibold text-[#0F172A] truncate">{r.parcels?.address || r.address || "Saved Property"}</div>
-                          <div className="text-[12px] text-[#64748B]">
+                          <div className="font-semibold text-foreground truncate">{r.parcels?.address || r.address || "Saved Property"}</div>
+                          <div className="text-[12px] text-muted-foreground">
                             {r.parcels?.city || ""}{r.parcels?.state ? `, ${r.parcels.state}` : ""}
                           </div>
                           <DataFreshness
@@ -310,7 +312,7 @@ function DealsPage() {
                             className="mt-1"
                           />
                         </div>
-                        <button
+                        <Button
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
@@ -321,13 +323,13 @@ function DealsPage() {
                           className={`rounded-md p-1.5 transition-colors shrink-0 ${
                             savedIds.has(r.parcel_id)
                               ? "text-amber-500 bg-amber-50 hover:bg-amber-100"
-                              : "text-[#94A3B8] hover:text-[#0F172A] hover:bg-[#F1F5F9]"
+                              : "text-muted-foreground hover:text-foreground hover:bg-muted"
                           }`}
                         >
                           <Bookmark
                             className={`h-4 w-4 ${savedIds.has(r.parcel_id) ? "fill-amber-500" : ""}`}
                           />
-                        </button>
+                        </Button>
                       </div>
                     </td>
 
@@ -406,15 +408,15 @@ function HelpStrip() {
     { k: "Deal odds", v: "How likely the seller says yes at our offer." },
   ];
   return (
-    <div className="mt-4 rounded-xl border border-[#E2E8F0] bg-white p-4 shadow-2xs">
-      <div className="mb-2 text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
+    <div className="mt-4 rounded-xl border border-border bg-card p-4 shadow-2xs">
+      <div className="mb-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
         How to read this
       </div>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
         {items.map((it) => (
           <div key={it.k} className="text-[13px]">
-            <span className="font-semibold text-[#0F172A]">{it.k}: </span>
-            <span className="text-[#64748B]">{it.v}</span>
+            <span className="font-semibold text-foreground">{it.k}: </span>
+            <span className="text-muted-foreground">{it.v}</span>
           </div>
         ))}
       </div>
@@ -540,29 +542,29 @@ function StressPanel({ rows }: { rows: any[] }) {
   ];
 
   return (
-    <div className="mt-6 rounded-xl border border-[#E2E8F0] bg-white p-5 shadow-sm">
+    <div className="mt-6 rounded-xl border border-border bg-card p-5 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <div className="text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
+          <div className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
             Portfolio stress test
           </div>
-          <div className="mt-0.5 text-[13px] font-medium text-[#0F172A]">
+          <div className="mt-0.5 text-[13px] font-medium text-foreground">
             Applied across {deals.length} deals.
           </div>
         </div>
         <div className="flex flex-wrap gap-1.5">
           {buttons.map((b) => (
-            <button
+            <Button
               key={b.k}
               onClick={() => setKey(b.k)}
               className={`rounded-lg px-3 py-1.5 text-[12px] font-semibold transition-all cursor-pointer ${
                 key === b.k
-                  ? "bg-blue-50 text-blue-700 border border-blue-200 shadow-2xs"
-                  : "border border-[#E2E8F0] bg-white text-[#475569] hover:bg-[#F8FAFC]"
+                  ? "bg-primary/10 text-primary border border-blue-200 shadow-2xs"
+                  : "border border-border bg-card text-muted-foreground hover:bg-muted"
               }`}
             >
               {b.label}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
@@ -587,9 +589,9 @@ function MiniBox({ label, v, tone }: { label: string; v: string; tone?: "skeptic
   const color =
     tone === "skeptic" ? "#E11D48" : tone === "profit" ? "#059669" : undefined;
   return (
-    <div className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-3.5 py-2.5">
-      <div className="text-[10px] font-bold uppercase tracking-wider text-[#64748B]">{label}</div>
-      <div className="num mt-0.5 text-[15px] font-bold text-[#0F172A]" style={{ color }}>
+    <div className="rounded-lg border border-border bg-muted px-3.5 py-2.5">
+      <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{label}</div>
+      <div className="num mt-0.5 text-[15px] font-bold text-foreground" style={{ color }}>
         {v}
       </div>
     </div>
@@ -631,46 +633,46 @@ function RealieLookup({ onCreated }: { onCreated: (id: string) => void }) {
   return (
     <form
       onSubmit={submit}
-      className="mt-6 flex flex-wrap items-end gap-3 rounded-xl border border-[#E2E8F0] bg-white p-5 shadow-sm"
+      className="mt-6 flex flex-wrap items-end gap-3 rounded-xl border border-border bg-card p-5 shadow-sm"
     >
       <div className="flex-1 min-w-[220px]">
-        <div className="text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
+        <div className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
           Add parcel by address (Realie)
         </div>
-        <input
+        <Input
           value={address}
           onChange={(e) => setAddress(e.target.value)}
           placeholder="123 Main St"
-          className="mt-1.5 w-full rounded-lg border border-[#E2E8F0] bg-white px-3 py-2 text-[13px] text-[#0F172A] outline-none focus:border-[#2F5FFF] focus:ring-1 focus:ring-[#2F5FFF]"
+          className="mt-1.5 w-full rounded-lg border border-border bg-card px-3 py-2 text-[13px] text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary"
         />
       </div>
       <div>
-        <div className="text-[11px] font-bold uppercase tracking-wider text-[#64748B]">State</div>
-        <input
+        <div className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">State</div>
+        <Input
           value={state}
           onChange={(e) => setState(e.target.value)}
           maxLength={2}
-          className="mt-1.5 w-16 rounded-lg border border-[#E2E8F0] bg-white px-2 py-2 text-[13px] text-[#0F172A] uppercase outline-none focus:border-[#2F5FFF] focus:ring-1 focus:ring-[#2F5FFF]"
+          className="mt-1.5 w-16 rounded-lg border border-border bg-card px-2 py-2 text-[13px] text-foreground uppercase outline-none focus:border-primary focus:ring-1 focus:ring-primary"
         />
       </div>
       <div>
-        <div className="text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
+        <div className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
           City (optional)
         </div>
-        <input
+        <Input
           value={city}
           onChange={(e) => setCity(e.target.value)}
           placeholder="Austin"
-          className="mt-1.5 w-40 rounded-lg border border-[#E2E8F0] bg-white px-3 py-2 text-[13px] text-[#0F172A] outline-none focus:border-[#2F5FFF] focus:ring-1 focus:ring-[#2F5FFF]"
+          className="mt-1.5 w-40 rounded-lg border border-border bg-card px-3 py-2 text-[13px] text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary"
         />
       </div>
-      <button
+      <Button
         type="submit"
         disabled={busy}
-        className="rounded-lg border border-[#E2E8F0] bg-[#0F172A] px-4 py-2 text-[13px] font-semibold text-white shadow-2xs hover:bg-[#1E293B] disabled:opacity-50 cursor-pointer transition-all"
+        className="rounded-lg border border-border bg-foreground px-4 py-2 text-[13px] font-semibold text-white shadow-2xs hover:bg-slate-800 disabled:opacity-50 cursor-pointer transition-all"
       >
         {busy ? "Underwriting…" : "Lookup + underwrite"}
-      </button>
+      </Button>
       {err && <div className="w-full text-[12px] font-medium text-rose-600">{err}</div>}
     </form>
   );

@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { createFileRoute, redirect, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -113,36 +114,36 @@ function NoticesPage() {
         <Link
           id="notices-sheriff-auctions-link"
           to="/sheriff-sales"
-          className="rounded-lg border border-[#CBD5E1] bg-white hover:bg-[#F8FAFC] px-4 py-2 text-xs font-semibold text-[#0F172A] hover:text-[#2F5FFF] transition-all shadow-2xs"
+          className="rounded-lg border border-border-strong bg-card hover:bg-muted px-4 py-2 text-xs font-semibold text-foreground hover:text-primary transition-all shadow-2xs"
         >
           View Scored Sheriff Auctions →
         </Link>
       </div>
 
       <div id="notices-workspace-grid" className="grid gap-6 lg:grid-cols-2">
-        <div className="bg-white border border-[#E2E8F0] rounded-xl p-5 shadow-sm space-y-4">
+        <div className="bg-card border border-border rounded-xl p-5 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
-            <label htmlFor="notice" className="text-xs font-bold uppercase tracking-wider text-[#0F172A]">
+            <label htmlFor="notice" className="text-xs font-bold uppercase tracking-wider text-foreground">
               Notice Text Input
             </label>
             <div className="flex items-center gap-3 text-xs">
-              <button
+              <Button
                 id="notices-load-sample-btn"
                 type="button"
                 onClick={() => setText(SAMPLE_NOTICE)}
-                className="text-[#2F5FFF] hover:text-blue-700 font-semibold underline underline-offset-2 cursor-pointer"
+                className="text-primary hover:text-primary font-semibold underline underline-offset-2 cursor-pointer"
               >
                 Load sample notice
-              </button>
+              </Button>
               {text && (
-                <button
+                <Button
                   id="notices-clear-btn"
                   type="button"
                   onClick={() => setText("")}
-                  className="text-[#64748B] hover:text-[#0F172A] cursor-pointer font-medium"
+                  className="text-muted-foreground hover:text-foreground cursor-pointer font-medium"
                 >
                   Clear
-                </button>
+                </Button>
               )}
             </div>
           </div>
@@ -152,17 +153,17 @@ function NoticesPage() {
             onChange={(e) => setText(e.target.value)}
             rows={18}
             placeholder="Paste the full notice here, or click 'Load sample notice' above…"
-            className="w-full rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-3.5 font-mono text-xs leading-relaxed text-[#0F172A] outline-none focus:border-[#2F5FFF] focus:bg-white transition-colors"
+            className="w-full rounded-lg border border-border bg-muted p-3.5 font-mono text-xs leading-relaxed text-foreground outline-none focus:border-primary focus:bg-card transition-colors"
           />
-          <button
+          <Button
             id="notices-submit-btn"
             type="button"
             disabled={m.isPending || text.trim().length < 40}
             onClick={() => m.mutate(text)}
-            className="w-full rounded-lg bg-[#0F172A] hover:bg-[#1E293B] py-2.5 text-xs font-semibold text-white transition-all disabled:opacity-50 cursor-pointer shadow-2xs"
+            className="w-full rounded-lg bg-foreground hover:bg-slate-800 py-2.5 text-xs font-semibold text-white transition-all disabled:opacity-50 cursor-pointer shadow-2xs"
           >
             {m.isPending ? "Reading & Extracting Facts…" : "Read This Notice"}
-          </button>
+          </Button>
           {errorText && (
             <p id="notices-error-text" className="text-xs font-medium text-rose-700 bg-rose-50 border border-rose-200 rounded-lg p-3">
               {errorText}
@@ -172,27 +173,27 @@ function NoticesPage() {
 
         <div className="space-y-4">
           {!notice && !m.isPending && (
-            <div id="notices-empty-placeholder" className="rounded-xl border border-dashed border-[#CBD5E1] bg-white p-8 text-center text-xs text-[#64748B]">
+            <div id="notices-empty-placeholder" className="rounded-xl border border-dashed border-border-strong bg-card p-8 text-center text-xs text-muted-foreground">
               Paste a foreclosure, tax, or trustee notice on the left and click &quot;Read This Notice&quot; to parse parties, judgment debt, redemption periods, and legal risks.
             </div>
           )}
           {notice && (
             <div id="notices-parsed-results" className="space-y-4">
-              <div className="rounded-xl border border-[#E2E8F0] bg-white p-5 shadow-sm">
+              <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-md bg-blue-50 border border-blue-200 text-blue-700">
+                  <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-md bg-primary/10 border border-blue-200 text-primary">
                     {notice.sale_type.replace("_", " ")} Sale
                   </span>
-                  <span className="text-[12px] font-medium text-[#64748B]">
+                  <span className="text-[12px] font-medium text-muted-foreground">
                     {Math.round(notice.confidence * 100)}% confidence
                   </span>
                 </div>
-                <h3 className="mt-3 text-base font-bold text-[#0F172A]">{notice.verdict}</h3>
-                <p className="mt-2 text-xs leading-relaxed text-[#64748B]">{notice.plain_english}</p>
+                <h3 className="mt-3 text-base font-bold text-foreground">{notice.verdict}</h3>
+                <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{notice.plain_english}</p>
               </div>
 
-              <div className="rounded-xl border border-[#E2E8F0] bg-white p-5 shadow-sm">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-[#64748B]">Extracted Legal Details</h4>
+              <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Extracted Legal Details</h4>
                 <dl className="mt-3 grid gap-x-6 gap-y-2 sm:grid-cols-2 text-xs">
                   {FIELDS.map(([label, key]) => {
                     const v = (notice as unknown as Record<string, unknown>)[key];
@@ -207,17 +208,17 @@ function NoticesPage() {
                             }).format(v)
                           : String(v);
                     return (
-                      <div key={key} className="flex justify-between gap-3 border-b border-[#E2E8F0] py-1.5">
-                        <dt className="text-[#64748B]">{label}</dt>
-                        <dd className="text-right text-[#0F172A] font-semibold truncate max-w-[60%] font-mono">
+                      <div key={key} className="flex justify-between gap-3 border-b border-border py-1.5">
+                        <dt className="text-muted-foreground">{label}</dt>
+                        <dd className="text-right text-foreground font-semibold truncate max-w-[60%] font-mono">
                           {display}
                         </dd>
                       </div>
                     );
                   })}
-                  <div className="flex justify-between gap-3 border-b border-[#E2E8F0] py-1.5">
-                    <dt className="text-[#64748B]">Occupancy</dt>
-                    <dd className="text-right text-[#0F172A] font-semibold">{notice.occupancy}</dd>
+                  <div className="flex justify-between gap-3 border-b border-border py-1.5">
+                    <dt className="text-muted-foreground">Occupancy</dt>
+                    <dd className="text-right text-foreground font-semibold">{notice.occupancy}</dd>
                   </div>
                 </dl>
               </div>
@@ -238,10 +239,10 @@ function NoticesPage() {
       </div>
 
       {/* Distress Feeds Directory */}
-      <div id="notices-distress-feeds-section" className="border-t border-[#E2E8F0] pt-8 space-y-4">
+      <div id="notices-distress-feeds-section" className="border-t border-border pt-8 space-y-4">
         <div>
-          <h3 className="text-sm font-bold uppercase tracking-wider text-[#0F172A]">Verified Legal & Distress Sale Feeds</h3>
-          <p className="mt-1 text-xs text-[#64748B]">
+          <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">Verified Legal & Distress Sale Feeds</h3>
+          <p className="mt-1 text-xs text-muted-foreground">
             Primary public notice feeds ingested and monitored for legal auction notices and docket filings.
           </p>
         </div>
@@ -303,25 +304,25 @@ function NoticesPage() {
             <div
               key={src.key}
               id={`notice-source-card-${src.key}`}
-              className="rounded-xl border border-[#E2E8F0] bg-white p-5 shadow-sm flex flex-col justify-between"
+              className="rounded-xl border border-border bg-card p-5 shadow-sm flex flex-col justify-between"
             >
               <div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700 px-2 py-0.5 rounded-md bg-blue-50 border border-blue-200">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-primary px-2 py-0.5 rounded-md bg-primary/10 border border-blue-200">
                     {src.category}
                   </span>
-                  <span className="text-[11px] font-medium text-[#64748B]">{src.tier}</span>
+                  <span className="text-[11px] font-medium text-muted-foreground">{src.tier}</span>
                 </div>
-                <h4 className="mt-2 text-sm font-bold text-[#0F172A]">{src.label}</h4>
-                {src.notes && <p className="mt-1 text-xs text-[#64748B]">{src.notes}</p>}
+                <h4 className="mt-2 text-sm font-bold text-foreground">{src.label}</h4>
+                {src.notes && <p className="mt-1 text-xs text-muted-foreground">{src.notes}</p>}
               </div>
-              <div className="mt-4 pt-3 border-t border-[#E2E8F0]">
+              <div className="mt-4 pt-3 border-t border-border">
                 <a
                   id={`notice-source-link-${src.key}`}
                   href={src.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-xs font-semibold text-[#2F5FFF] hover:text-blue-700 flex items-center gap-1"
+                  className="text-xs font-semibold text-primary hover:text-primary flex items-center gap-1"
                 >
                   Visit Notice Source ↗
                 </a>

@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { 
@@ -91,22 +92,22 @@ export const MarketContext = () => {
           </div>
 
           <div className="lg:col-span-4 flex flex-col justify-between gap-4">
-            <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200">
-              <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600 mb-4">
+            <div className="p-6 rounded-2xl bg-muted border border-slate-200">
+              <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary mb-4">
                 <Building2 className="w-5 h-5" />
               </div>
-              <h4 className="text-base font-bold text-slate-900 mb-2">Automated Boundary Delineation</h4>
-              <p className="text-sm text-slate-600 leading-relaxed">
+              <h4 className="text-base font-bold text-foreground mb-2">Automated Boundary Delineation</h4>
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 Computer-vision driven property outline extraction cross-references county tax maps with state DOT lidar surveys to compute buildable footprints.
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200">
+            <div className="p-6 rounded-2xl bg-muted border border-slate-200">
               <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600 mb-4">
                 <ShieldCheck className="w-5 h-5" />
               </div>
-              <h4 className="text-base font-bold text-slate-900 mb-2">Setback & Slope Analysis</h4>
-              <p className="text-sm text-slate-600 leading-relaxed">
+              <h4 className="text-base font-bold text-foreground mb-2">Setback & Slope Analysis</h4>
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 Calculates environmental setbacks, easements, utility rights-of-way, and topographical elevation cuts directly in the browser.
               </p>
             </div>
@@ -128,14 +129,14 @@ export const MarketContext = () => {
                   <span className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse" />
                   <span className="font-mono text-sm text-slate-300">NIGHTLY RUN SIMULATION: TRAVIS COUNTY, TX</span>
                 </div>
-                <button
+                <Button
                   onClick={handleStartDemo}
                   disabled={isPlayingDemo}
-                  className="px-4 py-1.5 text-xs font-mono font-semibold rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white flex items-center gap-2 transition-colors cursor-pointer"
+                  className="px-4 py-1.5 text-xs font-mono font-semibold rounded-lg bg-primary hover:bg-primary/90 disabled:opacity-50 text-primary-foreground flex items-center gap-2 transition-colors cursor-pointer"
                 >
                   {isPlayingDemo ? <RotateCcw className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5" />}
                   {isPlayingDemo ? 'RUNNING PIPELINE…' : 'RE-RUN PIPELINE'}
-                </button>
+                </Button>
               </div>
 
               {/* Progress Steps */}
@@ -155,7 +156,7 @@ export const MarketContext = () => {
                     className={`flex items-center justify-between p-3.5 rounded-xl border font-mono text-xs transition-all ${
                       step.status 
                         ? 'bg-emerald-950/30 border-emerald-500/40 text-emerald-300' 
-                        : 'bg-slate-900/40 border-slate-800 text-slate-500'
+                        : 'bg-slate-900/40 border-slate-800 text-muted-foreground'
                     }`}
                   >
                     <div className="flex items-center gap-3">
@@ -178,21 +179,21 @@ export const MarketContext = () => {
             </div>
           </div>
 
-          <div className="lg:col-span-4 p-6 rounded-2xl bg-blue-50/50 border border-blue-100 flex flex-col justify-between">
+          <div className="lg:col-span-4 p-6 rounded-2xl bg-primary/10/50 border border-blue-100 flex flex-col justify-between">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-bold mb-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 text-primary text-xs font-bold mb-4">
                 <Sparkles className="w-3.5 h-3.5" />
                 INSTANT HEURISTICS
               </div>
-              <h4 className="text-lg font-bold text-slate-900 mb-3">No Analyst Hand-Offs Required</h4>
-              <p className="text-sm text-slate-600 leading-relaxed mb-6">
+              <h4 className="text-lg font-bold text-foreground mb-3">No Analyst Hand-Offs Required</h4>
+              <p className="text-sm text-muted-foreground leading-relaxed mb-6">
                 Watch raw tax filings transform into lender-grade investment memos in sub-second execution cycles. Your underwriting engine operates continuous shifts 24/7.
               </p>
             </div>
-            <div className="p-4 rounded-xl bg-white border border-slate-200/80 shadow-sm">
-              <p className="text-xs font-mono text-slate-500 mb-1">PRODUCED MEMO</p>
-              <p className="text-sm font-semibold text-slate-900">42-Page Investment Committee Dossier</p>
-              <div className="mt-3 flex items-center gap-2 text-xs font-bold text-blue-600">
+            <div className="p-4 rounded-xl bg-card border border-slate-200/80 shadow-sm">
+              <p className="text-xs font-mono text-muted-foreground mb-1">PRODUCED MEMO</p>
+              <p className="text-sm font-semibold text-foreground">42-Page Investment Committee Dossier</p>
+              <div className="mt-3 flex items-center gap-2 text-xs font-bold text-primary">
                 <span>Export PDF, CSV or JSON</span>
                 <ArrowUpRight className="w-3.5 h-3.5" />
               </div>
@@ -208,11 +209,11 @@ export const MarketContext = () => {
       badge: 'Active Spread',
       content: (
         <div className="grid lg:grid-cols-12 gap-8 items-stretch">
-          <div className="lg:col-span-8 p-6 rounded-2xl bg-white border border-slate-200 shadow-xl h-[480px] flex flex-col">
+          <div className="lg:col-span-8 p-6 rounded-2xl bg-card border border-slate-200 shadow-xl h-[480px] flex flex-col">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h4 className="text-base font-bold text-slate-900">Active Spread Opportunities</h4>
-                <p className="text-xs text-slate-500">Sorted by expected gross margin spread vs. market replacement cost</p>
+                <h4 className="text-base font-bold text-foreground">Active Spread Opportunities</h4>
+                <p className="text-xs text-muted-foreground">Sorted by expected gross margin spread vs. market replacement cost</p>
               </div>
               <span className="px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-xs font-bold font-mono">
                 14 HIGH-MARGIN PARCELS
@@ -239,20 +240,20 @@ export const MarketContext = () => {
                     { address: '2418 Oak Crest Ave', type: 'SFR Distress', arv: '$395,000', ask: '$240,000', spread: '+$94,000', margin: '23.8%', tier: 'Ring 1' },
                     { address: '1105 Pleasant Valley', type: 'Multi-Family (4U)', arv: '$1,150,000', ask: '$840,000', spread: '+$190,000', margin: '16.5%', tier: 'Ring 2' },
                   ].map((deal) => (
-                    <tr key={deal.address} className="hover:bg-slate-50 transition-colors">
+                    <tr key={deal.address} className="hover:bg-muted transition-colors">
                       <td className="py-3 px-2">
-                        <div className="font-bold text-slate-900">{deal.address}</div>
+                        <div className="font-bold text-foreground">{deal.address}</div>
                         <div className="text-[10px] text-slate-400 font-mono">Austin, TX • Travis County</div>
                       </td>
-                      <td className="py-3 px-2 text-slate-600">{deal.type}</td>
-                      <td className="py-3 px-2 font-mono font-semibold text-slate-900">{deal.arv}</td>
-                      <td className="py-3 px-2 font-mono text-slate-600">{deal.ask}</td>
+                      <td className="py-3 px-2 text-muted-foreground">{deal.type}</td>
+                      <td className="py-3 px-2 font-mono font-semibold text-foreground">{deal.arv}</td>
+                      <td className="py-3 px-2 font-mono text-muted-foreground">{deal.ask}</td>
                       <td className="py-3 px-2">
                         <span className="font-mono font-bold text-emerald-600">{deal.spread}</span>
                         <span className="ml-1 text-[10px] text-slate-400">({deal.margin})</span>
                       </td>
                       <td className="py-3 px-2">
-                        <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-bold text-[10px] uppercase font-mono">
+                        <span className="px-2 py-0.5 rounded bg-primary/10 text-primary font-bold text-[10px] uppercase font-mono">
                           {deal.tier}
                         </span>
                       </td>
@@ -263,27 +264,27 @@ export const MarketContext = () => {
             </div>
           </div>
 
-          <div className="lg:col-span-4 p-6 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col justify-between">
+          <div className="lg:col-span-4 p-6 rounded-2xl bg-muted border border-slate-200 flex flex-col justify-between">
             <div>
               <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400">DEAL DISCOVERY ARSENAL</span>
-              <h4 className="text-lg font-bold text-slate-900 mt-2 mb-3">Institutional Arbitrage</h4>
-              <p className="text-sm text-slate-600 leading-relaxed">
+              <h4 className="text-lg font-bold text-foreground mt-2 mb-3">Institutional Arbitrage</h4>
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 Filter by true debt coverage, gross yield margins, and repair-adjusted spreads across every residential and commercial parcel.
               </p>
             </div>
 
             <div className="space-y-3 pt-6 border-t border-slate-200">
               <div className="flex justify-between items-center text-xs">
-                <span className="text-slate-500 font-medium">Average Ring 1 Margin:</span>
+                <span className="text-muted-foreground font-medium">Average Ring 1 Margin:</span>
                 <span className="font-bold text-emerald-600 font-mono">22.4%</span>
               </div>
               <div className="flex justify-between items-center text-xs">
-                <span className="text-slate-500 font-medium">Days on Market Advantage:</span>
-                <span className="font-bold text-blue-600 font-mono">18.5 Days Faster</span>
+                <span className="text-muted-foreground font-medium">Days on Market Advantage:</span>
+                <span className="font-bold text-primary font-mono">18.5 Days Faster</span>
               </div>
               <div className="flex justify-between items-center text-xs">
-                <span className="text-slate-500 font-medium">Cap Rate Sensitivity:</span>
-                <span className="font-bold text-slate-900 font-mono">Stress-tested to +300bps</span>
+                <span className="text-muted-foreground font-medium">Cap Rate Sensitivity:</span>
+                <span className="font-bold text-foreground font-mono">Stress-tested to +300bps</span>
               </div>
             </div>
           </div>
@@ -338,14 +339,14 @@ export const MarketContext = () => {
           <div className="lg:col-span-4 p-6 rounded-2xl bg-amber-50/50 border border-amber-200/80 flex flex-col justify-between">
             <div>
               <span className="text-xs font-mono font-bold uppercase tracking-wider text-amber-800">SHADOW INVENTORY</span>
-              <h4 className="text-lg font-bold text-slate-900 mt-2 mb-3">Before The Listing Happens</h4>
-              <p className="text-sm text-slate-600 leading-relaxed">
+              <h4 className="text-lg font-bold text-foreground mt-2 mb-3">Before The Listing Happens</h4>
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 By the time a property appears on the MLS, your competitors are already in a bidding war. Perfect Property reveals shadow inventory weeks before public listing.
               </p>
             </div>
-            <div className="p-4 rounded-xl bg-white border border-amber-200/60 shadow-sm">
-              <p className="text-xs font-mono text-slate-500 mb-1">UNCONTESTED PIPELINE</p>
-              <p className="text-sm font-semibold text-slate-900">Direct-to-Seller Underwritten Offers</p>
+            <div className="p-4 rounded-xl bg-card border border-amber-200/60 shadow-sm">
+              <p className="text-xs font-mono text-muted-foreground mb-1">UNCONTESTED PIPELINE</p>
+              <p className="text-sm font-semibold text-foreground">Direct-to-Seller Underwritten Offers</p>
               <div className="mt-3 flex items-center gap-2 text-xs font-bold text-amber-700">
                 <span>View Distress Ledger</span>
                 <ArrowUpRight className="w-3.5 h-3.5" />
@@ -362,12 +363,12 @@ export const MarketContext = () => {
       badge: 'Exit Horizon',
       content: (
         <div className="grid lg:grid-cols-12 gap-8 items-stretch">
-          <div className="lg:col-span-8 p-6 rounded-2xl bg-white border border-slate-200 shadow-xl h-[480px] flex flex-col justify-between">
+          <div className="lg:col-span-8 p-6 rounded-2xl bg-card border border-slate-200 shadow-xl h-[480px] flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h4 className="text-base font-bold text-slate-900">Prophecy: 24-Month Valuation Projection</h4>
-                  <p className="text-xs text-slate-500">Hedonic submarket regression factoring interest rates and population inflows</p>
+                  <h4 className="text-base font-bold text-foreground">Prophecy: 24-Month Valuation Projection</h4>
+                  <p className="text-xs text-muted-foreground">Hedonic submarket regression factoring interest rates and population inflows</p>
                 </div>
                 <span className="px-3 py-1 bg-purple-50 text-purple-700 border border-purple-200 rounded-full text-xs font-bold font-mono">
                   CONFIDENCE: 94.6%
@@ -405,7 +406,7 @@ export const MarketContext = () => {
             <div className="grid grid-cols-3 gap-4 pt-4 border-t border-slate-100 text-center font-mono">
               <div>
                 <p className="text-[11px] text-slate-400">BEAR SCENARIO</p>
-                <p className="text-sm font-bold text-slate-700">+4.8% Exit IRR</p>
+                <p className="text-sm font-bold text-secondary-foreground">+4.8% Exit IRR</p>
               </div>
               <div>
                 <p className="text-[11px] text-slate-400">BASE SCENARIO</p>
@@ -421,14 +422,14 @@ export const MarketContext = () => {
           <div className="lg:col-span-4 p-6 rounded-2xl bg-purple-50/50 border border-purple-100 flex flex-col justify-between">
             <div>
               <span className="text-xs font-mono font-bold uppercase tracking-wider text-purple-800">FORECASTING PRECISION</span>
-              <h4 className="text-lg font-bold text-slate-900 mt-2 mb-3">Model-Backed Exit Pricing</h4>
-              <p className="text-sm text-slate-600 leading-relaxed">
+              <h4 className="text-lg font-bold text-foreground mt-2 mb-3">Model-Backed Exit Pricing</h4>
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 Stop guessing capitalization rates at exit. Prophecy cross-correlates macro labor shifts, building permit velocity, and census migrations.
               </p>
             </div>
-            <div className="p-4 rounded-xl bg-white border border-purple-200/80 shadow-sm">
-              <p className="text-xs font-mono text-slate-500 mb-1">STRESS TEST BENCHMARK</p>
-              <p className="text-sm font-semibold text-slate-900">Passes Federal Reserve DSCR Guardrails</p>
+            <div className="p-4 rounded-xl bg-card border border-purple-200/80 shadow-sm">
+              <p className="text-xs font-mono text-muted-foreground mb-1">STRESS TEST BENCHMARK</p>
+              <p className="text-sm font-semibold text-foreground">Passes Federal Reserve DSCR Guardrails</p>
             </div>
           </div>
         </div>
@@ -441,12 +442,12 @@ export const MarketContext = () => {
       badge: '98.4%',
       content: (
         <div className="grid lg:grid-cols-12 gap-8 items-stretch">
-          <div className="lg:col-span-8 p-6 rounded-2xl bg-white border border-slate-200 shadow-xl h-[480px] flex flex-col justify-between">
+          <div className="lg:col-span-8 p-6 rounded-2xl bg-card border border-slate-200 shadow-xl h-[480px] flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h4 className="text-base font-bold text-slate-900">Ground-Truth Accuracy Audit</h4>
-                  <p className="text-xs text-slate-500">Backtested against 42,800 recorded deeds across California and Florida</p>
+                  <h4 className="text-base font-bold text-foreground">Ground-Truth Accuracy Audit</h4>
+                  <p className="text-xs text-muted-foreground">Backtested against 42,800 recorded deeds across California and Florida</p>
                 </div>
                 <span className="px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-xs font-bold font-mono">
                   DEED VERIFIED
@@ -454,39 +455,39 @@ export const MarketContext = () => {
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-                  <p className="text-[11px] font-mono text-slate-500 uppercase">Directional Accuracy</p>
+                <div className="p-4 rounded-xl bg-muted border border-slate-200">
+                  <p className="text-[11px] font-mono text-muted-foreground uppercase">Directional Accuracy</p>
                   <p className="text-2xl font-bold text-emerald-600 font-mono mt-1">98.4%</p>
                   <p className="text-[10px] text-slate-400 mt-1">Ring 1 selections</p>
                 </div>
-                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-                  <p className="text-[11px] font-mono text-slate-500 uppercase">Mean Abs. Error</p>
-                  <p className="text-2xl font-bold text-slate-900 font-mono mt-1">$4,120</p>
+                <div className="p-4 rounded-xl bg-muted border border-slate-200">
+                  <p className="text-[11px] font-mono text-muted-foreground uppercase">Mean Abs. Error</p>
+                  <p className="text-2xl font-bold text-foreground font-mono mt-1">$4,120</p>
                   <p className="text-[10px] text-slate-400 mt-1">vs. final recorded deed</p>
                 </div>
-                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-                  <p className="text-[11px] font-mono text-slate-500 uppercase">False Positive Rate</p>
-                  <p className="text-2xl font-bold text-blue-600 font-mono mt-1">&lt; 1.2%</p>
+                <div className="p-4 rounded-xl bg-muted border border-slate-200">
+                  <p className="text-[11px] font-mono text-muted-foreground uppercase">False Positive Rate</p>
+                  <p className="text-2xl font-bold text-primary font-mono mt-1">&lt; 1.2%</p>
                   <p className="text-[10px] text-slate-400 mt-1">Lien exclusions</p>
                 </div>
-                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-                  <p className="text-[11px] font-mono text-slate-500 uppercase">Coverage</p>
-                  <p className="text-2xl font-bold text-slate-900 font-mono mt-1">100%</p>
+                <div className="p-4 rounded-xl bg-muted border border-slate-200">
+                  <p className="text-[11px] font-mono text-muted-foreground uppercase">Coverage</p>
+                  <p className="text-2xl font-bold text-foreground font-mono mt-1">100%</p>
                   <p className="text-[10px] text-slate-400 mt-1">All county parcels</p>
                 </div>
               </div>
 
-              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-                <h5 className="text-xs font-bold text-slate-900 mb-2 font-mono uppercase">Audited By Top 10 Single-Family Rental Funds</h5>
-                <p className="text-xs text-slate-600 leading-relaxed">
+              <div className="p-4 rounded-xl bg-muted border border-slate-200">
+                <h5 className="text-xs font-bold text-foreground mb-2 font-mono uppercase">Audited By Top 10 Single-Family Rental Funds</h5>
+                <p className="text-xs text-muted-foreground leading-relaxed">
                   Every valuation variance is documented and published nightly to institutional partners, ensuring full reproducibility before capital allocation.
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center justify-between text-xs font-mono text-slate-500 pt-4 border-t border-slate-100">
+            <div className="flex items-center justify-between text-xs font-mono text-muted-foreground pt-4 border-t border-slate-100">
               <span>METHODOLOGY: HEDONIC SPATIAL REGRESSION + TITLE CHAIN SCAN</span>
-              <span className="text-blue-600 font-semibold cursor-pointer hover:underline">Read Whitepaper</span>
+              <span className="text-primary font-semibold cursor-pointer hover:underline">Read Whitepaper</span>
             </div>
           </div>
 
@@ -509,18 +510,18 @@ export const MarketContext = () => {
   ]
 
   return (
-    <section className="py-28 bg-white border-t border-slate-100">
+    <section className="py-28 bg-card border-t border-slate-100">
       <div className="max-w-[1240px] mx-auto px-6">
         <div className="grid lg:grid-cols-2 gap-12 items-start mb-16">
           <div>
-            <span className="text-xs font-mono font-bold uppercase tracking-[0.2em] text-[#2F5FFF] block mb-3">
+            <span className="text-xs font-mono font-bold uppercase tracking-[0.2em] text-primary block mb-3">
               CONTEXT-AWARE CARTOGRAPHY
             </span>
-            <h2 className="text-[38px] md:text-[46px] font-bold tracking-[-0.03em] leading-[1.05] text-[#0F0F0F]">
+            <h2 className="text-[38px] md:text-[46px] font-bold tracking-[-0.03em] leading-[1.05] text-background">
               AI that knows your parcels. AI that knows your market.
             </h2>
           </div>
-          <p className="text-[18px] text-[#4B5563] leading-[1.6] font-medium pt-2">
+          <p className="text-[18px] text-muted-foreground leading-[1.6] font-medium pt-2">
             Perfect Property isn't a generic chatbot. It starts with your actual parcels and your specific submarket context, so every memo, ARV model, and cadastral visual looks like your best principal analyst's hand-crafted work.
           </p>
         </div>
@@ -530,7 +531,7 @@ export const MarketContext = () => {
           tabs={tabs}
           defaultValue="visuals"
           onChange={(val) => setActiveTab(val)}
-          containerClassName="bg-slate-100/90 border border-slate-200"
+          containerClassName="bg-accent/90 border border-slate-200"
           contentClassName="mt-6"
         />
       </div>

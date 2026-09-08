@@ -1,3 +1,4 @@
+import { Input } from "@/components/ui/input";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { ArrowRight, MagnifyingGlass, MapPin } from '@phosphor-icons/react'
@@ -143,7 +144,7 @@ export function CommandPalette({ open, parcels, onClose, onSelect }: Props) {
                 size={20}
                 className="absolute left-5 top-1/2 -translate-y-1/2 text-pp-faint"
               />
-              <input
+              <Input
                 ref={inputRef}
                 role="combobox"
                 aria-autocomplete="list"

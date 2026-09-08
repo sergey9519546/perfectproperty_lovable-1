@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -121,22 +122,22 @@ function AdminPage() {
 
       {/* ---- Action buttons ---- */}
       <div className="mt-6 flex flex-wrap gap-3">
-        <button onClick={() => ingestAll.mutate()} disabled={ingestAll.isPending} className="inline-flex items-center gap-2 rounded-md bg-pp-gold px-4 py-2 text-sm font-medium text-[#01070c] transition-opacity hover:opacity-90 disabled:opacity-50">
+        <Button onClick={() => ingestAll.mutate()} disabled={ingestAll.isPending} className="inline-flex items-center gap-2 rounded-md bg-pp-gold px-4 py-2 text-sm font-medium text-background transition-opacity hover:opacity-90 disabled:opacity-50">
           <Globe className="h-4 w-4" />
           {ingestAll.isPending ? "Scanning live sources…" : "Scan all live public sources"}
-        </button>
-        <button onClick={() => salesMut.mutate()} disabled={salesMut.isPending} className="inline-flex items-center gap-2 rounded-md bg-opportunity px-4 py-2 text-sm font-medium text-black transition-opacity hover:opacity-90 disabled:opacity-50">
+        </Button>
+        <Button onClick={() => salesMut.mutate()} disabled={salesMut.isPending} className="inline-flex items-center gap-2 rounded-md bg-opportunity px-4 py-2 text-sm font-medium text-black transition-opacity hover:opacity-90 disabled:opacity-50">
           <Scroll className="h-4 w-4" />
           {salesMut.isPending ? "Fetching NYC sales…" : "Ingest real NYC sales (5 boroughs)"}
-        </button>
-        <button onClick={() => score.mutate()} disabled={score.isPending} className="inline-flex items-center gap-2 rounded-md border border-pp-border bg-pp-page px-4 py-2 text-sm font-medium hover:bg-pp-header disabled:opacity-50">
+        </Button>
+        <Button onClick={() => score.mutate()} disabled={score.isPending} className="inline-flex items-center gap-2 rounded-md border border-pp-border bg-pp-page px-4 py-2 text-sm font-medium hover:bg-pp-header disabled:opacity-50">
           <Lightning className="h-4 w-4" />
           {score.isPending ? "Scoring…" : "Underwrite real parcels (uses comps)"}
-        </button>
-        <button onClick={() => uw.mutate()} disabled={uw.isPending} className="inline-flex items-center gap-2 rounded-md border border-pp-border bg-pp-page px-4 py-2 text-sm font-medium hover:bg-pp-header disabled:opacity-50">
+        </Button>
+        <Button onClick={() => uw.mutate()} disabled={uw.isPending} className="inline-flex items-center gap-2 rounded-md border border-pp-border bg-pp-page px-4 py-2 text-sm font-medium hover:bg-pp-header disabled:opacity-50">
           <Lightning className="h-4 w-4" />
           {uw.isPending ? "Scoring…" : "Rescore every parcel"}
-        </button>
+        </Button>
       </div>
 
       {/* ---- Live sources grid ---- */}
@@ -150,9 +151,9 @@ function AdminPage() {
                   <div className="text-[13px] font-medium">{s.state} · {s.name}</div>
                   <div className="mt-0.5 text-[10px] uppercase tracking-widest text-pp-muted">{s.parcels?.kind ?? "—"}</div>
                 </div>
-                <button onClick={() => ingest.mutate(s.fips)} disabled={ingest.isPending} className="rounded-md bg-pp-gold px-2.5 py-1 text-[11px] font-medium text-[#01070c] transition-opacity hover:opacity-90 disabled:opacity-50">
+                <Button onClick={() => ingest.mutate(s.fips)} disabled={ingest.isPending} className="rounded-md bg-pp-gold px-2.5 py-1 text-[11px] font-medium text-background transition-opacity hover:opacity-90 disabled:opacity-50">
                   Fetch live
-                </button>
+                </Button>
               </div>
               <div className="mt-2 truncate text-[10px] text-pp-muted" title={s.parcels?.url}>{s.parcels?.url ?? "no parcel endpoint"}</div>
             </div>
@@ -176,12 +177,12 @@ function AdminPage() {
           </div>
           <div className="mt-2 flex items-center gap-2">
             <code className="flex-1 truncate rounded border border-pp-border bg-pp-page px-2 py-1 text-[11px]">{webhookUrl}</code>
-            <button
+            <Button
               onClick={() => { navigator.clipboard.writeText(webhookUrl); toast.success("Webhook URL copied"); }}
               className="inline-flex items-center gap-1 rounded-md border border-pp-border bg-pp-header px-2 py-1 text-[11px] hover:bg-pp-page"
             >
               <Copy className="h-3 w-3" /> Copy
-            </button>
+            </Button>
           </div>
           <div className="mt-2 text-[11px] text-pp-muted">
             Full drop-in Scrapy pipeline in <code>docs/scrapy.md</code>. Recipes accepted:

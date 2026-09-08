@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { useState } from 'react'
 import { APIProvider, Map, AdvancedMarker } from '@vis.gl/react-google-maps'
 import { ArrowSquareOut, Camera, Globe } from '@phosphor-icons/react'
@@ -44,7 +45,7 @@ export function ParcelMiniMap({ lat, lng, address, zoom = 16, className }: Props
               <div className="relative flex items-center justify-center">
                 <span className="absolute h-6 w-6 rounded-full bg-amber-400 opacity-40 animate-ping" />
                 <div className="relative flex h-5 w-5 items-center justify-center rounded-full border-2 border-white bg-amber-500 shadow-md">
-                  <div className="h-1.5 w-1.5 rounded-full bg-white" />
+                  <div className="h-1.5 w-1.5 rounded-full bg-card" />
                 </div>
               </div>
             </AdvancedMarker>
@@ -54,7 +55,7 @@ export function ParcelMiniMap({ lat, lng, address, zoom = 16, className }: Props
 
       {/* Top Map Type Switcher */}
       <div className="absolute top-2 left-2 z-10 flex items-center gap-1 rounded bg-black/70 p-0.5 backdrop-blur-xs">
-        <button
+        <Button
           type="button"
           onClick={() => setMapType('roadmap')}
           className={`px-1.5 py-0.5 text-[10px] font-medium rounded transition-colors ${
@@ -62,8 +63,8 @@ export function ParcelMiniMap({ lat, lng, address, zoom = 16, className }: Props
           }`}
         >
           Vector
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
           onClick={() => setMapType('satellite')}
           className={`px-1.5 py-0.5 text-[10px] font-medium rounded transition-colors ${
@@ -71,7 +72,7 @@ export function ParcelMiniMap({ lat, lng, address, zoom = 16, className }: Props
           }`}
         >
           Satellite
-        </button>
+        </Button>
       </div>
 
       {/* Bottom External Actions */}

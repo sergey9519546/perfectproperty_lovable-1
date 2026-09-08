@@ -4,7 +4,6 @@ import { CheckCircle } from "@phosphor-icons/react";
 import { useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { TopBar } from "./components/TopBar";
 import { NavigationRail } from "./components/NavigationRail";
 import { EvidencePanel } from "./components/EvidencePanel";
 import { DealTable } from "./components/DealTable";
@@ -388,18 +387,8 @@ export function MarketWorkspace({ initialQuery, initialParcelId }: MarketWorkspa
       : null;
 
   return (
-    <div className="perfect-property-ui app-shell min-h-[100dvh] bg-pp-page text-pp-text">
-      <TopBar
-        onHome={() => void navigate({ to: "/" })}
-        onOpenPalette={() => setPaletteOpen(true)}
-        onExport={() => void runWorkflowAction("brief_export")}
-        onSignOut={handleSignOut}
-        organizationName={organizationName}
-        userInitials={userInitials}
-        userEmail={firebaseUser?.email || null}
-        coverage={coverage}
-        exporting={pendingAction === "brief_export"}
-      />
+    <div className="perfect-property-ui app-shell h-[calc(100dvh-64px)] bg-pp-page text-pp-text">
+      
       <div className="app-body grid min-h-0 grid-cols-[72px_minmax(0,1fr)] max-md:grid-cols-1">
         <NavigationRail active={activeNav} onChange={handleNavigation} />
         <div className="product-grid grid min-h-0 grid-cols-[minmax(0,1fr)_420px] max-xl:grid-cols-[minmax(0,1fr)_380px] max-lg:grid-cols-1">
