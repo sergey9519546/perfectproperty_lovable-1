@@ -44,6 +44,24 @@ function isH3SwallowedErrorBody(body: string): boolean {
   }
 }
 
+// The browser closing/cancelling a request mid-render surfaces as an "aborted"
+// / ECONNRESET throw. That is not an app failure — never log it or serve the
+// error page for it.
+function isClientAbort(request: Request, error: unknown): boolean {
+  if (request.signal?.aborted) return true;
+  const seen = new Set<unknown>();
+  let current: unknown = error;
+  while (current && typeof current === "object" && !seen.has(current)) {
+    seen.add(current);
+    const e = current as { code?: unknown; message?: unknown; name?: unknown; cause?: unknown };
+    if (e.code === "ECONNRESET" || e.code === "ABORT_ERR") return true;
+    if (e.name === "AbortError") return true;
+    if (typeof e.message === "string" && /^aborted$/i.test(e.message.trim())) return true;
+    current = e.cause;
+  }
+  return false;
+}
+
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
@@ -51,6 +69,9 @@ export default {
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);
     } catch (error) {
+      if (isClientAbort(request, error)) {
+        return new Response(null, { status: 499 });
+      }
       console.error(error);
       return new Response(renderErrorPage(), {
         status: 500,
@@ -59,3 +80,4 @@ export default {
     }
   },
 };
+
