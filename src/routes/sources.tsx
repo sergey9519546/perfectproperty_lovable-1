@@ -135,7 +135,7 @@ function SourcesPage() {
               <div>
                 <dt className="text-[#94A3B8]">How often</dt>
                 <dd className="font-semibold text-[#0F172A]">
-                  {TIER_LABEL[s.tier as number] ?? "As published"}
+                  {TIER_LABEL[Number(s.tier)] ?? "As published"}
                 </dd>
               </div>
             </dl>
