@@ -11,56 +11,56 @@ export const Header = ({ scrolled, onSignIn, onExplore }: { scrolled: boolean; o
           : 'bg-transparent border-b border-transparent'
       }`}
     >
-      <div className="max-w-[1280px] mx-auto h-full px-6 sm:px-8 flex items-center justify-between">
-        <div className="flex items-center gap-8">
-          <Link to="/" id="landing-header-logo-link" className="flex items-center text-[#0F172A] hover:opacity-90 transition-opacity">
-            <Brand id="landing-header-brand" compact={false} textClassName="text-[#0F172A] tracking-wider font-extrabold text-[17px]" />
+      <div className="max-w-[1280px] mx-auto h-full px-6 sm:px-8 flex items-center justify-between gap-4">
+        <div className="flex min-w-0 items-center gap-6">
+          <Link to="/" id="landing-header-logo-link" className="flex shrink-0 items-center text-[#0F172A] hover:opacity-90 transition-opacity">
+            <Brand id="landing-header-brand" compact={false} textClassName="text-[#0F172A] tracking-wider font-extrabold text-[17px] whitespace-nowrap" />
           </Link>
-          <nav className="hidden md:flex items-center gap-1 text-[13px] font-semibold text-[#475569]">
+          <nav className="hidden lg:flex items-center gap-0.5 text-[13px] font-semibold text-[#475569]">
             <Link 
               to="/workspace" 
-              className="px-3 py-1.5 hover:text-[#0F172A] hover:bg-[#F1F5F9] rounded-lg transition-colors"
+              className="whitespace-nowrap px-2.5 py-1.5 hover:text-[#0F172A] hover:bg-[#F1F5F9] rounded-lg transition-colors"
             >
-              Workspace Map
+              Map
             </Link>
             <Link 
               to="/deals" 
-              className="px-3 py-1.5 hover:text-[#0F172A] hover:bg-[#F1F5F9] rounded-lg transition-colors"
+              className="whitespace-nowrap px-2.5 py-1.5 hover:text-[#0F172A] hover:bg-[#F1F5F9] rounded-lg transition-colors"
             >
-              Ranked Deals
+              Deals
             </Link>
             <Link 
               to="/sheriff-sales" 
-              className="px-3 py-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 font-bold rounded-lg transition-colors flex items-center gap-1.5"
+              className="whitespace-nowrap px-2.5 py-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 font-bold rounded-lg transition-colors flex items-center gap-1.5"
             >
-              <span>Sheriff & Gov Sales</span>
-              <span className="px-1.5 py-0.2 rounded text-[10px] bg-blue-100 text-blue-800 uppercase font-mono">New</span>
+              <span>Sheriff Sales</span>
+              <span className="px-1.5 rounded text-[10px] bg-blue-100 text-blue-800 uppercase font-mono">New</span>
             </Link>
             <Link 
               to="/shadow" 
-              className="px-3 py-1.5 hover:text-[#0F172A] hover:bg-[#F1F5F9] rounded-lg transition-colors"
+              className="whitespace-nowrap px-2.5 py-1.5 hover:text-[#0F172A] hover:bg-[#F1F5F9] rounded-lg transition-colors"
             >
               Off-Market
             </Link>
             <Link 
               to="/prophecy" 
-              className="px-3 py-1.5 hover:text-[#0F172A] hover:bg-[#F1F5F9] rounded-lg transition-colors"
+              className="whitespace-nowrap px-2.5 py-1.5 hover:text-[#0F172A] hover:bg-[#F1F5F9] rounded-lg transition-colors"
             >
               Predictions
             </Link>
             <Link 
               to="/accuracy" 
-              className="px-3 py-1.5 hover:text-[#0F172A] hover:bg-[#F1F5F9] rounded-lg transition-colors"
+              className="whitespace-nowrap px-2.5 py-1.5 hover:text-[#0F172A] hover:bg-[#F1F5F9] rounded-lg transition-colors"
             >
               Accuracy
             </Link>
           </nav>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex shrink-0 items-center gap-2">
           <button 
             onClick={onSignIn}
-            className="px-4 py-2 text-[14px] font-semibold text-[#0F172A] hover:bg-[#F1F5F9] rounded-lg transition-all cursor-pointer"
+            className="whitespace-nowrap px-3 py-2 text-[14px] font-semibold text-[#0F172A] hover:bg-[#F1F5F9] rounded-lg transition-all cursor-pointer"
           >
             Log in
           </button>
@@ -71,6 +71,7 @@ export const Header = ({ scrolled, onSignIn, onExplore }: { scrolled: boolean; o
             Launch Engine
           </button>
         </div>
+
       </div>
     </header>
   )

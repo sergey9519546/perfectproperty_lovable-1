@@ -19,7 +19,7 @@ export const Hero = ({ onExplore }: { onExplore: (query?: string, mode?: 'Deals'
   }
 
   return (
-    <section className="relative pt-36 pb-24 overflow-hidden min-h-[90vh] flex flex-col items-center">
+    <section className="relative pt-32 pb-16 overflow-hidden flex flex-col items-center">
       {/* Cadastral Coordinate Grid Pattern (Aceternity UI) */}
       <GridPattern
         width={40}
@@ -193,7 +193,7 @@ export const Hero = ({ onExplore }: { onExplore: (query?: string, mode?: 'Deals'
         </motion.div>
 
         {/* Brand Logos */}
-        <div className="mt-20 sm:mt-28 w-full opacity-60 overflow-hidden">
+        <div className="mt-12 sm:mt-16 w-full opacity-60 overflow-hidden">
           <p className="text-[11px] uppercase tracking-[0.2em] font-bold text-slate-400 mb-8">
             Ingestion across enterprise data feeds
           </p>
