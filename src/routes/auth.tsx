@@ -10,6 +10,7 @@ import { Brand } from "@/features/perfect-property/components/Brand";
 import { BRAND_CONFIG } from "@/lib/brand";
 import { provisionDemoAccount, registerAccount } from "@/lib/auth.functions";
 import { useFirebaseAuth, getAuthenticatedFirebaseUser } from "@/integrations/firebase";
+import authHero from "@/assets/auth-hero.jpg";
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
@@ -166,7 +167,7 @@ function AuthPage() {
   return (
     <main className="grid min-h-[100dvh] bg-[#FAFAFC] text-[#0F172A] lg:grid-cols-[minmax(0,1.1fr)_minmax(460px,.9fr)]">
       <section className="relative hidden overflow-hidden border-r border-[#E2E8F0] bg-slate-900 lg:block">
-        <img src="/perfect-property-hero.png" alt="" className="absolute inset-0 h-full w-full object-cover object-[58%_50%] opacity-40 mix-blend-luminosity" />
+        <img src={authHero} alt="" width={1280} height={1600} className="absolute inset-0 h-full w-full object-cover object-[58%_50%] opacity-40 mix-blend-luminosity" />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/80 to-slate-900/60" />
         <div className="relative flex h-full flex-col p-10 xl:p-14 text-white">
           <Link to="/" id="auth-desktop-brand-link" aria-label={`${BRAND_CONFIG.name} home`} className="w-fit">
