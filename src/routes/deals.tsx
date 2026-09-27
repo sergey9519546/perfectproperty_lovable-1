@@ -1,10 +1,11 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, redirect, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { listRankedParcels, lookupParcelByAddress } from "@/lib/parcels.functions";
+import { getCurrentUserSubscription } from "@/lib/subscriptions.functions";
 import { DossierPanel } from "@/components/DossierPanel";
 import { fmt$, ringLabel } from "@/lib/format";
 import {
@@ -29,7 +30,8 @@ import {
   removeSavedDealFromFirestore,
   getAuthenticatedFirebaseUser,
 } from "@/integrations/firebase";
-import { Bookmark, Sparkles } from "lucide-react";
+import { Bookmark, Sparkles, CreditCard, Lock, ArrowRight, ShieldCheck, LayoutGrid, Table2 } from "lucide-react";
+import { DealCard } from "@/components/DealCard";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/deals")({
@@ -37,6 +39,9 @@ export const Route = createFileRoute("/deals")({
   beforeLoad: async () => {
     const firebaseUser = await getAuthenticatedFirebaseUser();
     if (!firebaseUser) {
+      if (typeof localStorage !== "undefined" && localStorage.getItem("pp_demo_session")) {
+        return;
+      }
       const { data } = await supabase.auth.getUser();
       if (!data.user) throw redirect({ to: "/auth", search: { next: "/deals" } });
     }
@@ -61,14 +66,31 @@ export const Route = createFileRoute("/deals")({
 
 function DealsPage() {
   const listFn = useServerFn(listRankedParcels);
+  const subFn = useServerFn(getCurrentUserSubscription);
   const { user } = useFirebaseAuth();
   const queryClient = useQueryClient();
   const [selected, setSelected] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"all" | "saved">("all");
+  const [layoutMode, setLayoutMode] = useState<"cards" | "table">("cards");
+  const [selectedMetro, setSelectedMetro] = useState<string>("17031"); // Cook County, IL default
+
+  const subQ = useQuery<any>({
+    queryKey: ["current-user-subscription", user?.uid],
+    queryFn: () => subFn(),
+    enabled: !!user,
+  });
+  const isSubscribed = subQ.data?.isSubscribed ?? false;
+  const userTier = subQ.data?.tier ?? "free";
 
   const q = useQuery({
-    queryKey: ["ranked-all"],
-    queryFn: () => listFn({ data: { limit: 500 } }),
+    queryKey: ["ranked-deals", selectedMetro],
+    queryFn: () =>
+      listFn({
+        data: {
+          limit: 500,
+          county_fips: selectedMetro === "all" ? undefined : selectedMetro,
+        },
+      }),
   });
 
   const savedQ = useQuery({
@@ -120,7 +142,7 @@ function DealsPage() {
       if (!user) return [];
       const savedList = savedQ.data || [];
       const scoredMap = new Map((q.data || []).map((item: any) => [item.parcel_id, item]));
-      return savedList.map((saved) => {
+      const mapped = savedList.map((saved) => {
         const scored = scoredMap.get(saved.parcelId);
         if (scored) return scored;
         return {
@@ -136,30 +158,93 @@ function DealsPage() {
             address: saved.address || "Saved Property",
             city: saved.county || "",
             state: saved.state || "",
+            county_fips: saved.county,
           },
           computed_at: saved.updatedAt || saved.createdAt,
           skeptic_flags: [],
         };
       });
+      if (selectedMetro === "all") return mapped;
+      return mapped.filter((item: any) => {
+        const fips = item.parcels?.county_fips;
+        if (fips) return fips === selectedMetro;
+        if (selectedMetro === "17031") return item.parcels?.state === "IL";
+        if (selectedMetro === "06037") return item.parcels?.state === "CA";
+        if (selectedMetro === "36061") return item.parcels?.state === "NY";
+        return true;
+      });
     }
     return q.data || [];
-  }, [viewMode, user, q.data, savedQ.data]);
+  }, [viewMode, user, q.data, savedQ.data, selectedMetro]);
+
+  const metroTitle =
+    selectedMetro === "17031"
+      ? `New deals in Cook County, IL today (${displayData.length} scored)`
+      : selectedMetro === "06037"
+        ? `New deals in Los Angeles, CA today (${displayData.length} scored)`
+        : selectedMetro === "36061"
+          ? `New deals in New York, NY today (${displayData.length} scored)`
+          : `New deals across all metros today (${displayData.length} scored)`;
+
+  const metroSub =
+    selectedMetro === "17031"
+      ? "Freshly underwritten properties in Cook County (Chicago). Ranked by expected profit, max offer, and deal score. Click any deal to view neighborhood comps and AI maps."
+      : "Every property we've scored, sorted by expected profit and deal score. Click any card to see comps, risks, and neighborhood intelligence.";
+
+  const metroLabel =
+    selectedMetro === "17031"
+      ? "Cook County, IL"
+      : selectedMetro === "06037"
+        ? "Los Angeles, CA"
+        : selectedMetro === "36061"
+          ? "New York, NY"
+          : "all markets";
 
   return (
     <>
       <div id="deals-page-container" className="mx-auto max-w-[1400px] px-6 py-8">
         <PageHeader
           id="deals-header"
-          title="Ranked deals"
-          badge="Monte Carlo Calibrated"
-          sub="Every property we've scored, sorted by our overall buy score (0–100). Click any row to see the full breakdown — offer, profit, risks, comps, and AI Maps/Search Grounding."
+          title={metroTitle}
+          badge={selectedMetro === "17031" ? "Primary Focus Metro · Live Dealflow" : "Live Dealflow"}
+          breadcrumbs={[{ label: "Ranked Deals" }]}
+          sub={metroSub}
         />
+
+        {!isSubscribed && (
+          <div
+            id="deals-paywall-banner"
+            className="mt-6 rounded-2xl border border-primary/30 bg-card p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+          >
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <Lock className="h-3.5 w-3.5" />
+                </span>
+                <h3 className="text-sm font-bold text-foreground">
+                  Free Preview: Showing 3 Sample Deals in Cook County, IL
+                </h3>
+              </div>
+              <p className="text-xs text-muted-foreground max-w-2xl">
+                Unlock our complete pipeline of 500+ live scored parcels, Monte Carlo P5/P50 profit ranges, and automated comps radius. Backed by our 30-Day Money-Back Guarantee.
+              </p>
+            </div>
+            <Link
+              to="/pricing"
+              id="deals-unlock-btn"
+              className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground shadow-xs hover:bg-primary/90 transition-all shrink-0 cursor-pointer"
+            >
+              <span>Unlock 500+ Deals</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+        )}
 
         <HelpStrip />
 
-        {/* View mode toggle */}
+        {/* View mode toggle + Metro selector + Cards/Table layout toggle */}
         <div id="deals-view-bar" className="mt-6 flex flex-wrap items-center justify-between gap-4 border-b border-border pb-3.5">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Button
               id="deals-view-all-btn"
               type="button"
@@ -183,15 +268,172 @@ function DealsPage() {
               }`}
             >
               <Bookmark className="h-3.5 w-3.5" />
-              <span>Saved Portfolio ({savedQ.data?.length ?? 0})</span>
+              <span>My List ({savedQ.data?.length ?? 0})</span>
             </Button>
+
+            <span className="mx-1 hidden h-5 w-px bg-border sm:inline-block" />
+
+            {/* Metro Selector */}
+            <div id="deals-metro-selector" className="flex items-center gap-1 rounded-lg border border-border bg-muted/40 p-1 text-xs">
+              <span className="px-2 font-medium text-muted-foreground">Metro:</span>
+              <button
+                type="button"
+                id="metro-cook-il-btn"
+                onClick={() => setSelectedMetro("17031")}
+                className={`flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-medium transition-colors cursor-pointer ${
+                  selectedMetro === "17031"
+                    ? "bg-card text-primary font-semibold shadow-2xs border border-border"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <span>Cook County, IL</span>
+                <span className="rounded bg-primary/10 px-1 py-0.5 text-[10px] font-bold text-primary">Focus</span>
+              </button>
+              <button
+                type="button"
+                id="metro-la-ca-btn"
+                onClick={() => setSelectedMetro("06037")}
+                className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors cursor-pointer ${
+                  selectedMetro === "06037"
+                    ? "bg-card text-foreground font-semibold shadow-2xs border border-border"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Los Angeles, CA
+              </button>
+              <button
+                type="button"
+                id="metro-ny-btn"
+                onClick={() => setSelectedMetro("36061")}
+                className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors cursor-pointer ${
+                  selectedMetro === "36061"
+                    ? "bg-card text-foreground font-semibold shadow-2xs border border-border"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                New York, NY
+              </button>
+              <button
+                type="button"
+                id="metro-all-btn"
+                onClick={() => setSelectedMetro("all")}
+                className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors cursor-pointer ${
+                  selectedMetro === "all"
+                    ? "bg-card text-foreground font-semibold shadow-2xs border border-border"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                All Metros
+              </button>
+            </div>
           </div>
 
-          <div id="deals-count-indicator" className="text-[13px] text-muted-foreground">
-            Showing <span className="font-semibold text-foreground">{displayData.length}</span>{" "}
-            {viewMode === "saved" ? "saved watchlist properties" : "live scored properties"}
+          <div className="flex items-center gap-3">
+            <div id="deals-count-indicator" className="text-[13px] text-muted-foreground hidden sm:block">
+              Showing <span className="font-semibold text-foreground">{displayData.length}</span>{" "}
+              {viewMode === "saved" ? "saved properties" : `deals in ${metroLabel}`}
+            </div>
+
+            {/* Layout Toggle: Cards vs Table */}
+            <div className="flex items-center rounded-lg border border-border bg-muted/40 p-1 text-xs">
+              <button
+                type="button"
+                id="deals-view-cards-btn"
+                onClick={() => setLayoutMode("cards")}
+                aria-label="Cards view"
+                className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold transition-colors cursor-pointer ${
+                  layoutMode === "cards"
+                    ? "bg-card text-foreground shadow-2xs border border-border"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <LayoutGrid className="h-3.5 w-3.5" />
+                <span>Cards</span>
+              </button>
+              <button
+                type="button"
+                id="deals-view-table-btn"
+                onClick={() => setLayoutMode("table")}
+                aria-label="Table view"
+                className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold transition-colors cursor-pointer ${
+                  layoutMode === "table"
+                    ? "bg-card text-foreground shadow-2xs border border-border"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Table2 className="h-3.5 w-3.5" />
+                <span>Table</span>
+              </button>
+            </div>
           </div>
         </div>
+
+        {/* Content View: Cards vs Table */}
+        {layoutMode === "cards" ? (
+          <div>
+            {q.isLoading ? (
+              <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {Array.from({ length: 6 }).map((_, idx) => (
+                  <div
+                    key={idx}
+                    className="h-72 rounded-2xl border border-border bg-card p-5 animate-pulse flex flex-col justify-between"
+                  >
+                    <div className="space-y-3">
+                      <div className="h-4 w-28 bg-muted rounded" />
+                      <div className="h-6 w-3/4 bg-muted rounded" />
+                      <div className="h-3 w-1/2 bg-muted rounded" />
+                      <div className="h-16 w-full bg-muted/60 rounded-xl mt-3" />
+                    </div>
+                    <div className="h-10 w-full bg-muted rounded-xl" />
+                  </div>
+                ))}
+              </div>
+            ) : displayData.length === 0 ? (
+              <div className="mt-6 rounded-2xl border border-border bg-card p-12 text-center text-sm text-muted-foreground">
+                {viewMode === "saved"
+                  ? "No deals saved in your list yet. Click 'Add to my list' on any property card to save it."
+                  : "No properties found matching current criteria. Try selecting Cook County or All Metros."}
+              </div>
+            ) : (
+              <>
+                <div id="deals-card-grid" className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {displayData.map((deal: any) => (
+                    <DealCard
+                      key={deal.parcel_id}
+                      deal={deal}
+                      isSaved={savedIds.has(deal.parcel_id)}
+                      onToggleSave={toggleSaveDeal}
+                      onSelect={setSelected}
+                    />
+                  ))}
+                </div>
+
+                {!isSubscribed && displayData.length > 0 && (
+                  <div id="deals-cards-locked-footer" className="mt-8 rounded-2xl border border-border bg-muted/20 p-6 sm:p-8 text-center space-y-3">
+                    <div className="inline-flex items-center justify-center p-2 rounded-full bg-primary/10 text-primary mb-1">
+                      <Lock className="h-5 w-5" />
+                    </div>
+                    <h4 className="text-sm font-bold text-foreground">
+                      497+ Scored Deals Locked in Cook County, IL
+                    </h4>
+                    <p className="text-xs text-muted-foreground max-w-lg mx-auto leading-relaxed">
+                      Subscribe to Starter ($79/mo) or Pro ($199/mo) to unlock the full database, contact records, and Prophecy forecasts. Protected by our 30-Day Money-Back Guarantee.
+                    </p>
+                    <div className="pt-2">
+                      <Link
+                        to="/pricing"
+                        className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-xs font-bold text-primary-foreground shadow-xs hover:bg-primary/90 transition-all cursor-pointer"
+                      >
+                        <CreditCard className="h-4 w-4" />
+                        <span>View Subscription Plans</span>
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        ) : (
 
         <div id="deals-table-wrapper" className="mt-6 overflow-x-auto rounded-xl border border-border bg-card shadow-sm">
           <table id="deals-data-table" className="w-full text-[14px]">
@@ -283,7 +525,7 @@ function DealsPage() {
                 <tr>
                   <td colSpan={11} className="px-4 py-8 text-center text-sm text-muted-foreground">
                     {viewMode === "saved"
-                      ? "No deals saved in your Firestore portfolio yet. Click any property in the workspace or ranked list, open its Dossier, and click 'Save to Portfolio'."
+                      ? "No deals saved in your list yet. Click 'Add to my list' on any property card or table row to track it."
                       : "No properties found matching current criteria."}
                   </td>
                 </tr>
@@ -318,11 +560,11 @@ function DealsPage() {
                             e.stopPropagation();
                             void toggleSaveDeal(r);
                           }}
-                          aria-label={savedIds.has(r.parcel_id) ? "Remove from portfolio" : "Save to portfolio"}
-                          title={savedIds.has(r.parcel_id) ? "In your portfolio" : "Save to portfolio"}
-                          className={`rounded-md p-1.5 transition-colors shrink-0 ${
+                          aria-label={savedIds.has(r.parcel_id) ? "Remove from my list" : "Add to my list"}
+                          title={savedIds.has(r.parcel_id) ? "In your list" : "Add to my list"}
+                          className={`rounded-lg p-1.5 transition-colors shrink-0 ${
                             savedIds.has(r.parcel_id)
-                              ? "text-amber-500 bg-amber-50 hover:bg-amber-100"
+                              ? "text-amber-500 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100"
                               : "text-muted-foreground hover:text-foreground hover:bg-muted"
                           }`}
                         >
@@ -338,15 +580,15 @@ function DealsPage() {
                     </td>
                     <td className="px-4 py-3 text-[13px]">{ringLabel(r.ring)}</td>
                     <td className="px-4 py-3 text-[13px]">{r.recommended_scope}</td>
-                    <td className="num border-l border-pp-border/50 px-4 py-3 text-right">
+                    <td className="num border-l border-border/50 px-4 py-3 text-right">
                       {fmt$(Number(r.modeled_offer ?? r.max_allowable_offer ?? 0))}
                     </td>
-                    <td className="num px-4 py-3 text-right text-pp-live font-medium">
+                    <td className="num px-4 py-3 text-right text-emerald-600 dark:text-emerald-400 font-semibold">
                       {fmt$(Number(r.gross_profit ?? 0))}
                     </td>
                     <td className="num px-4 py-3 text-right text-[13px]">
                       {r.mc_profit_p50 != null ? fmt$(Number(r.mc_profit_p50)) : "—"}
-                      <div className="text-[11px] text-pp-muted">
+                      <div className="text-[11px] text-muted-foreground">
                         {r.mc_profit_p5 != null ? `worst ${fmt$(Number(r.mc_profit_p5))}` : ""}
                       </div>
                     </td>
@@ -375,18 +617,42 @@ function DealsPage() {
               })}
               {!q.isLoading && (q.data ?? []).length === 0 && (
                 <tr>
-                  <td colSpan={11} className="px-4 py-12 text-center text-sm text-pp-muted">
+                  <td colSpan={11} className="px-4 py-12 text-center text-sm text-muted-foreground">
                     No scored properties yet. Run the underwriter from the admin panel to generate deals.
                   </td>
                 </tr>
               )}
             </tbody>
           </table>
-        </div>
 
-        <section className="mt-10 border-t border-pp-border pt-8">
-          <h2 className="text-[15px] font-semibold text-pp-text">Tools</h2>
-          <p className="mt-1 text-[13px] text-pp-muted">
+          {!isSubscribed && (q.data ?? []).length > 0 && (
+            <div id="deals-table-locked-footer" className="border-t border-border bg-muted/20 p-6 sm:p-8 text-center space-y-3">
+              <div className="inline-flex items-center justify-center p-2 rounded-full bg-primary/10 text-primary mb-1">
+                <Lock className="h-5 w-5" />
+              </div>
+              <h4 className="text-sm font-bold text-foreground">
+                497+ Scored Deals Locked in Cook County, IL
+              </h4>
+              <p className="text-xs text-muted-foreground max-w-lg mx-auto leading-relaxed">
+                Subscribe to Starter ($79/mo) or Pro ($199/mo) to unlock the full database, contact records, and Prophecy forecasts. Protected by our 30-Day Money-Back Guarantee.
+              </p>
+              <div className="pt-2">
+                <Link
+                  to="/pricing"
+                  className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-xs font-bold text-primary-foreground shadow-xs hover:bg-primary/90 transition-all cursor-pointer"
+                >
+                  <CreditCard className="h-4 w-4" />
+                  <span>View Subscription Plans</span>
+                </Link>
+              </div>
+            </div>
+          )}
+        </div>
+        )}
+
+        <section className="mt-10 border-t border-border pt-8">
+          <h2 className="text-[15px] font-semibold text-foreground">Tools</h2>
+          <p className="mt-1 text-[13px] text-muted-foreground">
             Add properties to the list, or test how the whole portfolio holds up in a downturn.
           </p>
           <RealieLookup onCreated={(id) => setSelected(id)} />

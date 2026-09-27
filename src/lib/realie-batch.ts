@@ -71,6 +71,142 @@ function normalizedTokens(value: string): string[] {
   return tokens.filter((token, index) => token !== tokens[index - 1]);
 }
 
+/**
+ * Canonical FIPS to Realie-recognized county names.
+ * Realie requires standard county names (e.g. "Cook", "Los Angeles", "New York").
+ * Passing metropolitan suffixes or data-source tags like "Chicago (Cook)" or "New York (PLUTO)"
+ * results in HTTP 404 from Realie's property address endpoint.
+ */
+export const FIPS_TO_COUNTY: Record<string, { state: string; county: string }> = {
+  // Cook County, IL (Primary focus metro)
+  "17031": { state: "IL", county: "Cook" },
+  // California
+  "06037": { state: "CA", county: "Los Angeles" },
+  "06075": { state: "CA", county: "San Francisco" },
+  "06073": { state: "CA", county: "San Diego" },
+  "06059": { state: "CA", county: "Orange" },
+  "06065": { state: "CA", county: "Riverside" },
+  "06071": { state: "CA", county: "San Bernardino" },
+  "06085": { state: "CA", county: "Santa Clara" },
+  "06001": { state: "CA", county: "Alameda" },
+  // New York (NYC Boroughs & Key Counties)
+  "36061": { state: "NY", county: "New York" },
+  "36005": { state: "NY", county: "Bronx" },
+  "36047": { state: "NY", county: "Kings" },
+  "36081": { state: "NY", county: "Queens" },
+  "36085": { state: "NY", county: "Richmond" },
+  "36119": { state: "NY", county: "Westchester" },
+  "36059": { state: "NY", county: "Nassau" },
+  "36103": { state: "NY", county: "Suffolk" },
+  // Florida
+  "12086": { state: "FL", county: "Miami-Dade" },
+  "12011": { state: "FL", county: "Broward" },
+  "12095": { state: "FL", county: "Orange" },
+  "12057": { state: "FL", county: "Hillsborough" },
+  "12099": { state: "FL", county: "Palm Beach" },
+  "12031": { state: "FL", county: "Duval" },
+  "12103": { state: "FL", county: "Pinellas" },
+  // Texas
+  "48201": { state: "TX", county: "Harris" },
+  "48113": { state: "TX", county: "Dallas" },
+  "48453": { state: "TX", county: "Travis" },
+  "48439": { state: "TX", county: "Tarrant" },
+  "48029": { state: "TX", county: "Bexar" },
+  // Ohio
+  "39035": { state: "OH", county: "Cuyahoga" },
+  "39049": { state: "OH", county: "Franklin" },
+  "39061": { state: "OH", county: "Hamilton" },
+  // Arizona, Nevada, Washington, Georgia, Pennsylvania, Michigan, Colorado, North Carolina
+  "04013": { state: "AZ", county: "Maricopa" },
+  "32003": { state: "NV", county: "Clark" },
+  "53033": { state: "WA", county: "King" },
+  "13121": { state: "GA", county: "Fulton" },
+  "42101": { state: "PA", county: "Philadelphia" },
+  "26163": { state: "MI", county: "Wayne" },
+  "08031": { state: "CO", county: "Denver" },
+  "37119": { state: "NC", county: "Mecklenburg" },
+  "25025": { state: "MA", county: "Suffolk" },
+  "27053": { state: "MN", county: "Hennepin" },
+  "29510": { state: "MO", county: "St. Louis City" },
+  "47157": { state: "TN", county: "Shelby" },
+};
+
+export function fipsToRealieCounty(
+  fips: string | null | undefined,
+): { state: string; county: string } | undefined {
+  if (!fips) return undefined;
+  const cleanFips = String(fips).trim().padStart(5, "0");
+  return FIPS_TO_COUNTY[cleanFips];
+}
+
+const NYC_BOROUGH_MAP: Record<string, string> = {
+  MANHATTAN: "New York",
+  BROOKLYN: "Kings",
+  QUEENS: "Queens",
+  BRONX: "Bronx",
+  "STATEN ISLAND": "Richmond",
+};
+
+/**
+ * Strips display decorations, administrative tags, and parentheticals to yield
+ * the clean county name that Realie API accepts without 404ing.
+ *
+ * Examples:
+ *   "Chicago (Cook)"       -> "Cook"
+ *   "New York (PLUTO)"     -> "New York"
+ *   "NYC · Manhattan"      -> "New York"
+ *   "NYC · Brooklyn"       -> "Kings"
+ *   "Los Angeles County"   -> "Los Angeles"
+ *   "Miami-Dade County"    -> "Miami-Dade"
+ *   "Cook"                 -> "Cook"
+ */
+export function cleanRealieCounty(
+  county: string | null | undefined,
+  fips?: string | null | undefined,
+): string | undefined {
+  if (fips) {
+    const fromFips = fipsToRealieCounty(fips);
+    if (fromFips) return fromFips.county;
+  }
+  if (!county) return undefined;
+
+  let str = county.trim();
+  if (!str) return undefined;
+
+  // Handle "NYC · Manhattan" format
+  if (str.includes("·") || str.includes("- NYC")) {
+    const parts = str.split(/[·-]/).map((p) => p.trim().toUpperCase());
+    for (const part of parts) {
+      if (NYC_BOROUGH_MAP[part]) return NYC_BOROUGH_MAP[part];
+    }
+  }
+
+  // Handle parenthetical format like "Chicago (Cook)" or "New York (PLUTO)"
+  const parenMatch = str.match(/^(.*?)\s*\((.*?)\)$/);
+  if (parenMatch) {
+    const outer = parenMatch[1].trim();
+    const inner = parenMatch[2].trim();
+    if (/^[A-Za-z\s-]+$/.test(inner) && !/^(PLUTO|GIS|TAX|ACRIS|PARCEL)$/i.test(inner)) {
+      str = inner;
+    } else {
+      str = outer;
+    }
+  }
+
+  // Strip trailing "County", "Parish", "Borough", "City and County"
+  str = str
+    .replace(/\s+(County|Parish|Borough|City and County)$/i, "")
+    .trim();
+
+  // Check if it's an NYC borough name directly
+  const upper = str.toUpperCase();
+  if (NYC_BOROUGH_MAP[upper]) {
+    return NYC_BOROUGH_MAP[upper];
+  }
+
+  return str || undefined;
+}
+
 export function normalizeRealieAddress(value: string | null | undefined): string {
   return value ? normalizedTokens(value).join(" ") : "";
 }
@@ -84,13 +220,17 @@ export function normalizeRealieApn(value: string | null | undefined): string {
 /** Stable key shared by the negative cache and exact-lookup de-duplication. */
 export function realieLookupKey(
   input: Pick<RealieBatchRequest, "address" | "state"> &
-    Partial<Pick<RealieBatchRequest, "city" | "county">> & { unit?: string | null },
+    Partial<Pick<RealieBatchRequest, "city" | "county">> & {
+      unit?: string | null;
+      county_fips?: string | null;
+    },
 ): string {
+  const resolvedCounty = cleanRealieCounty(input.county, input.county_fips);
   return [
     normalizeRealieAddress(input.address),
     normalizeRealieAddress(input.unit),
     normalizeRealieAddress(input.city),
-    normalizeRealieAddress(input.county),
+    normalizeRealieAddress(resolvedCounty ?? input.county),
     String(input.state ?? "")
       .trim()
       .toUpperCase(),

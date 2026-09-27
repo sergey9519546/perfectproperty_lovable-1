@@ -27,6 +27,9 @@ export const Route = createFileRoute("/monitoring")({
   beforeLoad: async () => {
     const firebaseUser = await getAuthenticatedFirebaseUser();
     if (!firebaseUser) {
+      if (typeof localStorage !== "undefined" && localStorage.getItem("pp_demo_session")) {
+        return;
+      }
       const { data } = await browserSupabase.auth.getUser();
       if (!data.user) throw redirect({ to: "/auth", search: { next: "/monitoring" } });
     }
@@ -60,6 +63,7 @@ function MonitoringPage() {
       <PageHeader
         title="Portfolio Monitoring"
         badge="Real-Time Risk"
+        breadcrumbs={[{ label: "Risk & Health" }]}
         sub="Nightly snapshot of portfolio-level expected loss, tail risk, concentration, calibration and risk-appetite budget."
       />
 

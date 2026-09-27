@@ -18,5 +18,9 @@
     "lib": "@/lib",
     "hooks": "@/hooks"
   },
-  "registries": {}
+  "registries": {
+    "@tailark": "https://tailark.com/r/{name}.json",
+    "@tailark-oss": "https://oss.tailark.com/r/{name}.json",
+    "@shadcnblocks": "https://shadcnblocks.com/r/{name}.json"
+  }
 }

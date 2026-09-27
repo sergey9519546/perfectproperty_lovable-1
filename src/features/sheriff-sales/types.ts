@@ -142,7 +142,20 @@ export type ResaleDemandMeterPanel = {
 };
 
 export type TheCatchPanel = {
+  juniorExtinguishedEncumbrances?: Array<{
+    type: string;
+    holder: string;
+    lienor?: string;
+    amount: number;
+    survivesSale: boolean;
+    legalBasis: string;
+    statutoryPriority?: string;
+    status?: string;
+  }>;
   seniorSurvivingLiens: Array<{
+    lienor?: string;
+    statutoryPriority?: string;
+    status?: string;
     type: string;
     holder: string;
     amount: number;
@@ -169,6 +182,9 @@ export type TheCatchPanel = {
 };
 
 export type AssistedLienCheck = {
+  verifiedPropertyTaxLien?: number;
+  verifiedWaterSewerLien?: number;
+  municipalCodeFines?: number;
   waterfall: Array<{
     position: number;
     lienHolder: string;
@@ -191,6 +207,8 @@ export type AssistedLienCheck = {
 };
 
 export type BidCard = {
+  depositPayableTo?: string;
+  remainingBalanceDueDays?: number;
   caseNumber: string;
   sheriffNumber: string;
   propertyAddress: string;
@@ -234,6 +252,8 @@ export type AIWorkforceAgentEvaluations = {
     compsAnalyzed: number;
     assessmentRatio: number;
     taxDelinquencyWarning: string | null;
+    cadastreSummary?: string;
+    armsLengthCompsFound?: number;
   };
   openImageryInspector: {
     agentName: string;
@@ -241,6 +261,7 @@ export type AIWorkforceAgentEvaluations = {
     structuralRiskLevel: 'LOW' | 'MODERATE' | 'HIGH';
     exteriorRehabMultiplier: number;
     aerialFlags: string[];
+    aerialSummary?: string;
   };
   dealUnderwriter: {
     agentName: string;

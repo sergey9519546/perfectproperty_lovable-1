@@ -19,8 +19,11 @@ import {
   Sparkle,
   PaperPlaneTilt,
   ArrowsClockwise,
+  Globe,
 } from '@phosphor-icons/react';
 import type { SheriffGovSale } from '../types';
+import { PropertySearchGroundingNews } from '@/components/PropertySearchGroundingNews';
+import { PropertyGallery } from '@/components/PropertyGallery';
 
 import { runGroundedIntelligenceFn } from "@/lib/gemini.functions";
 
@@ -34,7 +37,7 @@ export function ListingPanelsModal({
   loading?: boolean;
 }) {
   const [activePanelTab, setActivePanelTab] = useState<
-    'comps' | 'flip' | 'demand' | 'catch' | 'lien_check' | 'bid_card' | 'ask_ai'
+    'comps' | 'flip' | 'demand' | 'catch' | 'lien_check' | 'market_news' | 'bid_card' | 'ask_ai'
   >('comps');
 
   // "Ask This Listing" conversational state
@@ -197,6 +200,15 @@ export function ListingPanelsModal({
           >
             <ShieldCheck size={15} />
             <span>Assisted Lien Check (Hack 8)</span>
+          </Button>
+          <Button
+            onClick={() => setActivePanelTab('market_news')}
+            className={`px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors ${
+              activePanelTab === 'market_news' ? 'bg-card text-emerald-700 dark:text-emerald-400 shadow-sm' : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <Globe size={15} />
+            <span>Live News & Grounding</span>
           </Button>
           <Button
             onClick={() => setActivePanelTab('bid_card')}
@@ -422,13 +434,21 @@ export function ListingPanelsModal({
               </div>
 
               {/* NAIP Ortho Aerial Findings */}
-              <div className="p-5 bg-card border border-slate-200 rounded-xl space-y-3">
+              <div className="p-5 bg-card border border-slate-200 rounded-xl space-y-4">
                 <div className="flex items-center justify-between">
                   <h4 className="text-xs font-mono uppercase font-bold text-foreground">
-                    NAIP Multi-Spectral Aerial Ortho Observations
+                    NAIP Multi-Spectral Aerial Ortho Observations & Photo Gallery
                   </h4>
                   <span className="text-[11px] font-mono text-muted-foreground">0.6m Resolution (Verified August 2026)</span>
                 </div>
+
+                {/* Property Gallery with Native Lazy Loading */}
+                <PropertyGallery
+                  parcelId={sale.id}
+                  address={sale.parcel.address}
+                  mode="full"
+                />
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <div className="p-3 bg-muted rounded-lg border border-slate-200">
                     <span className="text-[11px] text-muted-foreground uppercase block">Roof Wear Score</span>
@@ -612,27 +632,27 @@ export function ListingPanelsModal({
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 border-b border-slate-300 pb-4 text-center">
                   <div className="p-3 bg-muted rounded-lg">
                     <span className="text-[10px] text-muted-foreground uppercase block">Deposit Required</span>
-                    <span className="text-base font-bold text-foreground">{sale.bidCard.requiredDepositPercent}%</span>
+                    <span className="text-base font-bold text-foreground">{sale.bidCard?.requiredDepositPercent ?? 20}%</span>
                     <span className="text-xs font-bold text-primary block mt-0.5">
-                      ${sale.bidCard.requiredDepositDollars.toLocaleString()}
+                      ${(sale.bidCard?.requiredDepositDollars ?? 0).toLocaleString()}
                     </span>
                   </div>
                   <div className="p-3 bg-muted rounded-lg">
                     <span className="text-[10px] text-muted-foreground uppercase block">Opening Bid</span>
-                    <span className="text-base font-bold text-foreground">${sale.bidCard.openingBid}</span>
+                    <span className="text-base font-bold text-foreground">${(sale.bidCard?.openingBid ?? 0).toLocaleString()}</span>
                     <span className="text-[10px] text-muted-foreground block mt-0.5">Sheriff Fee</span>
                   </div>
                   <div className="p-3 bg-muted rounded-lg">
                     <span className="text-[10px] text-muted-foreground uppercase block">Plaintiff Upset Limit</span>
                     <span className="text-base font-bold text-amber-600">
-                      ${sale.bidCard.plaintiffUpsetLimit.toLocaleString()}
+                      ${(sale.bidCard?.plaintiffUpsetLimit ?? 0).toLocaleString()}
                     </span>
                     <span className="text-[10px] text-muted-foreground block mt-0.5">Est. Bank Ceiling</span>
                   </div>
                   <div className="p-3 bg-slate-900 text-white rounded-lg">
                     <span className="text-[10px] text-slate-400 uppercase block">Hard Stop Ceiling</span>
                     <span className="text-base font-bold text-emerald-400">
-                      ${sale.bidCard.ceilingBidHardStop.toLocaleString()}
+                      ${(sale.bidCard?.ceilingBidHardStop ?? 0).toLocaleString()}
                     </span>
                     <span className="text-[10px] text-rose-300 font-bold block mt-0.5">DO NOT EXCEED</span>
                   </div>
@@ -654,6 +674,22 @@ export function ListingPanelsModal({
                   </div>
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* PANEL 5: LIVE MARKET NEWS & GROUNDING */}
+          {activePanelTab === 'market_news' && (
+            <div className="space-y-4">
+              <PropertySearchGroundingNews
+                address={sale.parcel.address}
+                city={sale.parcel.city}
+                county={sale.county}
+                state={sale.parcel.state}
+                zip={sale.parcel.zip}
+                apn={sale.openData.apn}
+                submarket={`${sale.county} County Foreclosure Submarket`}
+                autoLoad={true}
+              />
             </div>
           )}
 

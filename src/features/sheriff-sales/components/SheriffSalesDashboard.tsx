@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { useState, useMemo } from 'react';
 import {
   Card,
@@ -220,11 +221,11 @@ export function SheriffSalesDashboard({
       GUT: 1.75,
     }[rehabTier];
 
-    const baseRehab = sale.compsAndMargin.modeledRehabEstimate || 45000;
+    const baseRehab = sale.compsAndMargin?.modeledRehabEstimate || 45000;
     const computedRehab = Math.round(baseRehab * rehabMultiplier);
-    const arv = sale.aiWorkforce.dealUnderwriter.modeledArv || 500000;
-    const survivingDebt = sale.assistedLienCheck.totalSurvivingDebtRequired || 0;
-    const carryingCosts = sale.compsAndMargin.holdingAndCarryingCosts || 18000;
+    const arv = sale.aiWorkforce?.dealUnderwriter?.modeledArv || 500000;
+    const survivingDebt = sale.assistedLienCheck?.totalSurvivingDebtRequired || 0;
+    const carryingCosts = sale.compsAndMargin?.holdingAndCarryingCosts || 18000;
 
     // 70% rule MAB minus surviving debt
     const mab = Math.max(0, Math.round(arv * 0.70 - computedRehab - carryingCosts - survivingDebt));
@@ -235,8 +236,8 @@ export function SheriffSalesDashboard({
     const equitySpreadScore = Math.min(100, Math.max(20, Math.round((netSpread / 150000) * 100)));
     const lienDeduction = Math.min(60, Math.round((survivingDebt / 40000) * 60));
     const titleLienRiskScore = Math.max(10, 100 - lienDeduction);
-    const marketVelocityScore = Math.min(100, Math.max(30, sale.resaleDemandMeter.buyerLiquidityIndex || 85));
-    const structuralAssetScore = Math.min(100, Math.max(40, 100 - (sale.openImagery.roofWearScore || 30)));
+    const marketVelocityScore = Math.min(100, Math.max(30, sale.resaleDemandMeter?.buyerLiquidityIndex || 85));
+    const structuralAssetScore = Math.min(100, Math.max(40, 100 - (sale.openImagery?.roofWearScore || 30)));
 
     // Weighted Overall Score
     const overallScore = Math.min(
@@ -289,10 +290,10 @@ export function SheriffSalesDashboard({
       netMarginDollars: netSpread,
       netMarginPercent: netMarginPct,
       survivingSeniorLienTotal: survivingDebt,
-      survivingLiensCount: sale.theCatch.seniorSurvivingLiens.length,
-      occupancyConstraint: sale.theCatch.occupancyStatus.replace(/_/g, ' '),
-      recommendedCeiling: Math.min(mab, sale.bidCard.ceilingBidHardStop || mab),
-      dailyStatusNote: sale.dailyStatus.currentStatus.replace(/_/g, ' '),
+      survivingLiensCount: sale.theCatch?.seniorSurvivingLiens?.length ?? 0,
+      occupancyConstraint: (sale.theCatch?.occupancyStatus || 'UNKNOWN').replace(/_/g, ' '),
+      recommendedCeiling: Math.min(mab, sale.bidCard?.ceilingBidHardStop || mab),
+      dailyStatusNote: (sale.dailyStatus?.currentStatus || 'ACTIVE').replace(/_/g, ' '),
     };
   }
 
@@ -393,14 +394,14 @@ export function SheriffSalesDashboard({
           valA = new Date(a.auctionDate).getTime();
           valB = new Date(b.auctionDate).getTime();
         } else if (sortField === 'openingBid') {
-          valA = a.bidCard.openingBid;
-          valB = b.bidCard.openingBid;
+          valA = a.bidCard?.openingBid ?? 0;
+          valB = b.bidCard?.openingBid ?? 0;
         } else if (sortField === 'score') {
-          valA = a.flipScoreAndEndGame.flipScore;
-          valB = b.flipScoreAndEndGame.flipScore;
+          valA = a.flipScoreAndEndGame?.flipScore ?? 0;
+          valB = b.flipScoreAndEndGame?.flipScore ?? 0;
         } else if (sortField === 'spread') {
-          valA = a.compsAndMargin.netSpreadDollars;
-          valB = b.compsAndMargin.netSpreadDollars;
+          valA = a.compsAndMargin?.netSpreadDollars ?? 0;
+          valB = b.compsAndMargin?.netSpreadDollars ?? 0;
         }
 
         if (valA < valB) return sortDirection === 'asc' ? -1 : 1;
@@ -625,14 +626,14 @@ export function SheriffSalesDashboard({
                 className="font-mono text-[11px] pl-2 pr-1 py-0.5 flex items-center gap-1 bg-primary/10 text-primary border-primary/20"
               >
                 <span>County: {selectedCounty}</span>
-                <Button
+                <button
                   type="button"
                   onClick={() => setSelectedCounty('ALL')}
-                  className="hover:text-destructive rounded-full p-0.5 cursor-pointer"
+                  className="hover:text-destructive rounded-full p-0.5 cursor-pointer inline-flex items-center justify-center"
                   title="Remove county filter"
                 >
                   <X className="h-3 w-3" />
-                </Button>
+                </button>
               </Badge>
             )}
 
@@ -642,14 +643,14 @@ export function SheriffSalesDashboard({
                 className="font-mono text-[11px] pl-2 pr-1 py-0.5 flex items-center gap-1 bg-primary/10 text-primary border-primary/20"
               >
                 <span>Asset: {selectedAssetClass}</span>
-                <Button
+                <button
                   type="button"
                   onClick={() => setSelectedAssetClass('ALL')}
-                  className="hover:text-destructive rounded-full p-0.5 cursor-pointer"
+                  className="hover:text-destructive rounded-full p-0.5 cursor-pointer inline-flex items-center justify-center"
                   title="Remove asset class filter"
                 >
                   <X className="h-3 w-3" />
-                </Button>
+                </button>
               </Badge>
             )}
 
@@ -659,14 +660,14 @@ export function SheriffSalesDashboard({
                 className="font-mono text-[11px] pl-2 pr-1 py-0.5 flex items-center gap-1 bg-amber-50 text-amber-800 border-amber-200"
               >
                 <span>Query: "{searchQuery.trim()}"</span>
-                <Button
+                <button
                   type="button"
                   onClick={() => setSearchQuery('')}
-                  className="hover:text-destructive rounded-full p-0.5 cursor-pointer"
+                  className="hover:text-destructive rounded-full p-0.5 cursor-pointer inline-flex items-center justify-center"
                   title="Clear search query"
                 >
                   <X className="h-3 w-3" />
-                </Button>
+                </button>
               </Badge>
             )}
 
@@ -748,7 +749,8 @@ export function SheriffSalesDashboard({
                     <TableRow
                       key={sale.id}
                       id={`auction-row-${sale.id}`}
-                      className="hover:bg-muted/30 transition-colors"
+                      className="hover:bg-muted/40 transition-colors cursor-pointer"
+                      onClick={() => onSelectSale?.(sale)}
                     >
                       {/* Property Address & Docket */}
                       <TableCell className="py-3.5">
@@ -782,20 +784,20 @@ export function SheriffSalesDashboard({
                       {/* Opening Bid & Deposit */}
                       <TableCell className="py-3.5 font-mono text-xs">
                         <div className="font-bold text-foreground">
-                          ${sale.bidCard.openingBid.toLocaleString()}
+                          ${(sale.bidCard?.openingBid ?? 0).toLocaleString()}
                         </div>
                         <div className="text-[11px] text-amber-600 font-medium">
-                          Dep: ${sale.bidCard.requiredDepositDollars.toLocaleString()} ({sale.bidCard.requiredDepositPercent}%)
+                          Dep: ${(sale.bidCard?.requiredDepositDollars ?? 0).toLocaleString()} ({sale.bidCard?.requiredDepositPercent ?? 20}%)
                         </div>
                       </TableCell>
 
                       {/* Judgment / Modeled ARV */}
                       <TableCell className="py-3.5 font-mono text-xs">
                         <div className="font-bold text-foreground">
-                          ARV: ${sale.aiWorkforce.dealUnderwriter.modeledArv.toLocaleString()}
+                          ARV: ${(sale.aiWorkforce?.dealUnderwriter?.modeledArv ?? 0).toLocaleString()}
                         </div>
                         <div className="text-[11px] text-muted-foreground">
-                          Judg: ${sale.legalProse.finalJudgmentAmount.toLocaleString()}
+                          Judg: ${(sale.legalProse?.finalJudgmentAmount ?? 0).toLocaleString()}
                         </div>
                       </TableCell>
 
@@ -805,15 +807,15 @@ export function SheriffSalesDashboard({
                           <Badge
                             variant="outline"
                             className={`font-mono text-xs font-bold ${
-                              sale.flipScoreAndEndGame.flipScore >= 85
+                              (sale.flipScoreAndEndGame?.flipScore ?? 0) >= 85
                                 ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
-                                : sale.flipScoreAndEndGame.flipScore >= 75
+                                : (sale.flipScoreAndEndGame?.flipScore ?? 0) >= 75
                                 ? 'bg-primary/10 text-primary border-blue-300'
                                 : 'bg-muted text-secondary-foreground border-slate-300'
                             }`}
                           >
                             <TrendingUp className="h-3 w-3 mr-1 inline" />
-                            {sale.flipScoreAndEndGame.flipScore}/100
+                            {sale.flipScoreAndEndGame?.flipScore ?? '—'}/100
                           </Badge>
                         </div>
                       </TableCell>
@@ -828,18 +830,31 @@ export function SheriffSalesDashboard({
                         </Badge>
                       </TableCell>
 
-                      {/* Analyze Button */}
-                      <TableCell className="py-3.5 text-right">
-                        <Button
-                          id={`analyze-sale-btn-${sale.id}`}
-                          size="sm"
-                          variant="default"
-                          onClick={() => handleTriggerAnalysis(sale)}
-                          className="h-8 px-3 text-xs font-mono font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs cursor-pointer inline-flex items-center gap-1.5"
-                        >
-                          <Sparkles className="h-3.5 w-3.5" />
-                          <span>Analyze</span>
-                        </Button>
+                      {/* Action Buttons */}
+                      <TableCell className="py-3.5 text-right" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center justify-end gap-1.5">
+                          {onSelectSale && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => onSelectSale(sale)}
+                              className="h-8 px-2.5 text-xs font-mono font-medium hover:bg-muted cursor-pointer"
+                              title="View complete docket dossier"
+                            >
+                              Dossier
+                            </Button>
+                          )}
+                          <Button
+                            id={`analyze-sale-btn-${sale.id}`}
+                            size="sm"
+                            variant="default"
+                            onClick={() => handleTriggerAnalysis(sale)}
+                            className="h-8 px-3 text-xs font-mono font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs cursor-pointer inline-flex items-center gap-1.5"
+                          >
+                            <Sparkles className="h-3.5 w-3.5" />
+                            <span>Analyze</span>
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))
@@ -1027,7 +1042,7 @@ export function SheriffSalesDashboard({
                         </TableRow>
                       </TableHeader>
                       <TableBody className="font-mono">
-                        {analyzedSale.assistedLienCheck.waterfall.map((lien) => (
+                        {(analyzedSale.assistedLienCheck?.waterfall ?? []).map((lien) => (
                           <TableRow key={lien.position} className={lien.survivesSale ? 'bg-destructive/5' : ''}>
                             <TableCell className="font-bold">#{lien.position}</TableCell>
                             <TableCell className="font-sans font-semibold text-foreground">{lien.lienHolder}</TableCell>

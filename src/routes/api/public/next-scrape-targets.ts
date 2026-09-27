@@ -49,6 +49,7 @@ export const Route = createFileRoute("/api/public/next-scrape-targets")({
 
         const limit = Math.min(Math.max(Number(url.searchParams.get("limit") ?? 20), 1), 100);
         const spider = url.searchParams.get("spider");
+        const countyFips = url.searchParams.get("county_fips");
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const nowIso = new Date().toISOString();
@@ -75,20 +76,29 @@ export const Route = createFileRoute("/api/public/next-scrape-targets")({
           .order("priority", { ascending: false })
           .limit(limit * 3); // over-fetch, filter in JS
         if (spider) q = q.eq("spider", spider);
+        if (countyFips) q = q.eq("county_fips", countyFips);
         if (zyteOver) q = q.eq("needs_zyte", false);
         const { data: rows, error } = await q;
         if (error) return new Response(`db error: ${error.message}`, { status: 500 });
 
         const now = Date.now();
-        const eligible = ((rows ?? []) as any[]).filter((t) => {
-          const cadence = Number(t.cadence_hours ?? 24) * 3600 * 1000;
-          const lastSched = t.last_scheduled_at ? Date.parse(t.last_scheduled_at) : 0;
-          if (lastSched && now - lastSched < cadence) return false;
-          const penalty = Number(t.penalty ?? 0);
-          const backoff = penalty > 0 ? Math.min(2 ** penalty, 96) * 15 * 60 * 1000 : 0;
-          if (backoff && now - lastSched < backoff) return false;
-          return true;
-        });
+        const eligible = ((rows ?? []) as any[])
+          .filter((t) => {
+            const cadence = Number(t.cadence_hours ?? 24) * 3600 * 1000;
+            const lastSched = t.last_scheduled_at ? Date.parse(t.last_scheduled_at) : 0;
+            if (lastSched && now - lastSched < cadence) return false;
+            const penalty = Number(t.penalty ?? 0);
+            const backoff = penalty > 0 ? Math.min(2 ** penalty, 96) * 15 * 60 * 1000 : 0;
+            if (backoff && now - lastSched < backoff) return false;
+            return true;
+          })
+          .sort((a, b) => {
+            // Prioritize primary focused metro (Cook County 17031)
+            const aCook = a.county_fips === "17031" ? 1 : 0;
+            const bCook = b.county_fips === "17031" ? 1 : 0;
+            if (aCook !== bCook) return bCook - aCook;
+            return (Number(b.priority) || 0) - (Number(a.priority) || 0);
+          });
 
         // 4. Cold-coverage split: counties with 0 triggers in last 7 days.
         const { data: coldRows } = await (supabaseAdmin as any).rpc("parcels_with_active_trigger", { _days: 7 });

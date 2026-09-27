@@ -27,7 +27,7 @@ export function ParcelMiniMap({ lat, lng, address, zoom = 16, className }: Props
   const streetViewUrl = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${lat},${lng}`
 
   return (
-    <div className={`relative overflow-hidden rounded-md border border-pp-border bg-pp-header ${className ?? 'h-44 w-full'}`}>
+    <div className={`relative overflow-hidden rounded-md border border-border bg-muted ${className ?? 'h-44 w-full'}`}>
       <APIProvider apiKey={apiKey} libraries={['marker', 'places']}>
         <div className="h-full w-full">
           <Map
@@ -59,7 +59,7 @@ export function ParcelMiniMap({ lat, lng, address, zoom = 16, className }: Props
           type="button"
           onClick={() => setMapType('roadmap')}
           className={`px-1.5 py-0.5 text-[10px] font-medium rounded transition-colors ${
-            mapType === 'roadmap' ? 'bg-pp-gold text-zinc-950 font-bold' : 'text-zinc-300 hover:text-white'
+            mapType === 'roadmap' ? 'bg-primary text-primary-foreground font-bold' : 'text-zinc-300 hover:text-white'
           }`}
         >
           Vector
@@ -68,7 +68,7 @@ export function ParcelMiniMap({ lat, lng, address, zoom = 16, className }: Props
           type="button"
           onClick={() => setMapType('satellite')}
           className={`px-1.5 py-0.5 text-[10px] font-medium rounded transition-colors ${
-            mapType === 'satellite' ? 'bg-pp-gold text-zinc-950 font-bold' : 'text-zinc-300 hover:text-white'
+            mapType === 'satellite' ? 'bg-primary text-primary-foreground font-bold' : 'text-zinc-300 hover:text-white'
           }`}
         >
           Satellite
@@ -95,7 +95,7 @@ export function ParcelMiniMap({ lat, lng, address, zoom = 16, className }: Props
           title="Open in Google Maps"
           className="flex items-center gap-1 rounded bg-black/75 px-2 py-1 text-[10px] font-medium text-zinc-200 hover:bg-black hover:text-white transition-colors backdrop-blur-xs shadow-xs"
         >
-          <Globe size={12} className="text-pp-gold" />
+          <Globe size={12} className="text-primary" />
           <span>Google Maps</span>
           <ArrowSquareOut size={10} className="opacity-70" />
         </a>

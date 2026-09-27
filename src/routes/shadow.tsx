@@ -18,6 +18,9 @@ export const Route = createFileRoute("/shadow")({
   beforeLoad: async () => {
     const firebaseUser = await getAuthenticatedFirebaseUser();
     if (!firebaseUser) {
+      if (typeof localStorage !== "undefined" && localStorage.getItem("pp_demo_session")) {
+        return;
+      }
       const { data } = await supabase.auth.getUser();
       if (!data.user) throw redirect({ to: "/auth", search: { next: "/shadow" } });
     }
@@ -56,6 +59,7 @@ function ShadowPage() {
         <PageHeader
           title="Off-market properties"
           badge="Shadow Pipeline"
+          breadcrumbs={[{ label: "Off-Market Leads" }]}
           sub="Properties that aren't listed anywhere yet — ranked by how strong the distress signals are, so you can reach the owner before anyone competes."
         />
 
@@ -82,13 +86,13 @@ function ShadowPage() {
         </div>
 
         {q.isError && (
-          <div id="shadow-error-banner" className="rounded-xl border border-rose-200 bg-rose-50 p-6 text-center text-sm text-rose-700">
-            Unable to load off-market properties: {q.error instanceof Error ? q.error.message : "Query failed"}
+          <div id="shadow-error-banner" className="rounded-xl border border-destructive/30 bg-destructive/10 p-5 text-center text-xs text-destructive">
+            <span>Unable to load off-market properties: {q.error instanceof Error ? q.error.message : "Query failed"}</span>
             <Button
               id="shadow-retry-btn"
               type="button"
               onClick={() => q.refetch()}
-              className="ml-3 font-semibold text-rose-800 underline hover:text-rose-900 cursor-pointer"
+              className="ml-3 font-semibold underline hover:opacity-80 cursor-pointer"
             >
               Retry
             </Button>
@@ -96,7 +100,7 @@ function ShadowPage() {
         )}
 
         {q.data && q.data.length === 0 && !q.isError && (
-          <div id="shadow-empty-state" className="rounded-xl border border-dashed border-border-strong bg-card p-8 text-center text-sm text-muted-foreground">
+          <div id="shadow-empty-state" className="rounded-xl border border-dashed border-border bg-card p-8 text-center text-xs text-muted-foreground">
             No off-market properties found matching current criteria.
           </div>
         )}

@@ -29,20 +29,20 @@ export const Footer = () => {
           <div>
             <h4 className="text-[12px] font-bold text-foreground mb-4 uppercase tracking-wider">Markets</h4>
             <ul className="space-y-3 text-[14px] font-medium text-muted-foreground">
-              <li><Link to="/workspace" search={{ query: 'Miami' }} className="hover:text-foreground transition-colors">Miami & Dade</Link></li>
-              <li><Link to="/workspace" search={{ query: 'Orlando' }} className="hover:text-foreground transition-colors">Orlando & Orange</Link></li>
-              <li><Link to="/workspace" search={{ query: 'Tampa' }} className="hover:text-foreground transition-colors">Tampa & Hillsborough</Link></li>
-              <li><Link to="/workspace" search={{ query: 'Jacksonville' }} className="hover:text-foreground transition-colors">Jacksonville & Duval</Link></li>
+              <li><Link to="/workspace" search={{ query: 'Cook' }} className="hover:text-foreground transition-colors">Cook County, IL <span className="text-[11px] font-bold text-primary">(Focus)</span></Link></li>
+              <li><Link to="/workspace" search={{ query: 'Los Angeles' }} className="hover:text-foreground transition-colors">Los Angeles, CA</Link></li>
+              <li><Link to="/workspace" search={{ query: 'New York' }} className="hover:text-foreground transition-colors">New York, NY</Link></li>
+              <li><Link to="/workspace" className="hover:text-foreground transition-colors">All Covered Metros</Link></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="text-[12px] font-bold text-foreground mb-4 uppercase tracking-wider">Verification</h4>
+            <h4 className="text-[12px] font-bold text-foreground mb-4 uppercase tracking-wider">Legal & Trust</h4>
             <ul className="space-y-3 text-[14px] font-medium text-muted-foreground">
-              <li><span className="text-muted-foreground">County Cadastral Data</span></li>
-              <li><span className="text-muted-foreground">Spatial Comps Buffer</span></li>
-              <li><span className="text-muted-foreground">FEMA Flood Overlays</span></li>
-              <li><span className="text-muted-foreground">Permit & Lien Trajectory</span></li>
+              <li><Link to="/terms" className="hover:text-foreground transition-colors">Terms of Service</Link></li>
+              <li><Link to="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link></li>
+              <li><Link to="/refunds" className="hover:text-foreground transition-colors">Refund & Cancellation</Link></li>
+              <li><a href={`mailto:${BRAND_CONFIG.supportEmail}`} className="hover:text-foreground transition-colors">Contact Merchant</a></li>
             </ul>
           </div>
 
@@ -58,8 +58,10 @@ export const Footer = () => {
 
         <div className="flex flex-col md:flex-row justify-between items-center gap-6 pt-10 border-t border-muted text-[13px] font-medium text-muted-foreground">
           <p>{BRAND_CONFIG.copyright}</p>
-          <div className="flex gap-6">
-            <span>Florida Cadastral Real Estate Intelligence</span>
+          <div className="flex flex-wrap items-center gap-4 text-xs">
+            <span>Operated by {BRAND_CONFIG.legalName}</span>
+            <span>·</span>
+            <span>Reseller & Merchant of Record: Paddle.com</span>
           </div>
         </div>
       </div>

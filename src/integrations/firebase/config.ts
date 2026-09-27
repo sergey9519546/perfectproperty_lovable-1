@@ -77,14 +77,45 @@ export async function getAuthenticatedFirebaseUser() {
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
-        if (parsed?.user && parsed?.token) {
+        const userObj = parsed?.user || (parsed?.email ? parsed : null);
+        const token = parsed?.token || "demo-token";
+        if (userObj) {
           return {
-            uid: parsed.user.id || parsed.user.uid || "00000000-0000-4000-8000-000000000001",
-            email: parsed.user.email || "demo@perfectproperty.ai",
-            displayName: parsed.user.fullName || "Demo Analyst",
+            uid: userObj.id || userObj.uid || "00000000-0000-4000-8000-000000000001",
+            email: userObj.email || "demo@perfectproperty.ai",
+            displayName: userObj.fullName || userObj.displayName || "Demo Analyst",
+            photoURL: null,
+            phoneNumber: null,
             emailVerified: true,
             isAnonymous: false,
-            getIdToken: async () => parsed.token,
+            metadata: {
+              creationTime: new Date().toUTCString(),
+              lastSignInTime: new Date().toUTCString(),
+            },
+            providerData: [],
+            providerId: "demo",
+            tenantId: null,
+            refreshToken: "",
+            delete: async () => {},
+            reload: async () => {},
+            toJSON: () => ({
+              uid: userObj.id || userObj.uid || "00000000-0000-4000-8000-000000000001",
+              email: userObj.email || "demo@perfectproperty.ai",
+              displayName: userObj.fullName || userObj.displayName || "Demo Analyst",
+            }),
+            getIdToken: async () => token,
+            getIdTokenResult: async () => ({
+              token,
+              authTime: new Date().toISOString(),
+              issuedAtTime: new Date().toISOString(),
+              expirationTime: new Date(Date.now() + 30 * 86400000).toISOString(),
+              signInProvider: "demo",
+              signInSecondFactor: null,
+              claims: {
+                admin: true,
+                role: "admin",
+              },
+            }),
           } as any;
         }
       } catch {

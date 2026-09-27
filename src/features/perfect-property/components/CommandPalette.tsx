@@ -114,7 +114,7 @@ export function CommandPalette({ open, parcels, onClose, onSelect }: Props) {
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-40 grid place-items-start bg-pp-page/85 p-4 pt-[13vh] backdrop-blur-sm"
+          className="fixed inset-0 z-40 grid place-items-start bg-background/85 p-4 pt-[13vh] backdrop-blur-sm"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -133,16 +133,16 @@ export function CommandPalette({ open, parcels, onClose, onSelect }: Props) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -12, scale: 0.99 }}
             transition={{ type: 'spring', stiffness: 180, damping: 24 }}
-            className="w-full max-w-2xl overflow-hidden rounded-lg border border-pp-border/18 bg-pp-surface shadow-dialog"
+            className="w-full max-w-2xl overflow-hidden rounded-xl border border-border bg-card shadow-2xl"
           >
             <h2 id="parcel-search-title" className="sr-only">
               Search parcels
             </h2>
-            <label className="relative block border-b border-pp-border/18">
+            <label className="relative block border-b border-border">
               <span className="sr-only">Search parcels</span>
               <MagnifyingGlass
                 size={20}
-                className="absolute left-5 top-1/2 -translate-y-1/2 text-pp-faint"
+                className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground"
               />
               <Input
                 ref={inputRef}
@@ -159,12 +159,12 @@ export function CommandPalette({ open, parcels, onClose, onSelect }: Props) {
                   setActiveIndex(0)
                 }}
                 onKeyDown={handleInputKeyDown}
-                className="h-16 w-full bg-transparent pl-14 pr-14 text-xl text-pp-text outline-none placeholder:text-pp-faint"
+                className="h-16 w-full bg-transparent pl-14 pr-14 text-xl text-foreground outline-none placeholder:text-muted-foreground border-none shadow-none focus-visible:ring-0"
                 placeholder="Search address, city, or source…"
               />
               <kbd
                 aria-hidden="true"
-                className="absolute right-4 top-1/2 -translate-y-1/2 border border-pp-border/18 px-2 py-1 font-mono text-xs text-pp-faint"
+                className="absolute right-4 top-1/2 -translate-y-1/2 rounded border border-border px-2 py-1 font-mono text-xs text-muted-foreground bg-muted/40"
               >
                 ESC
               </kbd>
@@ -172,7 +172,7 @@ export function CommandPalette({ open, parcels, onClose, onSelect }: Props) {
             <div className="max-h-96 overflow-y-auto p-2">
               <p
                 id="parcel-search-results-label"
-                className="px-3 py-2 text-xs uppercase tracking-widest text-pp-faint"
+                className="px-3 py-2 text-xs uppercase tracking-widest text-muted-foreground font-semibold"
               >
                 Live scored parcels
               </p>
@@ -192,22 +192,22 @@ export function CommandPalette({ open, parcels, onClose, onSelect }: Props) {
                     onFocus={() => setActiveIndex(index)}
                     onClick={() => choose(index)}
                     type="button"
-                    className={`group grid w-full grid-cols-[34px_1fr_auto] items-center gap-3 rounded-sm px-3 py-3 text-left transition-colors ${
-                      activeIndex === index ? 'bg-pp-gold/10' : 'hover:bg-pp-border/[.07]'
+                    className={`group grid w-full grid-cols-[34px_1fr_auto] items-center gap-3 rounded-lg px-3 py-3 text-left transition-colors cursor-pointer ${
+                      activeIndex === index ? 'bg-primary/10' : 'hover:bg-muted/50'
                     }`}
                   >
-                    <span className="grid h-8 w-8 place-items-center border border-pp-border/18 text-pp-gold">
+                    <span className="grid h-8 w-8 place-items-center rounded border border-border text-primary">
                       <MapPin size={17} />
                     </span>
                     <span>
-                      <strong className="block text-md font-medium text-pp-text">
+                      <strong className="block text-md font-medium text-foreground">
                         {parcel.address}
                       </strong>
-                      <small className="mt-1 block text-xs text-pp-faint">
+                      <small className="mt-1 block text-xs text-muted-foreground">
                         {parcel.marketLabel} · {parcel.ringLabel}{parcel.apn ? ` · APN ${parcel.apn}` : ''}
                       </small>
                     </span>
-                    <span className="flex items-center gap-3 font-mono text-md text-pp-gold">
+                    <span className="flex items-center gap-3 font-mono text-md font-bold text-primary">
                       {parcel.score.toFixed(1)}
                       <ArrowRight
                         className={`transition-opacity ${activeIndex === index ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
@@ -216,7 +216,7 @@ export function CommandPalette({ open, parcels, onClose, onSelect }: Props) {
                   </motion.button>
                 ))}
                 {results.length === 0 && (
-                  <div role="status" className="p-10 text-center text-sm text-pp-faint">
+                  <div role="status" className="p-10 text-center text-sm text-muted-foreground">
                     No parcels found.
                   </div>
                 )}

@@ -27,6 +27,8 @@ export type RankedParcelRow = {
   pd_credit: number | null
   lgd: number | null
   risk_adjusted_profit_credit: number | null
+  property_type?: string | null
+  asset_class?: string | null
   parcels: {
     id: string
     address: string | null
@@ -46,5 +48,8 @@ export type RankedParcelRow = {
     county_fips: string | null
     data_source: string | null
     apn: string | null
+    property_type?: string | null
+    asset_class?: string | null
+    land_use?: string | null
   } | null
 }

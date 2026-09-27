@@ -82,6 +82,8 @@ export function Compare({
           <img
             src={secondImage}
             alt={secondLabel}
+            loading="lazy"
+            decoding="async"
             className="w-full h-full object-cover"
           />
         ) : (
@@ -101,6 +103,8 @@ export function Compare({
           <img
             src={firstImage}
             alt={firstLabel}
+            loading="lazy"
+            decoding="async"
             className="w-full h-full object-cover"
           />
         ) : (

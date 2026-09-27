@@ -3,9 +3,33 @@ import { z } from "zod";
 import {
   runMapsGroundedAnalysis,
   runSearchGroundedAnalysis,
+  runPropertyNewsAndMarketUpdates,
   runSheriffLegalAnalysis,
 } from "@/lib/gemini.server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+
+export const fetchPropertyMarketNewsFn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((data: unknown) => {
+    const schema = z.object({
+      address: z.string(),
+      city: z.string().optional(),
+      county: z.string().optional(),
+      state: z.string().optional(),
+      zip: z.string().optional(),
+      apn: z.string().optional(),
+      submarket: z.string().optional(),
+      userQuery: z.string().optional(),
+    });
+    return schema.parse(data);
+  })
+  .handler(async ({ data }) => {
+    if (!data.address || !data.address.trim()) {
+      throw new Error("A valid property address is required for search grounding.");
+    }
+    const result = await runPropertyNewsAndMarketUpdates(data);
+    return result;
+  });
 
 export const runGroundedIntelligenceFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

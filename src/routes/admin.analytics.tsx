@@ -3,6 +3,7 @@ import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { SectionBoundary } from "@/components/SectionBoundary";
+import { PageHeader } from "@/components/PageHeader";
 import {
   getProductKpis,
   type ProductExperienceDaily,
@@ -21,19 +22,19 @@ function formatDuration(value: number | null | undefined) {
 
 function KpiCard({ label, value, detail }: { label: string; value: string; detail: string }) {
   return (
-    <article className="rounded-lg border border-pp-border bg-pp-page p-4">
-      <p className="text-[10px] font-semibold uppercase tracking-[.12em] text-pp-muted">{label}</p>
-      <strong className="mt-3 block text-3xl font-semibold tracking-tight text-pp-text">{value}</strong>
-      <p className="mt-2 text-[11px] leading-5 text-pp-muted">{detail}</p>
+    <article className="rounded-lg border border-border bg-card p-4">
+      <p className="text-[10px] font-semibold uppercase tracking-[.12em] text-muted-foreground">{label}</p>
+      <strong className="mt-3 block text-3xl font-semibold tracking-tight text-foreground">{value}</strong>
+      <p className="mt-2 text-[11px] leading-5 text-muted-foreground">{detail}</p>
     </article>
   );
 }
 
 function Guardrail({ label, value, state = "neutral" }: { label: string; value: string; state?: "good" | "warn" | "neutral" }) {
-  const tone = state === "good" ? "text-emerald-400" : state === "warn" ? "text-amber-400" : "text-pp-text";
+  const tone = state === "good" ? "text-emerald-400" : state === "warn" ? "text-amber-400" : "text-foreground";
   return (
-    <div className="rounded-md border border-pp-border/70 bg-pp-page/40 p-3">
-      <span className="text-[10px] uppercase tracking-wide text-pp-muted">{label}</span>
+    <div className="rounded-md border border-border/70 bg-muted/40 p-3">
+      <span className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</span>
       <strong className={`mt-1 block text-lg ${tone}`}>{value}</strong>
     </div>
   );
@@ -41,13 +42,13 @@ function Guardrail({ label, value, state = "neutral" }: { label: string; value: 
 
 function FunnelRow({ row, experience }: { row: ProductKpiDaily; experience?: ProductExperienceDaily }) {
   return (
-    <tr className="border-b border-pp-border/60 text-[12px] text-pp-muted">
-      <td className="whitespace-nowrap px-3 py-3 text-pp-text">{row.metric_date}</td>
+    <tr className="border-b border-border/60 text-[12px] text-muted-foreground">
+      <td className="whitespace-nowrap px-3 py-3 text-foreground">{row.metric_date}</td>
       <td className="px-3 py-3 text-right num">{row.landing_sessions}</td>
       <td className="px-3 py-3 text-right num">{row.workspace_sessions}</td>
       <td className="px-3 py-3 text-right num">{row.evidence_sessions}</td>
       <td className="px-3 py-3 text-right num">{row.action_sessions}</td>
-      <td className="px-3 py-3 text-right num text-pp-text">{row.qualified_activations}</td>
+      <td className="px-3 py-3 text-right num text-foreground">{row.qualified_activations}</td>
       <td className="px-3 py-3 text-right num">{formatRate(row.qualified_activation_rate)}</td>
       <td className="px-3 py-3 text-right num">{formatDuration(row.median_seconds_to_action)}</td>
       <td className="px-3 py-3 text-right num">{experience?.p75_lcp_ms == null ? "—" : `${Number(experience.p75_lcp_ms).toFixed(0)}ms`}</td>
@@ -64,28 +65,31 @@ function AnalyticsView() {
     refetchInterval: 60_000,
   });
 
-  if (query.isLoading) return <div className="p-8 text-sm text-pp-muted">Loading product KPIs…</div>;
+  if (query.isLoading) return <div className="p-8 text-sm text-muted-foreground">Loading product KPIs…</div>;
   if (query.error) throw query.error;
-  const data = query.data!;
-  const latest = data.kpis[0];
-  const latestExperience = data.experience.find((row) => row.metric_date === latest?.metric_date);
-  const experienceByDate = new Map(data.experience.map((row) => [row.metric_date, row]));
+  if (!query.data) return <div className="p-8 text-sm text-muted-foreground">Loading product KPIs…</div>;
+
+  const data = query.data;
+  const kpis = data?.kpis ?? [];
+  const experience = data?.experience ?? [];
+  const latest = kpis[0];
+  const latestExperience = experience.find((row) => row.metric_date === latest?.metric_date);
+  const experienceByDate = new Map(experience.map((row) => [row.metric_date, row]));
 
   return (
     <div className="mx-auto max-w-[1450px] space-y-6 p-6">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[.14em] text-pp-muted">Decision intelligence</p>
-          <h1 className="mt-2 text-2xl font-semibold">Product KPI control room</h1>
-          <p className="mt-1 max-w-3xl text-sm text-pp-muted">Server-confirmed, same-market activation with privacy, experience, and underwriting-quality guardrails.</p>
-        </div>
-        <p className="text-[11px] text-pp-muted">30-day window · refreshes every minute</p>
-      </header>
+      <PageHeader
+        title="Product KPI Control Room"
+        badge="Decision Intelligence"
+        breadcrumbs={[{ label: "Admin Console", to: "/admin" }, { label: "Product KPIs & Telemetry" }]}
+        sub="Server-confirmed, same-market activation with privacy, experience, and underwriting-quality guardrails."
+        actions={<span className="text-xs text-muted-foreground">30-day window · refreshes every minute</span>}
+      />
 
       {!latest ? (
-        <section className="rounded-lg border border-dashed border-pp-border bg-pp-page p-8 text-center">
+        <section className="rounded-lg border border-dashed border-border bg-card p-8 text-center">
           <h2 className="font-medium">No eligible product sessions yet</h2>
-          <p className="mt-2 text-sm text-pp-muted">The dashboard will populate after the analytics migration is deployed and a landing-to-workspace journey is recorded.</p>
+          <p className="mt-2 text-sm text-muted-foreground">The dashboard will populate after the analytics migration is deployed and a landing-to-workspace journey is recorded.</p>
         </section>
       ) : (
         <>
@@ -97,9 +101,9 @@ function AnalyticsView() {
           </section>
 
           <section className="grid gap-4 lg:grid-cols-[1fr_1fr]">
-            <div className="rounded-lg border border-pp-border bg-pp-page p-4">
+            <div className="rounded-lg border border-border bg-card p-4">
               <h2 className="text-sm font-semibold">Experience guardrails</h2>
-              <p className="mt-1 text-[11px] text-pp-muted">Browser-native diagnostics; interaction latency is not labeled INP.</p>
+              <p className="mt-1 text-[11px] text-muted-foreground">Browser-native diagnostics; interaction latency is not labeled INP.</p>
               <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
                 <Guardrail label="p75 LCP" value={latestExperience?.p75_lcp_ms == null ? "—" : `${Number(latestExperience.p75_lcp_ms).toFixed(0)}ms`} />
                 <Guardrail label="p75 interaction" value={latestExperience?.p75_interaction_latency_ms == null ? "—" : `${Number(latestExperience.p75_interaction_latency_ms).toFixed(0)}ms`} />
@@ -108,9 +112,9 @@ function AnalyticsView() {
               </div>
             </div>
 
-            <div className="rounded-lg border border-pp-border bg-pp-page p-4">
+            <div className="rounded-lg border border-border bg-card p-4">
               <h2 className="text-sm font-semibold">Decision-quality guardrails</h2>
-              <p className="mt-1 text-[11px] text-pp-muted">Latest portfolio monitoring snapshot; never inferred from UI events.</p>
+              <p className="mt-1 text-[11px] text-muted-foreground">Latest portfolio monitoring snapshot; never inferred from UI events.</p>
               <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
                 <Guardrail label="Calibration slope" value={data.quality?.calibration_slope == null ? "—" : Number(data.quality.calibration_slope).toFixed(2)} state={data.quality?.calibration_flag === false ? "good" : data.quality?.calibration_flag ? "warn" : "neutral"} />
                 <Guardrail label="Calibration flag" value={data.quality?.calibration_flag == null ? "—" : data.quality.calibration_flag ? "Review" : "Clear"} state={data.quality?.calibration_flag ? "warn" : "good"} />
@@ -120,17 +124,17 @@ function AnalyticsView() {
             </div>
           </section>
 
-          <section className="overflow-hidden rounded-lg border border-pp-border bg-pp-page">
-            <div className="border-b border-pp-border px-4 py-3">
+          <section className="overflow-hidden rounded-lg border border-border bg-card">
+            <div className="border-b border-border px-4 py-3">
               <h2 className="text-sm font-semibold">Daily measurement ledger</h2>
-              <p className="mt-1 text-[11px] text-pp-muted">Counts remain visible beside rates so small samples cannot masquerade as certainty.</p>
+              <p className="mt-1 text-[11px] text-muted-foreground">Counts remain visible beside rates so small samples cannot masquerade as certainty.</p>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[1000px]">
-                <thead className="bg-pp-page/40 text-[10px] uppercase tracking-wide text-pp-muted">
+                <thead className="bg-muted/40 text-[10px] uppercase tracking-wide text-muted-foreground">
                   <tr>{["Date", "Landing", "Workspace", "Evidence", "Actions", "Qualified", "Activation", "Time", "p75 LCP", "Media errors"].map((label) => <th key={label} className={`px-3 py-2 font-medium ${label === "Date" ? "text-left" : "text-right"}`}>{label}</th>)}</tr>
                 </thead>
-                <tbody>{data.kpis.map((row) => <FunnelRow key={row.metric_date} row={row} experience={experienceByDate.get(row.metric_date)} />)}</tbody>
+                <tbody>{kpis.map((row) => <FunnelRow key={row.metric_date} row={row} experience={experienceByDate.get(row.metric_date)} />)}</tbody>
               </table>
             </div>
           </section>
@@ -142,7 +146,7 @@ function AnalyticsView() {
 
 function AnalyticsError({ error, reset }: { error: Error; reset: () => void }) {
   const router = useRouter();
-  return <div className="p-8 text-sm"><p className="text-destructive">{error.message}</p><Button type="button" className="mt-3 rounded-md border border-pp-border px-3 py-1" onClick={() => { router.invalidate(); reset(); }}>Retry</Button></div>;
+  return <div className="p-8 text-sm"><p className="text-destructive">{error.message}</p><Button type="button" className="mt-3 rounded-md border border-border px-3 py-1" onClick={() => { router.invalidate(); reset(); }}>Retry</Button></div>;
 }
 
 export const Route = createFileRoute("/admin/analytics")({

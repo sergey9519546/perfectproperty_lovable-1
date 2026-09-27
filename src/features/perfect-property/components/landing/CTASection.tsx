@@ -3,7 +3,7 @@ import { motion } from 'motion/react'
 
 export const CTASection = ({ onExplore }: { onExplore: () => void }) => {
   return (
-    <section className="py-32 bg-background text-white overflow-hidden relative">
+    <section className="py-32 bg-slate-950 text-white overflow-hidden relative">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full overflow-hidden pointer-events-none opacity-30">
         <div className="absolute top-[-50%] left-[-10%] right-[-10%] h-[150%] bg-[radial-gradient(circle_at_center,_#efaa2d_0%,_transparent_70%)] blur-[100px]" />
       </div>
@@ -39,7 +39,7 @@ export const CTASection = ({ onExplore }: { onExplore: () => void }) => {
           >
             Sign up for free
           </Button>
-          <Button className="h-14 px-10 bg-card/10 text-white rounded-xl font-bold hover:bg-card/20 backdrop-blur-sm transition-all w-full sm:w-auto cursor-pointer">
+          <Button className="h-14 px-10 bg-white/10 text-white rounded-xl font-bold hover:bg-white/20 backdrop-blur-sm transition-all w-full sm:w-auto cursor-pointer">
             Talk to sales
           </Button>
         </motion.div>

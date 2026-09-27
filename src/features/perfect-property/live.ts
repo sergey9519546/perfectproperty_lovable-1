@@ -2,7 +2,31 @@ import type { RankedParcelRow } from './live-types'
 import { fmt$, ringLabel, tierLabel } from '@/lib/format'
 
 export type LiveLayerMode = 'Opportunity score' | 'Expected profit' | 'Loss risk' | 'Deal odds'
-export type LiveRegionFilter = 'All regions' | 'California' | 'Florida'
+export type LiveRegionFilter = 'Cook County, IL' | 'California' | 'New York' | 'All regions'
+
+export type AssetClass = 'residential' | 'commercial' | 'vacant_land'
+export type AssetClassFilter = 'all' | 'residential' | 'commercial' | 'vacant_land'
+
+export function normalizeAssetClass(val?: string | null): AssetClass {
+  if (!val) return 'residential'
+  const s = val.toLowerCase().replace(/[\s-]+/g, '_')
+  if (s.includes('vacant') || s.includes('land') || s.includes('lot')) return 'vacant_land'
+  if (s.includes('commercial') || s.includes('retail') || s.includes('office') || s.includes('mixed')) return 'commercial'
+  return 'residential'
+}
+
+export function assetClassDisplayName(assetClass: AssetClass): string {
+  switch (assetClass) {
+    case 'residential':
+      return 'Residential'
+    case 'commercial':
+      return 'Commercial'
+    case 'vacant_land':
+      return 'Vacant Land'
+    default:
+      return 'Residential'
+  }
+}
 
 export type WorkspaceParcel = {
   id: string
@@ -31,6 +55,9 @@ export type WorkspaceParcel = {
   isListed: boolean
   confidenceGrade: string | null
   marketLabel: string
+  assetClass: AssetClass
+  assetClassLabel: string
+  propertyType: string
 }
 
 /** Normalize listRankedParcels row → workspace parcel. */
@@ -49,6 +76,51 @@ export function toWorkspaceParcel(row: RankedParcelRow): WorkspaceParcel | null 
   const ring = Number(row.ring ?? 1)
   const city = p.city ?? 'Unknown'
   const state = p.state ?? ''
+
+  // Determine property type & asset class
+  const rawClass =
+    p.asset_class ||
+    row.asset_class ||
+    p.property_type ||
+    row.property_type ||
+    p.land_use
+
+  let assetClass: AssetClass = 'residential'
+  if (rawClass) {
+    assetClass = normalizeAssetClass(rawClass)
+  } else {
+    const scope = (row.recommended_scope || '').toLowerCase()
+    const addr = (p.address || '').toLowerCase()
+    if (
+      scope.includes('commercial') ||
+      scope.includes('retail') ||
+      scope.includes('office') ||
+      scope.includes('storefront') ||
+      addr.includes('commercial')
+    ) {
+      assetClass = 'commercial'
+    } else if (
+      scope.includes('vacant') ||
+      scope.includes('land') ||
+      scope.includes('lot') ||
+      scope.includes('infill') ||
+      scope.includes('ground-up') ||
+      (p.is_vacant && (p.living_sqft == null || p.living_sqft === 0))
+    ) {
+      assetClass = 'vacant_land'
+    }
+  }
+
+  const assetClassLabel = assetClassDisplayName(assetClass)
+  const propertyType =
+    p.property_type ||
+    row.property_type ||
+    (assetClass === 'vacant_land'
+      ? 'Vacant Land'
+      : assetClass === 'commercial'
+        ? 'Commercial'
+        : 'Residential')
+
   return {
     id: row.parcel_id,
     address: p.address ?? 'Unknown address',
@@ -76,6 +148,9 @@ export function toWorkspaceParcel(row: RankedParcelRow): WorkspaceParcel | null 
     isListed: Boolean(p.is_listed),
     confidenceGrade: row.confidence_grade ?? null,
     marketLabel: [city, state].filter(Boolean).join(', '),
+    assetClass,
+    assetClassLabel,
+    propertyType,
   }
 }
 
@@ -93,10 +168,41 @@ export function layerMetric(parcel: WorkspaceParcel, layer: LiveLayerMode): numb
 export function filterParcels(
   parcels: WorkspaceParcel[],
   region: LiveRegionFilter,
+  assetClassFilter: AssetClassFilter = 'all',
 ): WorkspaceParcel[] {
-  if (region === 'All regions') return parcels
-  const want = region === 'California' ? 'CA' : 'FL'
-  return parcels.filter((p) => p.state.toUpperCase() === want)
+  let result = parcels
+
+  if (region === 'Cook County, IL') {
+    result = result.filter(
+      (p) => p.countyFips === '17031' || p.state.toUpperCase() === 'IL',
+    )
+  } else if (region === 'California') {
+    result = result.filter(
+      (p) => p.countyFips === '06037' || p.state.toUpperCase() === 'CA',
+    )
+  } else if (region === 'New York') {
+    result = result.filter(
+      (p) => p.countyFips === '36061' || p.state.toUpperCase() === 'NY',
+    )
+  }
+
+  if (assetClassFilter && assetClassFilter !== 'all') {
+    const target = assetClassFilter.toLowerCase().replace(/[\s-]+/g, '_')
+    result = result.filter((p) => {
+      const pClass = p.assetClass.toLowerCase().replace(/[\s-]+/g, '_')
+      if (target === 'vacant_land') {
+        return (
+          pClass === 'vacant_land' ||
+          pClass === 'vacant-land' ||
+          pClass.includes('vacant') ||
+          pClass.includes('land')
+        )
+      }
+      return pClass === target
+    })
+  }
+
+  return result
 }
 
 export function coverageFromParcels(parcels: WorkspaceParcel[]): string {

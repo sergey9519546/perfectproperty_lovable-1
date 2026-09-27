@@ -320,8 +320,8 @@ export function SheriffSalesPage({
           valA = a.compsAndMargin.maximumAllowableBid;
           valB = b.compsAndMargin.maximumAllowableBid;
         } else if (sortField === 'openingBid') {
-          valA = a.bidCard.openingBid;
-          valB = b.bidCard.openingBid;
+          valA = a.bidCard?.openingBid ?? 0;
+          valB = b.bidCard?.openingBid ?? 0;
         } else if (sortField === 'date') {
           return sortDirection === 'asc'
             ? a.auctionDate.localeCompare(b.auctionDate)
@@ -692,20 +692,20 @@ export function SheriffSalesPage({
                             {/* Opening Bid & Deposit */}
                             <TableCell className="py-3.5 font-mono text-xs">
                               <div className="font-bold text-foreground">
-                                ${sale.bidCard.openingBid.toLocaleString()}
+                                ${(sale.bidCard?.openingBid ?? 0).toLocaleString()}
                               </div>
                               <div className="text-[11px] text-amber-600 font-medium">
-                                Dep: ${sale.bidCard.requiredDepositDollars.toLocaleString()} ({sale.bidCard.requiredDepositPercent}%)
+                                Dep: ${(sale.bidCard?.requiredDepositDollars ?? 0).toLocaleString()} ({sale.bidCard?.requiredDepositPercent ?? 20}%)
                               </div>
                             </TableCell>
 
                             {/* ARV / Judgment */}
                             <TableCell className="py-3.5 font-mono text-xs">
                               <div className="font-bold text-foreground">
-                                ARV: ${sale.aiWorkforce.dealUnderwriter.modeledArv.toLocaleString()}
+                                ARV: ${(sale.aiWorkforce?.dealUnderwriter?.modeledArv ?? 0).toLocaleString()}
                               </div>
                               <div className="text-[11px] text-muted-foreground">
-                                Judg: ${sale.legalProse.finalJudgmentAmount.toLocaleString()}
+                                Judg: ${(sale.legalProse?.finalJudgmentAmount ?? 0).toLocaleString()}
                               </div>
                             </TableCell>
 

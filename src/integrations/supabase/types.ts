@@ -14,6 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
+      subscriptions: {
+        Row: {
+          id: string
+          user_id: string
+          customer_id: string | null
+          subscription_id: string | null
+          status: string
+          tier: string
+          billing_cycle: string
+          price_id: string | null
+          currency: string
+          amount: number | null
+          current_period_start: string | null
+          current_period_end: string | null
+          cancel_at_period_end: boolean
+          canceled_at: string | null
+          paddle_data: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          customer_id?: string | null
+          subscription_id?: string | null
+          status?: string
+          tier?: string
+          billing_cycle?: string
+          price_id?: string | null
+          currency?: string
+          amount?: number | null
+          current_period_start?: string | null
+          current_period_end?: string | null
+          cancel_at_period_end?: boolean
+          canceled_at?: string | null
+          paddle_data?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          customer_id?: string | null
+          subscription_id?: string | null
+          status?: string
+          tier?: string
+          billing_cycle?: string
+          price_id?: string | null
+          currency?: string
+          amount?: number | null
+          current_period_start?: string | null
+          current_period_end?: string | null
+          cancel_at_period_end?: boolean
+          canceled_at?: string | null
+          paddle_data?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       adapter_recipes: {
         Row: {
           container_selector: string

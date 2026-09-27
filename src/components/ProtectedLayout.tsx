@@ -73,8 +73,8 @@ export function ProtectedLayout({
 
   if (isChecking) {
     return (
-      <div className="perfect-property-ui flex min-h-[100dvh] w-full flex-col items-center justify-center bg-pp-page p-6 text-pp-text">
-        <div className="relative flex flex-col items-center max-w-sm rounded-xl border border-pp-border bg-pp-surface p-8 text-center shadow-lg">
+      <div className="perfect-property-ui flex min-h-[100dvh] w-full flex-col items-center justify-center bg-background p-6 text-foreground">
+        <div className="relative flex flex-col items-center max-w-sm rounded-xl border border-border bg-card p-8 text-center shadow-lg">
           <div className="mb-4">
             <Brand id="protected-loading-brand" />
           </div>
@@ -82,8 +82,8 @@ export function ProtectedLayout({
             <ShieldCheck className="h-6 w-6" />
             <Loader2 className="absolute h-10 w-10 animate-spin text-primary/40" />
           </div>
-          <p className="text-sm font-semibold text-pp-text">Verifying secure session...</p>
-          <p className="mt-1.5 text-xs text-pp-muted">
+          <p className="text-sm font-semibold text-foreground">Verifying secure session...</p>
+          <p className="mt-1.5 text-xs text-muted-foreground">
             Connecting to authentication and loading credentials.
           </p>
         </div>
@@ -93,16 +93,16 @@ export function ProtectedLayout({
 
   if (!isAuthenticated) {
     return (
-      <div className="perfect-property-ui flex min-h-[100dvh] w-full flex-col items-center justify-center bg-pp-page p-6 text-pp-text">
-        <div className="relative flex flex-col items-center max-w-sm rounded-xl border border-pp-border bg-pp-surface p-8 text-center shadow-lg">
+      <div className="perfect-property-ui flex min-h-[100dvh] w-full flex-col items-center justify-center bg-background p-6 text-foreground">
+        <div className="relative flex flex-col items-center max-w-sm rounded-xl border border-border bg-card p-8 text-center shadow-lg">
           <div className="mb-4">
             <Brand id="protected-auth-brand" />
           </div>
           <div className="my-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-500/10 text-red-500">
             <Lock className="h-6 w-6" />
           </div>
-          <p className="text-sm font-semibold text-pp-text">Authentication Required</p>
-          <p className="mt-1.5 text-xs text-pp-muted">
+          <p className="text-sm font-semibold text-foreground">Authentication Required</p>
+          <p className="mt-1.5 text-xs text-muted-foreground">
             Redirecting to sign in to access the institutional property engine...
           </p>
         </div>
@@ -111,7 +111,7 @@ export function ProtectedLayout({
   }
 
   return (
-    <div className="perfect-property-ui min-h-[100dvh] bg-pp-page text-pp-text">
+    <div className="perfect-property-ui min-h-[100dvh] bg-background text-foreground">
       {children || <Outlet />}
     </div>
   );

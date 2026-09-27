@@ -15,6 +15,9 @@ export const Route = createFileRoute("/notices")({
   beforeLoad: async () => {
     const firebaseUser = await getAuthenticatedFirebaseUser();
     if (!firebaseUser) {
+      if (typeof localStorage !== "undefined" && localStorage.getItem("pp_demo_session")) {
+        return;
+      }
       const { data } = await supabase.auth.getUser();
       if (!data.user) throw redirect({ to: "/auth", search: { next: "/notices" } });
     }
@@ -224,15 +227,43 @@ function NoticesPage() {
               </div>
 
               {notice.risks.length > 0 && (
-                <div className="rounded-xl border border-rose-200 bg-rose-50 p-5 shadow-sm">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-rose-800">Potential Pitfalls & Title Risks</h4>
-                  <ul className="mt-3 list-disc space-y-1.5 pl-5 text-xs text-rose-700">
+                <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-5 shadow-sm">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-rose-700 dark:text-rose-400">Potential Pitfalls & Title Risks</h4>
+                  <ul className="mt-3 list-disc space-y-1.5 pl-5 text-xs text-rose-700/90 dark:text-rose-300">
                     {notice.risks.map((r, i) => (
                       <li key={i}>{r}</li>
                     ))}
                   </ul>
                 </div>
               )}
+
+              {/* Contextual Route Jumps */}
+              <div className="rounded-xl border border-border bg-card p-4 flex flex-wrap items-center justify-between gap-3">
+                <span className="text-xs font-semibold text-foreground">Next Actions:</span>
+                <div className="flex flex-wrap items-center gap-2">
+                  {notice.property_address && (
+                    <Link
+                      to="/workspace"
+                      search={{ query: `${notice.property_address}, ${notice.city || ""}, ${notice.state || ""}` }}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors cursor-pointer"
+                    >
+                      <span>Locate on Map</span>
+                    </Link>
+                  )}
+                  <Link
+                    to="/deals"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-muted/60 hover:bg-muted text-foreground text-xs font-medium transition-colors"
+                  >
+                    <span>Check Ranked Deals</span>
+                  </Link>
+                  <Link
+                    to="/sheriff-sales"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-muted/60 hover:bg-muted text-foreground text-xs font-medium transition-colors"
+                  >
+                    <span>Sheriff Sales Pipeline</span>
+                  </Link>
+                </div>
+              </div>
             </div>
           )}
         </div>

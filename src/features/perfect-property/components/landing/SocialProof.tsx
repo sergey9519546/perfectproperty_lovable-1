@@ -160,6 +160,8 @@ export const SocialProof = () => {
                   <img
                     src={t.avatar}
                     alt={t.author}
+                    loading="lazy"
+                    decoding="async"
                     className="w-10 h-10 rounded-full object-cover border border-slate-200"
                   />
                   <div>

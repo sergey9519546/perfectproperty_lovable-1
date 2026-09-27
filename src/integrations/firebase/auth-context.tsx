@@ -16,12 +16,17 @@ import type { AuthContextType, FirebaseAuthProviderProps } from "./auth-types";
 
 function createDemoUser(sessionData: {
   token?: string;
-  user?: { id?: string; email?: string; fullName?: string };
+  user?: { id?: string; email?: string; fullName?: string; displayName?: string };
+  email?: string;
+  fullName?: string;
+  displayName?: string;
+  id?: string;
 }): User {
-  const uid = sessionData.user?.id || "00000000-0000-4000-8000-000000000001";
-  const email = sessionData.user?.email || "demo@perfectproperty.ai";
-  const displayName = sessionData.user?.fullName || "Demo Analyst";
-  const token = sessionData.token || "";
+  const userObj = sessionData.user || (sessionData.email ? sessionData : undefined);
+  const uid = userObj?.id || "00000000-0000-4000-8000-000000000001";
+  const email = userObj?.email || "demo@perfectproperty.ai";
+  const displayName = userObj?.fullName || userObj?.displayName || "Demo Analyst";
+  const token = sessionData.token || "demo-token";
 
   return {
     uid,
@@ -124,7 +129,7 @@ export function FirebaseAuthProvider({
               const stored = localStorage.getItem("pp_demo_session");
               if (stored) {
                 const parsed = JSON.parse(stored);
-                if (parsed?.token || parsed?.user) {
+                if (parsed?.token || parsed?.user || parsed?.email) {
                   setUser(createDemoUser(parsed));
                   setIsInitializing(false);
                   return;

@@ -63,27 +63,50 @@ function AuthPage() {
     setPendingAction("demo");
     setError(null);
     try {
-      // Provision the demo analyst account credentials and signed session token
-      const creds = await provisionDemoAccount();
+      let creds: any = null;
+      try {
+        creds = await provisionDemoAccount();
+      } catch (provErr) {
+        console.warn("Server demo provision notice:", provErr);
+      }
+
+      const sessionData = creds || {
+        token: "demo-token",
+        email: "demo@perfectproperty.ai",
+        password: "DemoPassword123!",
+        user: {
+          id: "00000000-0000-4000-8000-000000000001",
+          email: "demo@perfectproperty.ai",
+          fullName: "Demo Analyst",
+          role: "admin",
+        },
+      };
+
+      if (typeof localStorage !== "undefined") {
+        localStorage.setItem("pp_demo_session", JSON.stringify(sessionData));
+      }
 
       // Establish authenticated demo session
       if (typeof signInAsDemoUser === "function") {
-        await signInAsDemoUser(creds);
-      } else if (typeof localStorage !== "undefined") {
-        localStorage.setItem("pp_demo_session", JSON.stringify(creds));
+        await signInAsDemoUser(sessionData);
       }
 
       // Non-blocking attempt to authenticate with Supabase client if enabled
       try {
         await supabase.auth.signInWithPassword({
-          email: creds.email,
-          password: creds.password,
+          email: sessionData.email,
+          password: sessionData.password,
         });
       } catch {
-        // Non-blocking: signed bearer token from provisionDemoAccount is attached via middleware
+        // Non-blocking
       }
 
-      window.location.href = safeNext(next);
+      const target = safeNext(next);
+      try {
+        await navigate({ to: target as "/" });
+      } catch {
+        window.location.href = target;
+      }
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Unable to provision demo access. Please try again.");
     } finally {
@@ -166,9 +189,23 @@ function AuthPage() {
   }
 
   return (
-    <main className="grid min-h-[100dvh] bg-background text-foreground lg:grid-cols-[minmax(0,1.1fr)_minmax(460px,.9fr)]">
+    <div className="grid min-h-[calc(100dvh-4rem)] bg-background text-foreground lg:grid-cols-[minmax(0,1.1fr)_minmax(460px,.9fr)]">
       <section className="relative hidden overflow-hidden border-r border-border bg-slate-900 lg:block">
-        <img src="/perfect-property-hero.png" alt="" className="absolute inset-0 h-full w-full object-cover object-[58%_50%] opacity-40 mix-blend-luminosity" />
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          poster="/perfect-property-motion-poster.png"
+          className="absolute inset-0 h-full w-full object-cover object-[58%_50%] opacity-40 mix-blend-luminosity"
+        >
+          <source src="/perfect-property-motion.webm" type="video/webm" />
+          <img
+            src="/perfect-property-motion-poster.png"
+            alt="Workspace Preview"
+            className="absolute inset-0 h-full w-full object-cover object-[58%_50%] opacity-40 mix-blend-luminosity"
+          />
+        </video>
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/80 to-slate-900/60" />
         <div className="relative flex h-full flex-col p-10 xl:p-14 text-white">
           <Link to="/" id="auth-desktop-brand-link" aria-label={`${BRAND_CONFIG.name} home`} className="w-fit">
@@ -200,7 +237,7 @@ function AuthPage() {
         </div>
       </section>
 
-      <section className="flex min-h-[100dvh] items-center justify-center bg-background px-5 py-10 sm:px-12">
+      <section className="flex min-h-[calc(100dvh-4rem)] items-center justify-center bg-background px-5 py-10 sm:px-12">
         <div className="w-full max-w-[440px] rounded-2xl border border-border bg-card p-8 sm:p-10 shadow-sm">
           <Link to="/" id="auth-mobile-brand-link" aria-label={`${BRAND_CONFIG.name} home`} className="mb-8 block w-fit lg:hidden">
             <Brand id="auth-mobile-brand" />
@@ -210,16 +247,18 @@ function AuthPage() {
             <span className="text-[11px] font-bold uppercase tracking-[.14em] text-primary">Platform Access</span>
             <div className="flex bg-muted p-0.5 rounded-lg border border-border text-[12px]">
               <Button
+                variant="ghost"
                 type="button"
                 onClick={() => { setMode("signin"); setError(null); }}
-                className={`px-3 py-1 rounded-md transition-all font-medium cursor-pointer ${mode === "signin" ? "bg-card text-foreground shadow-xs font-semibold" : "text-muted-foreground hover:text-foreground"}`}
+                className={`px-3 py-1 h-7 rounded-md transition-all text-xs font-medium cursor-pointer shadow-none ${mode === "signin" ? "bg-card text-foreground shadow-xs font-semibold" : "text-muted-foreground hover:text-foreground hover:bg-transparent"}`}
               >
                 Sign In
               </Button>
               <Button
+                variant="ghost"
                 type="button"
                 onClick={() => { setMode("signup"); setError(null); }}
-                className={`px-3 py-1 rounded-md transition-all font-medium cursor-pointer ${mode === "signup" ? "bg-card text-foreground shadow-xs font-semibold" : "text-muted-foreground hover:text-foreground"}`}
+                className={`px-3 py-1 h-7 rounded-md transition-all text-xs font-medium cursor-pointer shadow-none ${mode === "signup" ? "bg-card text-foreground shadow-xs font-semibold" : "text-muted-foreground hover:text-foreground hover:bg-transparent"}`}
               >
                 Create Account
               </Button>
@@ -247,6 +286,7 @@ function AuthPage() {
               </p>
             </div>
             <Button
+              id="auth-launch-demo-btn"
               type="button"
               onClick={handleDemoAccess}
               disabled={busy}
@@ -357,7 +397,23 @@ function AuthPage() {
             </p>
           )}
 
-          <div className="mt-8 border-t border-border pt-4 flex items-center justify-between text-[11px] text-muted-foreground">
+          <p className="mt-5 text-center text-[11px] text-muted-foreground leading-relaxed">
+            By continuing, you agree to {BRAND_CONFIG.legalName}&apos;s{" "}
+            <Link to="/terms" className="text-primary hover:underline font-medium">
+              Terms of Service
+            </Link>
+            ,{" "}
+            <Link to="/privacy" className="text-primary hover:underline font-medium">
+              Privacy Policy
+            </Link>
+            , and{" "}
+            <Link to="/refunds" className="text-primary hover:underline font-medium">
+              30-Day Refund Policy
+            </Link>
+            .
+          </p>
+
+          <div className="mt-6 border-t border-border pt-4 flex items-center justify-between text-[11px] text-muted-foreground">
             <Link to="/" className="inline-flex items-center gap-1.5 font-medium transition-colors hover:text-foreground">
               <ArrowLeft size={14} aria-hidden="true" /> Back to {BRAND_CONFIG.name}
             </Link>
@@ -365,6 +421,6 @@ function AuthPage() {
           </div>
         </div>
       </section>
-    </main>
+    </div>
   );
 }

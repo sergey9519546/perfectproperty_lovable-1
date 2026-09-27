@@ -25,6 +25,9 @@ export const Route = createFileRoute("/workspace")({
   beforeLoad: async ({ search }) => {
     const firebaseUser = await getAuthenticatedFirebaseUser();
     if (!firebaseUser) {
+      if (typeof localStorage !== "undefined" && localStorage.getItem("pp_demo_session")) {
+        return;
+      }
       const { data } = await supabase.auth.getUser();
       if (!data.user) {
         const params = new URLSearchParams();

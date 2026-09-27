@@ -81,7 +81,7 @@ export const Hero = ({ onExplore }: { onExplore: (query?: string, mode?: 'Deals'
           transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
           className="text-[17px] sm:text-[20px] md:text-[22px] text-muted-foreground max-w-[720px] mb-10 leading-[1.45] font-medium"
         >
-          Institutional-grade property deal scoring, spatial parcel boundaries, and real-time ground truth across Florida real estate markets.
+          Institutional-grade property deal scoring, spatial parcel boundaries, and real-time ground truth across Cook County, IL real estate markets.
         </motion.p>
 
         {/* 'Deals | Shadow' Physics-Based Animated Spring Toggle (Aceternity UI Tabs pattern) */}
@@ -94,9 +94,10 @@ export const Hero = ({ onExplore }: { onExplore: (query?: string, mode?: 'Deals'
         >
           <Button
             id="toggle-mode-deals"
+            variant="ghost"
             type="button"
             onClick={() => setActiveMode('Deals')}
-            className={`relative z-10 flex items-center gap-2 px-7 py-2.5 text-[14px] font-semibold rounded-full transition-colors duration-200 cursor-pointer ${
+            className={`relative z-10 flex items-center gap-2 px-7 py-2.5 text-[14px] font-semibold rounded-full transition-colors duration-200 cursor-pointer shadow-none hover:bg-transparent ${
               activeMode === 'Deals' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
@@ -112,9 +113,10 @@ export const Hero = ({ onExplore }: { onExplore: (query?: string, mode?: 'Deals'
           </Button>
           <Button
             id="toggle-mode-shadow"
+            variant="ghost"
             type="button"
             onClick={() => setActiveMode('Shadow')}
-            className={`relative z-10 flex items-center gap-2 px-7 py-2.5 text-[14px] font-semibold rounded-full transition-colors duration-200 cursor-pointer ${
+            className={`relative z-10 flex items-center gap-2 px-7 py-2.5 text-[14px] font-semibold rounded-full transition-colors duration-200 cursor-pointer shadow-none hover:bg-transparent ${
               activeMode === 'Shadow' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
@@ -147,7 +149,7 @@ export const Hero = ({ onExplore }: { onExplore: (query?: string, mode?: 'Deals'
               value={urlInput}
               onChange={(e) => setUrlInput(e.target.value)}
               placeholder={activeMode === 'Deals' ? 'Paste Redfin/Zillow URL or County Assessor APN...' : 'Enter auction docket, tax lien, or notice ID...'}
-              className="flex-1 h-12 pl-6 pr-3 bg-transparent border-none focus:outline-none focus:ring-0 text-[15px] sm:text-[16px] text-foreground placeholder:text-slate-400"
+              className="flex-1 h-12 pl-6 pr-3 bg-transparent border-0 shadow-none focus-visible:ring-0 focus-visible:outline-none text-[15px] sm:text-[16px] text-foreground placeholder:text-slate-400"
             />
             <Button 
               id="hero-submit-btn"
@@ -169,19 +171,21 @@ export const Hero = ({ onExplore }: { onExplore: (query?: string, mode?: 'Deals'
         >
           <span className="font-medium text-slate-400">Quick sample:</span>
           <Button 
+            variant="ghost"
             type="button"
-            onClick={() => handleSampleClick('https://assessor.lacounty.gov/parcel/5542-012-004')}
-            className="text-primary hover:text-blue-800 underline decoration-blue-200 underline-offset-2 hover:decoration-blue-500 transition-all cursor-pointer"
+            onClick={() => handleSampleClick('17-15-300-012-0000')}
+            className="h-auto p-0 text-xs font-normal text-primary hover:text-blue-800 underline decoration-blue-200 underline-offset-2 hover:decoration-blue-500 transition-all cursor-pointer hover:bg-transparent shadow-none"
           >
-            LA County APN 5542-012-004
+            Cook County PIN 17-15-300-012
           </Button>
           <span className="text-slate-300">•</span>
           <Button 
+            variant="ghost"
             type="button"
-            onClick={() => handleSampleClick('https://redfin.com/CA/Los-Angeles/742-Evergreen-Terrace/home/1283910')}
-            className="text-primary hover:text-blue-800 underline decoration-blue-200 underline-offset-2 hover:decoration-blue-500 transition-all cursor-pointer"
+            onClick={() => handleSampleClick('Cook County, IL')}
+            className="h-auto p-0 text-xs font-normal text-primary hover:text-blue-800 underline decoration-blue-200 underline-offset-2 hover:decoration-blue-500 transition-all cursor-pointer hover:bg-transparent shadow-none"
           >
-            Redfin Listing
+            Chicago Metro Deals
           </Button>
           <span className="text-slate-300">•</span>
           <HoverBorderGradient

@@ -11,6 +11,8 @@ import { CommandPalette } from "./components/CommandPalette";
 import { MapCanvas } from "./components/MapCanvas";
 import { DossierPanel } from "@/components/DossierPanel";
 import { listRankedParcels } from "@/lib/parcels.functions";
+import { getCurrentUserSubscription } from "@/lib/subscriptions.functions";
+import { Lock, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useFirebaseAuth } from "@/integrations/firebase";
 import { BRAND_CONFIG } from "@/lib/brand";
@@ -28,6 +30,7 @@ import {
   type LiveLayerMode,
   type LiveRegionFilter,
   type WorkspaceParcel,
+  type AssetClassFilter,
 } from "./live";
 import type { RankedParcelRow } from "./live-types";
 
@@ -77,7 +80,8 @@ export function MarketWorkspace({ initialQuery, initialParcelId }: MarketWorkspa
   const listFn = useServerFn(listRankedParcels);
   const { user: firebaseUser, signOutUser } = useFirebaseAuth();
   const [activeNav, setActiveNav] = useState("map");
-  const [region, setRegion] = useState<LiveRegionFilter>("All regions");
+  const [region, setRegion] = useState<LiveRegionFilter>("Cook County, IL");
+  const [assetClass, setAssetClass] = useState<AssetClassFilter>("all");
   const [layer, setLayer] = useState<LiveLayerMode>("Opportunity score");
   const [selected, setSelected] = useState<WorkspaceParcel | null>(null);
   const [paletteOpen, setPaletteOpen] = useState(false);
@@ -107,12 +111,20 @@ export function MarketWorkspace({ initialQuery, initialParcelId }: MarketWorkspa
     window.location.assign("/auth");
   };
 
+  const subFn = useServerFn(getCurrentUserSubscription);
+  const subQ = useQuery<any>({
+    queryKey: ["workspace-subscription", firebaseUser?.uid],
+    queryFn: () => subFn(),
+    enabled: !!firebaseUser,
+  });
+  const isSubscribed = subQ.data?.isSubscribed ?? false;
+
   const rankedQuery = useQuery({
     queryKey: ["ranked-all"],
     queryFn: () => listFn({ data: { limit: 500 } }),
-    staleTime: 60_000,
+    staleTime: 5 * 60 * 1000,
     retry: 2,
-    refetchOnWindowFocus: true,
+    refetchOnWindowFocus: false,
   });
 
   const parcels = useMemo(() => {
@@ -120,7 +132,10 @@ export function MarketWorkspace({ initialQuery, initialParcelId }: MarketWorkspa
     return rows.map(toWorkspaceParcel).filter((p): p is WorkspaceParcel => p != null);
   }, [rankedQuery.data]);
 
-  const filteredParcels = useMemo(() => filterParcels(parcels, region), [parcels, region]);
+  const filteredParcels = useMemo(
+    () => filterParcels(parcels, region, assetClass),
+    [parcels, region, assetClass],
+  );
 
   const snapshotIso = useMemo(() => snapshotFromParcels(filteredParcels), [filteredParcels]);
   const coverage = useMemo(() => coverageFromParcels(parcels), [parcels]);
@@ -139,10 +154,12 @@ export function MarketWorkspace({ initialQuery, initialParcelId }: MarketWorkspa
     }
     if (initialQuery) {
       const q = initialQuery.trim().toLowerCase();
-      if (q.includes("california") || q === "ca") {
+      if (q.includes("cook") || q.includes("chicago") || q === "il") {
+        setRegion("Cook County, IL");
+      } else if (q.includes("california") || q === "ca") {
         setRegion("California");
-      } else if (q.includes("florida") || q === "fl") {
-        setRegion("Florida");
+      } else if (q.includes("new york") || q === "ny") {
+        setRegion("New York");
       }
       const match = parcels.find((p) =>
         `${p.address} ${p.city} ${p.state} ${p.zip ?? ""} ${p.apn ?? ""}`
@@ -387,18 +404,38 @@ export function MarketWorkspace({ initialQuery, initialParcelId }: MarketWorkspa
       : null;
 
   return (
-    <div className="perfect-property-ui app-shell h-[calc(100dvh-64px)] bg-pp-page text-pp-text">
-      
-      <div className="app-body grid min-h-0 grid-cols-[72px_minmax(0,1fr)] max-md:grid-cols-1">
+    <div className="perfect-property-ui app-shell h-[calc(100dvh-64px)] bg-background text-foreground flex flex-col">
+      {!isSubscribed && (
+        <div id="workspace-paywall-notice" className="bg-primary/10 border-b border-primary/20 px-4 py-1.5 flex items-center justify-between text-xs text-foreground shrink-0">
+          <div className="flex items-center gap-2">
+            <Lock className="h-3 w-3 text-primary" />
+            <span>
+              <strong>Sample Preview</strong>: Viewing 3 parcels. Upgrade your subscription to unlock all 500+ Cook County parcels and live comps.
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => void navigate({ to: "/pricing" })}
+            className="inline-flex items-center gap-1 font-bold text-primary hover:underline cursor-pointer"
+          >
+            <span>Upgrade Now</span>
+            <ArrowRight className="h-3 w-3" />
+          </button>
+        </div>
+      )}
+      <div className="app-body flex-1 grid min-h-0 grid-cols-[72px_minmax(0,1fr)] max-md:grid-cols-1">
         <NavigationRail active={activeNav} onChange={handleNavigation} />
         <div className="product-grid grid min-h-0 grid-cols-[minmax(0,1fr)_420px] max-xl:grid-cols-[minmax(0,1fr)_380px] max-lg:grid-cols-1">
           <div className="center-workspace grid min-h-0 grid-rows-[minmax(0,1fr)_320px] max-lg:grid-rows-[620px_auto] max-md:grid-rows-[62dvh_auto]">
             <MapCanvas
               parcels={filteredParcels}
+              allParcels={parcels}
               selected={selected}
               onSelect={(parcel) => selectParcel(parcel, "map")}
               region={region}
               onRegionChange={setRegion}
+              assetClass={assetClass}
+              onAssetClassChange={setAssetClass}
               layer={layer}
               onLayerChange={setLayer}
               snapshotIso={snapshotIso}
@@ -446,9 +483,9 @@ export function MarketWorkspace({ initialQuery, initialParcelId }: MarketWorkspa
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8 }}
             transition={{ type: "spring", stiffness: 180, damping: 22 }}
-            className="fixed bottom-5 right-5 z-[60] flex items-center gap-3 rounded-md border border-pp-border-strong/25 bg-pp-surface-raised px-4 py-3 text-sm shadow-toast"
+            className="fixed bottom-5 right-5 z-[60] flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-xl"
           >
-            <CheckCircle size={18} className="text-pp-live" />
+            <CheckCircle size={18} className="text-emerald-500" />
             {toast}
           </motion.div>
         ) : null}

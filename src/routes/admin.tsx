@@ -8,7 +8,10 @@ export const Route = createFileRoute("/admin")({
   beforeLoad: async () => {
     const firebaseUser = await getAuthenticatedFirebaseUser();
     if (firebaseUser) {
-      const tokenResult = await firebaseUser.getIdTokenResult().catch(() => null);
+      const tokenResult =
+        typeof firebaseUser.getIdTokenResult === "function"
+          ? await firebaseUser.getIdTokenResult().catch(() => null)
+          : null;
       const isFbAdmin = Boolean(tokenResult?.claims?.admin || tokenResult?.claims?.role === "admin");
       if (!isFbAdmin) {
         const isDemo = typeof localStorage !== "undefined" && Boolean(localStorage.getItem("pp_demo_session"));

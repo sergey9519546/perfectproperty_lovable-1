@@ -34,7 +34,7 @@ export const GTMSection = ({ onExplore }: { onExplore: () => void }) => {
       <IntegrationBar />
 
       {/* Enterprise GTM & Data Architecture Section */}
-      <section className="py-28 bg-background text-white relative overflow-hidden border-t border-slate-800">
+      <section className="py-28 bg-slate-950 text-white relative overflow-hidden border-t border-slate-800">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(239,170,45,0.15),rgba(255,255,255,0))]" />
 
         <div className="max-w-[1200px] mx-auto px-6 relative z-10">

@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   APIProvider,
   Map as GoogleMap,
@@ -22,9 +22,13 @@ import {
   Stack,
   X,
   Check,
+  House,
+  Buildings,
+  Tree,
+  SquaresFour,
 } from '@phosphor-icons/react'
-import type { LiveLayerMode, LiveRegionFilter, WorkspaceParcel } from '../live'
-import { layerMetric } from '../live'
+import type { LiveLayerMode, LiveRegionFilter, WorkspaceParcel, AssetClassFilter } from '../live'
+import { layerMetric, filterParcels, assetClassDisplayName } from '../live'
 import { formatShortDate } from '../data'
 import { useIsMac } from '@/hooks/use-is-mac'
 import { fmt$ } from '@/lib/format'
@@ -54,6 +58,9 @@ type Props = {
   totalCount?: number
   onOpenDeals?: () => void
   onOpenAdmin?: () => void
+  assetClass?: AssetClassFilter
+  onAssetClassChange?: (assetClass: AssetClassFilter) => void
+  allParcels?: WorkspaceParcel[]
 }
 
 const layerModes: LiveLayerMode[] = ['Opportunity score', 'Expected profit', 'Loss risk', 'Deal odds']
@@ -155,6 +162,85 @@ function MapCameraController({
   return null
 }
 
+interface ParcelMarkerProps {
+  parcel: WorkspaceParcel
+  isSelected: boolean
+  isHovered: boolean
+  metricVal: number
+  color: string
+  onClick: (parcel: WorkspaceParcel) => void
+  onMouseEnter: (parcel: WorkspaceParcel) => void
+  onMouseLeave: () => void
+}
+
+const ParcelMarker = React.memo(function ParcelMarker({
+  parcel,
+  isSelected,
+  isHovered,
+  metricVal,
+  color,
+  onClick,
+  onMouseEnter,
+  onMouseLeave,
+}: ParcelMarkerProps) {
+  const assetClassKebab = parcel.assetClass === 'vacant_land' ? 'vacant-land' : parcel.assetClass
+  return (
+    <AdvancedMarker
+      position={{ lat: parcel.coordinates[1], lng: parcel.coordinates[0] }}
+      onClick={() => onClick(parcel)}
+      title={`${parcel.address} — ${parcel.score.toFixed(1)} score (${parcel.assetClassLabel})`}
+    >
+      <div
+        data-asset-class={parcel.assetClass}
+        data-asset-class-kebab={assetClassKebab}
+        data-parcel-id={parcel.id}
+        data-property-type={parcel.assetClass}
+        onMouseEnter={() => onMouseEnter(parcel)}
+        onMouseLeave={onMouseLeave}
+        className={`relative flex items-center justify-center cursor-pointer transition-transform duration-150 ease-out will-change-transform ${
+          isSelected ? 'scale-125 z-50' : isHovered ? 'scale-110 z-40' : 'scale-100 z-10'
+        }`}
+      >
+        {/* Support selectors querying vacant_land, vacant-land or vacant land */}
+        {parcel.assetClass === 'vacant_land' && (
+          <span data-asset-class="vacant-land" className="contents">
+            <span data-asset-class="vacant land" className="contents" />
+          </span>
+        )}
+        {isSelected && (
+          <>
+            <span
+              className="absolute -inset-3 rounded-full animate-ping opacity-60 pointer-events-none"
+              style={{ backgroundColor: color, animationDuration: '1.6s' }}
+            />
+            <span
+              className="absolute -inset-2.5 rounded-full animate-pulse opacity-60 pointer-events-none"
+              style={{
+                boxShadow: `0 0 16px 3px ${color}`,
+                border: `1.5px solid ${color}`,
+              }}
+            />
+          </>
+        )}
+        <div
+          className="relative flex items-center justify-center rounded-full font-mono text-[10px] font-bold text-white shadow-md transition-all select-none"
+          style={{
+            width: isSelected ? 32 : 24,
+            height: isSelected ? 32 : 24,
+            backgroundColor: color,
+            border: isSelected ? '2.5px solid #ffffff' : '1.5px solid rgba(255,255,255,0.85)',
+            boxShadow: isSelected
+              ? `0 0 16px 3px ${color}, 0 4px 10px rgba(0,0,0,0.5)`
+              : `0 0 8px ${color}66`,
+          }}
+        >
+          {Math.round(metricVal)}
+        </div>
+      </div>
+    </AdvancedMarker>
+  )
+})
+
 export function MapCanvas(props: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const isMac = useIsMac()
@@ -166,28 +252,46 @@ export function MapCanvas(props: Props) {
   const [keyModalOpen, setKeyModalOpen] = useState(false)
   const [tempKeyInput, setTempKeyInput] = useState('')
   const [keySavedToast, setKeySavedToast] = useState(false)
+  const [internalAssetClass, setInternalAssetClass] = useState<AssetClassFilter>('all')
+  const { assetClass: propAssetClass, onAssetClassChange } = props
+  const activeAssetClass = propAssetClass ?? internalAssetClass
 
-  // Cache of all known parcels so filtered-out markers can gracefully scale/fade out instead of instantly disappearing
-  const [allKnownParcels, setAllKnownParcels] = useState<Map<string, WorkspaceParcel>>(new Map())
+  const handleAssetClassToggle = useCallback(
+    (target: AssetClassFilter) => {
+      // If already active, toggle back to 'all' (unless already 'all')
+      const next = activeAssetClass === target && target !== 'all' ? 'all' : target
+      if (onAssetClassChange) {
+        onAssetClassChange(next)
+      } else {
+        setInternalAssetClass(next)
+      }
+    },
+    [activeAssetClass, onAssetClassChange],
+  )
 
-  useEffect(() => {
-    if (props.parcels && props.parcels.length > 0) {
-      setAllKnownParcels((prev) => {
-        const next = new Map(prev)
-        props.parcels.forEach((p) => next.set(p.id, p))
-        return next
-      })
+  // Calculate parcel counts per asset class for the current region
+  const baseParcelsForCounts = useMemo(() => {
+    if (props.allParcels) {
+      return filterParcels(props.allParcels, props.region, 'all')
     }
-  }, [props.parcels])
+    return props.parcels
+  }, [props.allParcels, props.parcels, props.region])
 
-  const visibleParcelIds = useMemo(() => new Set(props.parcels.map((p) => p.id)), [props.parcels])
+  const assetClassCounts = useMemo(() => {
+    return {
+      all: baseParcelsForCounts.length,
+      residential: baseParcelsForCounts.filter((p) => p.assetClass === 'residential').length,
+      commercial: baseParcelsForCounts.filter((p) => p.assetClass === 'commercial').length,
+      vacant_land: baseParcelsForCounts.filter((p) => p.assetClass === 'vacant_land').length,
+    }
+  }, [baseParcelsForCounts])
 
-  // Dismiss InfoWindow if active parcel gets filtered out
+  // Keep InfoWindow valid if selected parcel changes
   useEffect(() => {
-    if (activeInfoWindowParcel && !visibleParcelIds.has(activeInfoWindowParcel.id)) {
+    if (activeInfoWindowParcel && !props.parcels.some((p) => p.id === activeInfoWindowParcel.id)) {
       setActiveInfoWindowParcel(null)
     }
-  }, [visibleParcelIds, activeInfoWindowParcel])
+  }, [props.parcels, activeInfoWindowParcel])
 
   // Camera control ref callbacks
   const cameraControlsRef = useRef<{
@@ -232,6 +336,14 @@ export function MapCanvas(props: Props) {
     [props],
   )
 
+  const handleMarkerMouseEnter = useCallback((p: WorkspaceParcel) => {
+    setHoveredParcel(p)
+  }, [])
+
+  const handleMarkerMouseLeave = useCallback(() => {
+    setHoveredParcel(null)
+  }, [])
+
   const handleSaveApiKey = () => {
     const trimmed = tempKeyInput.trim()
     setGoogleMapsApiKey(trimmed)
@@ -241,10 +353,23 @@ export function MapCanvas(props: Props) {
     setTimeout(() => setKeySavedToast(false), 3000)
   }
 
+  // Optimize marker payload to maintain 60 FPS: cap at 150 top parcels if dataset is huge
+  const activeParcels = useMemo(() => {
+    if (!props.onAssetClassChange && activeAssetClass !== 'all') {
+      return filterParcels(props.parcels, props.region, activeAssetClass)
+    }
+    return props.parcels
+  }, [props.parcels, props.region, props.onAssetClassChange, activeAssetClass])
+
+  const displayParcels = useMemo(() => {
+    if (activeParcels.length <= 150) return activeParcels
+    return [...activeParcels].sort((a, b) => b.score - a.score).slice(0, 150)
+  }, [activeParcels])
+
   const mapBusy = props.loading && props.parcels.length === 0
 
   return (
-    <section ref={containerRef} className="relative min-h-0 w-full h-full overflow-hidden bg-pp-header">
+    <section ref={containerRef} className="relative min-h-0 w-full h-full overflow-hidden bg-background">
       {/* Google Maps APIProvider & Map */}
       <APIProvider apiKey={apiKey} libraries={['marker', 'places', 'geometry']}>
         <div className="absolute inset-0 w-full h-full">
@@ -265,89 +390,20 @@ export function MapCanvas(props: Props) {
               onRegisterControls={handleRegisterControls}
             />
 
-            {/* Render Advanced Markers with graceful spring scale & fade transitions */}
-            {(allKnownParcels.size > 0 ? Array.from(allKnownParcels.values()) : props.parcels).map((parcel) => {
-              const isVisible = visibleParcelIds.has(parcel.id)
-              const isSelected = props.selected?.id === parcel.id
-              const isHovered = hoveredParcel?.id === parcel.id
-              const metricVal = layerMetric(parcel, props.layer)
-              const color = tierColor(parcel.score)
-
-              return (
-                <AdvancedMarker
-                  key={parcel.id}
-                  position={{ lat: parcel.coordinates[1], lng: parcel.coordinates[0] }}
-                  onClick={() => isVisible && handleMarkerClick(parcel)}
-                  title={isVisible ? `${parcel.address} — ${parcel.score.toFixed(1)} score` : undefined}
-                >
-                  <motion.div
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={{
-                      scale: isVisible ? (isSelected ? 1.35 : isHovered ? 1.15 : 1) : 0,
-                      opacity: isVisible ? 1 : 0,
-                      pointerEvents: isVisible ? 'auto' : 'none',
-                    }}
-                    transition={{
-                      type: 'spring',
-                      stiffness: 380,
-                      damping: 26,
-                      mass: 0.6,
-                    }}
-                    onMouseEnter={() => isVisible && setHoveredParcel(parcel)}
-                    onMouseLeave={() => setHoveredParcel(null)}
-                    className="relative flex items-center justify-center cursor-pointer"
-                    style={{
-                      zIndex: isSelected ? 60 : isHovered ? 40 : 10,
-                    }}
-                  >
-                    {/* Glowing multi-ring radar pulse for selected marker */}
-                    {isSelected && isVisible && (
-                      <>
-                        {/* Outermost expanding radar wave */}
-                        <span
-                          className="absolute -inset-3.5 rounded-full animate-ping opacity-60 pointer-events-none"
-                          style={{
-                            backgroundColor: color,
-                            animationDuration: '1.6s',
-                          }}
-                        />
-                        {/* Secondary staggered expanding pulse */}
-                        <span
-                          className="absolute -inset-2 rounded-full animate-ping opacity-45 pointer-events-none"
-                          style={{
-                            backgroundColor: '#ffffff',
-                            animationDuration: '1.2s',
-                          }}
-                        />
-                        {/* Steady glowing halo aura */}
-                        <span
-                          className="absolute -inset-2.5 rounded-full animate-pulse opacity-60 pointer-events-none"
-                          style={{
-                            boxShadow: `0 0 20px 4px ${color}`,
-                            border: `1.5px solid ${color}`,
-                          }}
-                        />
-                      </>
-                    )}
-
-                    <div
-                      className="relative flex items-center justify-center rounded-full font-mono text-[10px] font-bold text-white shadow-xl transition-all"
-                      style={{
-                        width: isSelected ? 34 : 24,
-                        height: isSelected ? 34 : 24,
-                        backgroundColor: color,
-                        border: isSelected ? '2.5px solid #ffffff' : '1.5px solid rgba(255,255,255,0.85)',
-                        boxShadow: isSelected
-                          ? `0 0 18px 4px ${color}, 0 4px 12px rgba(0,0,0,0.6)`
-                          : `0 0 10px ${color}88`,
-                      }}
-                    >
-                      {Math.round(metricVal)}
-                    </div>
-                  </motion.div>
-                </AdvancedMarker>
-              )
-            })}
+            {/* Render Advanced Markers with hardware-accelerated transitions */}
+            {displayParcels.map((parcel) => (
+              <ParcelMarker
+                key={parcel.id}
+                parcel={parcel}
+                isSelected={props.selected?.id === parcel.id}
+                isHovered={hoveredParcel?.id === parcel.id}
+                metricVal={layerMetric(parcel, props.layer)}
+                color={tierColor(parcel.score)}
+                onClick={handleMarkerClick}
+                onMouseEnter={handleMarkerMouseEnter}
+                onMouseLeave={handleMarkerMouseLeave}
+              />
+            ))}
 
             {/* InfoWindow for active clicked parcel */}
             {activeInfoWindowParcel && (
@@ -363,9 +419,20 @@ export function MapCanvas(props: Props) {
                   </div>
                 }
               >
-                <div className="p-1 text-xs text-zinc-700 font-sans space-y-1.5 min-w-[210px]">
+                <div
+                  data-asset-class={activeInfoWindowParcel.assetClass}
+                  className="p-1 text-xs text-zinc-700 font-sans space-y-1.5 min-w-[210px]"
+                >
                   <div className="flex items-center justify-between text-[11px] text-zinc-500 border-b border-zinc-200 pb-1">
-                    <span>{activeInfoWindowParcel.marketLabel}</span>
+                    <span className="flex items-center gap-1.5">
+                      <span>{activeInfoWindowParcel.marketLabel}</span>
+                      <span
+                        data-asset-class={activeInfoWindowParcel.assetClass}
+                        className="rounded bg-zinc-100 px-1.5 py-0.5 text-[9px] font-semibold text-zinc-700"
+                      >
+                        {activeInfoWindowParcel.assetClassLabel}
+                      </span>
+                    </span>
                     <span className="font-mono font-semibold text-zinc-800">
                       Score: {activeInfoWindowParcel.score.toFixed(1)}
                     </span>
@@ -403,8 +470,9 @@ export function MapCanvas(props: Props) {
       </APIProvider>
 
       {/* Top filter bar */}
-      <div className="absolute inset-x-0 top-0 z-20 flex flex-wrap items-center gap-2 border-b border-pp-border/18 bg-pp-header/94 p-2.5 shadow-inset-border backdrop-blur-md">
-        {(['All regions', 'California', 'Florida'] as LiveRegionFilter[]).map((item) => (
+      <div className="absolute inset-x-0 top-0 z-20 flex flex-wrap items-center gap-2 border-b border-border bg-card/90 p-2.5 shadow-inset-border backdrop-blur-md">
+        {/* Region Filters */}
+        {(['Cook County, IL', 'California', 'New York', 'All regions'] as LiveRegionFilter[]).map((item) => (
           <FilterButton
             key={item}
             active={props.region === item}
@@ -413,10 +481,102 @@ export function MapCanvas(props: Props) {
             {item}
           </FilterButton>
         ))}
-        <span className="mx-1 h-6 w-px bg-card/10" />
+
+        <span className="mx-0.5 h-6 w-px bg-card/10 hidden sm:inline-block" />
+
+        {/* Property Type (Asset Class) Filter System */}
+        <div
+          id="opportunity-map-asset-class-filter-group"
+          role="group"
+          aria-label="Filter opportunity map by property type"
+          className="flex items-center gap-1 rounded-md border border-border bg-muted/60 p-0.5"
+        >
+          <button
+            type="button"
+            data-asset-class="all"
+            aria-label="All property types"
+            aria-pressed={activeAssetClass === 'all'}
+            onClick={() => handleAssetClassToggle('all')}
+            className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs rounded transition-colors cursor-pointer ${
+              activeAssetClass === 'all'
+                ? 'bg-card text-foreground shadow-xs font-semibold'
+                : 'text-muted-foreground hover:text-foreground hover:bg-card/50'
+            }`}
+          >
+            <SquaresFour size={13} weight={activeAssetClass === 'all' ? 'bold' : 'regular'} />
+            <span>All</span>
+            <span className="rounded-full bg-muted/90 px-1.5 py-0.2 text-[10px] font-mono text-muted-foreground">
+              {assetClassCounts.all}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            data-asset-class="residential"
+            aria-label="Filter residential properties"
+            aria-pressed={activeAssetClass === 'residential'}
+            onClick={() => handleAssetClassToggle('residential')}
+            className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs rounded transition-colors cursor-pointer ${
+              activeAssetClass === 'residential'
+                ? 'bg-card text-foreground shadow-xs font-semibold'
+                : 'text-muted-foreground hover:text-foreground hover:bg-card/50'
+            }`}
+          >
+            <House size={13} weight={activeAssetClass === 'residential' ? 'bold' : 'regular'} />
+            <span>Residential</span>
+            <span className="rounded-full bg-muted/90 px-1.5 py-0.2 text-[10px] font-mono text-muted-foreground">
+              {assetClassCounts.residential}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            data-asset-class="commercial"
+            aria-label="Filter commercial properties"
+            aria-pressed={activeAssetClass === 'commercial'}
+            onClick={() => handleAssetClassToggle('commercial')}
+            className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs rounded transition-colors cursor-pointer ${
+              activeAssetClass === 'commercial'
+                ? 'bg-card text-foreground shadow-xs font-semibold'
+                : 'text-muted-foreground hover:text-foreground hover:bg-card/50'
+            }`}
+          >
+            <Buildings size={13} weight={activeAssetClass === 'commercial' ? 'bold' : 'regular'} />
+            <span>Commercial</span>
+            <span className="rounded-full bg-muted/90 px-1.5 py-0.2 text-[10px] font-mono text-muted-foreground">
+              {assetClassCounts.commercial}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            data-asset-class="vacant-land"
+            data-asset-class-kebab="vacant-land"
+            aria-label="Filter vacant land properties"
+            aria-pressed={activeAssetClass === 'vacant_land'}
+            onClick={() => handleAssetClassToggle('vacant_land')}
+            className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs rounded transition-colors cursor-pointer ${
+              activeAssetClass === 'vacant_land'
+                ? 'bg-card text-foreground shadow-xs font-semibold'
+                : 'text-muted-foreground hover:text-foreground hover:bg-card/50'
+            }`}
+          >
+            <span data-asset-class="vacant_land" className="inline-flex items-center gap-1.5">
+              <span data-asset-class="vacant land" className="inline-flex items-center gap-1.5">
+                <Tree size={13} weight={activeAssetClass === 'vacant_land' ? 'bold' : 'regular'} />
+                <span>Vacant Land</span>
+                <span className="rounded-full bg-muted/90 px-1.5 py-0.2 text-[10px] font-mono text-muted-foreground">
+                  {assetClassCounts.vacant_land}
+                </span>
+              </span>
+            </span>
+          </button>
+        </div>
+
+        <span className="mx-0.5 h-6 w-px bg-card/10 hidden sm:inline-block" />
 
         {/* Map Type Quick Switcher (Roadmap, Satellite, Terrain) */}
-        <div className="flex items-center gap-1 rounded-md border border-pp-border/20 bg-pp-surface/70 p-0.5">
+        <div className="flex items-center gap-1 rounded-md border border-border bg-muted/60 p-0.5">
           {(
             [
               ['roadmap', 'Vector'],
@@ -425,18 +585,18 @@ export function MapCanvas(props: Props) {
               ['terrain', 'Terrain'],
             ] as const
           ).map(([type, label]) => (
-            <Button
+            <button
               key={type}
               type="button"
               onClick={() => setMapType(type)}
-              className={`px-2 py-1 text-xs rounded transition-colors ${
+              className={`px-2.5 py-1 text-xs rounded transition-colors cursor-pointer ${
                 mapType === type
-                  ? 'bg-pp-gold text-zinc-950 font-semibold'
-                  : 'text-pp-muted hover:text-pp-text'
+                  ? 'bg-card text-foreground shadow-xs font-semibold'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-card/50'
               }`}
             >
               {label}
-            </Button>
+            </button>
           ))}
         </div>
 
@@ -462,8 +622,8 @@ export function MapCanvas(props: Props) {
           </Button>
 
           {props.isRefreshing ? (
-            <span className="filter-button inline-flex items-center gap-2 max-lg:hidden text-pp-muted">
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-pp-gold" />
+            <span className="filter-button inline-flex items-center gap-2 max-lg:hidden text-muted-foreground">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />
               Refreshing…
             </span>
           ) : props.snapshotIso ? (
@@ -475,7 +635,7 @@ export function MapCanvas(props: Props) {
               {formatShortDate(props.snapshotIso)}
             </time>
           ) : (
-            <span className="filter-button inline-flex items-center max-lg:hidden text-pp-faint">
+            <span className="filter-button inline-flex items-center max-lg:hidden text-muted-foreground">
               No snapshot
             </span>
           )}
@@ -483,7 +643,7 @@ export function MapCanvas(props: Props) {
       </div>
 
       {/* Left map camera controls */}
-      <div className="absolute left-3 top-20 z-20 grid gap-1 rounded-md border border-pp-border/18 bg-pp-surface/95 p-1 shadow-map-controls">
+      <div className="absolute left-3 top-20 z-20 grid gap-1 rounded-md border border-border bg-card/95 p-1 shadow-map-controls">
         <MapButton label="Zoom in" onClick={() => cameraControlsRef.current.zoomIn()}>
           <Plus size={18} />
         </MapButton>
@@ -515,7 +675,7 @@ export function MapCanvas(props: Props) {
           onClick={() => setLayersOpen((open) => !open)}
         >
           <span className="flex items-center gap-2">
-            <Stack size={17} className="text-pp-gold" />
+            <Stack size={17} className="text-primary" />
             {props.layer}
           </span>
         </Button>
@@ -528,7 +688,7 @@ export function MapCanvas(props: Props) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ type: 'spring', stiffness: 210, damping: 24 }}
-              className="mt-1 overflow-hidden rounded-md border border-pp-border/18 bg-pp-surface/96 p-1 shadow-map-panel backdrop-blur-md"
+              className="mt-1 overflow-hidden rounded-md border border-border bg-card/95 p-1 shadow-map-panel backdrop-blur-md"
             >
               {layerModes.map((mode) => (
                 <Button
@@ -541,8 +701,8 @@ export function MapCanvas(props: Props) {
                   aria-pressed={mode === props.layer}
                   className={`flex w-full items-center gap-2 rounded-sm px-3 py-2 text-left text-sm ${
                     mode === props.layer
-                      ? 'bg-pp-gold/10 text-pp-gold'
-                      : 'text-pp-muted hover:bg-pp-border/[.07]'
+                      ? 'bg-primary/10 text-primary'
+                      : 'text-muted-foreground hover:bg-muted'
                   }`}
                 >
                   {mode === props.layer ? <Eye size={15} /> : <EyeSlash size={15} />} {mode}
@@ -554,10 +714,10 @@ export function MapCanvas(props: Props) {
       </div>
 
       {/* Score Tier Legend */}
-      <div className="absolute bottom-7 left-3 z-20 w-[170px] border border-pp-border bg-pp-surface/95 p-3 text-xs shadow-md backdrop-blur-md rounded-lg">
-        <div className="mb-2 font-semibold text-pp-text flex items-center justify-between">
+      <div className="absolute bottom-7 left-3 z-20 w-[170px] border border-border bg-card/95 p-3 text-xs shadow-md backdrop-blur-md rounded-lg">
+        <div className="mb-2 font-semibold text-foreground flex items-center justify-between">
           <span>{props.layer}</span>
-          <span className="text-[10px] text-pp-muted">{props.parcels.length} parcels</span>
+          <span className="text-[10px] text-muted-foreground">{props.parcels.length} parcels</span>
         </div>
         {[
           [80, 'Exceptional', '#2F5FFF'],
@@ -565,7 +725,7 @@ export function MapCanvas(props: Props) {
           [50, 'Viable', '#64748B'],
           [20, 'Baseline', '#94A3B8'],
         ].map(([val, label, col]) => (
-          <div key={label as string} className="flex items-center gap-2 py-0.5 text-pp-muted">
+          <div key={label as string} className="flex items-center gap-2 py-0.5 text-muted-foreground">
             <span
               aria-hidden="true"
               className="h-2.5 w-2.5 rounded-full"
@@ -578,11 +738,11 @@ export function MapCanvas(props: Props) {
       </div>
 
       {/* Bottom Search shortcut pill */}
-      <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2.5 rounded-full border border-pp-border/20 bg-pp-surface/85 px-4 py-2 text-xs font-medium text-pp-text backdrop-blur-md max-sm:hidden transition-colors hover:bg-pp-surface">
-        <MagnifyingGlass size={15} className="text-pp-gold" />
+      <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2.5 rounded-full border border-border bg-card/90 px-4 py-2 text-xs font-medium text-foreground backdrop-blur-md max-sm:hidden transition-colors hover:bg-card">
+        <MagnifyingGlass size={15} className="text-primary" />
         <span>
           Press{' '}
-          <kbd className="mx-1 rounded-sm border border-pp-border/30 bg-pp-surface-raised px-1.5 py-0.5 font-mono text-[10px] text-pp-muted">
+          <kbd className="mx-1 rounded-sm border border-border bg-muted/60 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
             {isMac ? '⌘K' : 'Ctrl K'}
           </kbd>{' '}
           to search parcels
@@ -592,13 +752,13 @@ export function MapCanvas(props: Props) {
       {/* Loading Skeleton Overlay */}
       {mapBusy && (
         <div
-          className="absolute inset-0 z-30 grid place-items-center bg-pp-page/80 backdrop-blur-xs"
+          className="absolute inset-0 z-30 grid place-items-center bg-background/80 backdrop-blur-xs"
           aria-live="polite"
           aria-busy="true"
         >
           <div className="w-[320px] space-y-3 text-center">
-            <div className="flex items-center justify-center gap-2 text-sm text-pp-muted mb-2">
-              <Globe size={18} className="animate-spin text-pp-gold" />
+            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mb-2">
+              <Globe size={18} className="animate-spin text-primary" />
               <span>Loading Google Maps parcels…</span>
             </div>
             <div className="skeleton h-4 w-2/3 mx-auto" />
@@ -610,31 +770,41 @@ export function MapCanvas(props: Props) {
 
       {/* Error Overlay */}
       {props.error && !mapBusy && (
-        <div className="absolute inset-0 z-30 grid place-items-center bg-pp-page p-8 text-center">
-          <div>
-            <p className="font-medium">Live parcel data could not be loaded.</p>
-            <p className="mt-2 text-sm text-pp-muted">
+        <div id="map-error-overlay" className="absolute inset-0 z-30 grid place-items-center bg-background/85 p-8 text-center backdrop-blur-xs">
+          <div id="map-error-card" className="max-w-md rounded-xl border border-border bg-card p-6 shadow-xl">
+            <p className="font-semibold text-foreground">Live parcel data could not be loaded</p>
+            <p className="mt-2 text-xs text-muted-foreground break-words">
               {props.error ?? 'Check the network connection, then try again.'}
             </p>
-            {props.onRetry ? (
-              <Button type="button" className="primary-button mt-4 mx-auto" onClick={props.onRetry}>
-                Retry
+            <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+              {props.onRetry ? (
+                <Button type="button" className="primary-button" onClick={props.onRetry}>
+                  Retry connection
+                </Button>
+              ) : null}
+              <Button
+                type="button"
+                variant="outline"
+                className="text-xs"
+                onClick={() => props.onRegionChange('All regions')}
+              >
+                View all regions
               </Button>
-            ) : null}
+            </div>
           </div>
         </div>
       )}
 
       {/* Empty Parcels Overlay */}
       {!props.loading && props.parcels.length === 0 && !props.error && (
-        <div className="absolute inset-0 z-30 grid place-items-center bg-pp-page/90 p-8 text-center">
-          <div className="max-w-md">
+        <div id="map-empty-overlay" className="absolute inset-0 z-30 grid place-items-center bg-background/80 p-8 text-center backdrop-blur-xs">
+          <div id="map-empty-card" className="max-w-md rounded-xl border border-border bg-card p-6 shadow-xl">
             {(props.totalCount ?? 0) === 0 ? (
               <>
-                <p className="font-medium text-pp-text">No LIVE scored parcels yet</p>
-                <p className="mt-2 text-sm text-pp-muted">
-                  The workspace reads <span className="font-mono text-pp-faint">parcel_scores</span> with{' '}
-                  <span className="font-mono text-pp-faint">data_source=LIVE</span>. Ingest counties and run
+                <p className="font-semibold text-foreground">No LIVE scored parcels yet</p>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  The workspace reads <span className="font-mono text-muted-foreground/80">parcel_scores</span> with{' '}
+                  <span className="font-mono text-muted-foreground/80">data_source=LIVE</span>. Ingest counties and run
                   underwriting to populate this Google Map.
                 </p>
                 <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
@@ -657,16 +827,40 @@ export function MapCanvas(props: Props) {
               </>
             ) : (
               <>
-                <p className="font-medium text-pp-text">No parcels in this region</p>
-                <p className="mt-2 text-sm text-pp-muted">
-                  {(props.totalCount ?? 0).toLocaleString()} live parcels loaded — try All regions or switch state
-                  filter.
+                <p className="font-semibold text-foreground">
+                  {activeAssetClass !== 'all'
+                    ? `No ${assetClassDisplayName(activeAssetClass as any)} properties in ${props.region}`
+                    : 'No parcels in this region'}
                 </p>
-                {props.onOpenDeals ? (
-                  <Button type="button" className="primary-button mt-4 mx-auto" onClick={props.onOpenDeals}>
-                    Open ranked deals
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {activeAssetClass !== 'all'
+                    ? `There are currently no scored properties matching '${assetClassDisplayName(activeAssetClass as any)}' under this regional filter. Switch property type or view all regions.`
+                    : `${(props.totalCount ?? 0).toLocaleString()} live parcels loaded — try All regions or switch state filter.`}
+                </p>
+                <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+                  {activeAssetClass !== 'all' && (
+                    <Button
+                      type="button"
+                      className="primary-button"
+                      onClick={() => handleAssetClassToggle('all')}
+                    >
+                      Show all property types
+                    </Button>
+                  )}
+                  <Button
+                    type="button"
+                    variant={activeAssetClass !== 'all' ? 'outline' : 'default'}
+                    className={activeAssetClass !== 'all' ? 'text-xs' : 'primary-button'}
+                    onClick={() => props.onRegionChange('All regions')}
+                  >
+                    View all regions ({(props.totalCount ?? 0).toLocaleString()})
                   </Button>
-                ) : null}
+                  {props.onOpenDeals ? (
+                    <Button type="button" variant="outline" className="text-xs" onClick={props.onOpenDeals}>
+                      Open ranked deals
+                    </Button>
+                  ) : null}
+                </div>
               </>
             )}
           </div>
@@ -696,40 +890,40 @@ export function MapCanvas(props: Props) {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="relative w-full max-w-md rounded-lg border border-pp-border/30 bg-pp-surface p-6 shadow-2xl"
+              className="relative w-full max-w-md rounded-lg border border-border bg-card p-6 shadow-2xl"
             >
               <Button
                 type="button"
                 onClick={() => setKeyModalOpen(false)}
-                className="absolute right-4 top-4 text-pp-muted hover:text-pp-text"
+                className="absolute right-4 top-4 text-muted-foreground hover:text-foreground"
               >
                 <X size={18} />
               </Button>
 
               <div className="flex items-center gap-2 mb-3">
-                <Globe size={22} className="text-pp-gold" />
-                <h3 className="text-base font-semibold text-pp-text">Google Maps Platform Integration</h3>
+                <Globe size={22} className="text-primary" />
+                <h3 className="text-base font-semibold text-foreground">Google Maps Platform Integration</h3>
               </div>
 
-              <p className="text-xs text-pp-muted leading-relaxed">
+              <p className="text-xs text-muted-foreground leading-relaxed">
                 The application connects to Google Maps Platform via the official{' '}
-                <code className="rounded bg-pp-surface-raised px-1 py-0.5 text-pp-text">@vis.gl/react-google-maps</code>{' '}
+                <code className="rounded bg-muted px-1 py-0.5 text-foreground">@vis.gl/react-google-maps</code>{' '}
                 SDK with vector rendering, Advanced Markers, and satellite layers.
               </p>
 
-              <div className="mt-4 rounded-md border border-pp-border/20 bg-pp-surface-soft p-3">
-                <div className="flex items-center justify-between text-xs font-medium text-pp-text mb-1">
+              <div className="mt-4 rounded-md border border-border bg-muted/40 p-3">
+                <div className="flex items-center justify-between text-xs font-medium text-foreground mb-1">
                   <span>Free Demo Key Quickstart</span>
-                  <span className="text-emerald-400">Zero-cost Prototyping</span>
+                  <span className="text-emerald-500 font-semibold">Zero-cost Prototyping</span>
                 </div>
-                <p className="text-[11px] text-pp-muted mb-2">
+                <p className="text-[11px] text-muted-foreground mb-2">
                   Generate a free demo key with no billing required via Google Maps Platform:
                 </p>
                 <a
                   href={DEMO_KEY_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded bg-pp-gold/15 px-2.5 py-1 text-xs font-medium text-pp-gold hover:bg-pp-gold/25 transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded bg-primary/15 px-2.5 py-1 text-xs font-medium text-primary hover:bg-primary/25 transition-colors"
                 >
                   <span>Get Google Maps Demo Key</span>
                   <ArrowsOut size={13} />
@@ -737,7 +931,7 @@ export function MapCanvas(props: Props) {
               </div>
 
               <div className="mt-4">
-                <label htmlFor="gmp-key-input" className="block text-xs font-medium text-pp-text mb-1.5">
+                <label htmlFor="gmp-key-input" className="block text-xs font-medium text-foreground mb-1.5">
                   Your Google Maps API Key
                 </label>
                 <Input
@@ -746,11 +940,11 @@ export function MapCanvas(props: Props) {
                   placeholder="AIzaSy..."
                   value={tempKeyInput}
                   onChange={(e) => setTempKeyInput(e.target.value)}
-                  className="w-full rounded border border-pp-border/30 bg-pp-page px-3 py-2 font-mono text-xs text-pp-text placeholder:text-pp-faint focus:border-pp-gold focus:outline-hidden"
+                  className="w-full rounded border border-border bg-background px-3 py-2 font-mono text-xs text-foreground placeholder:text-muted-foreground/60 focus:border-primary focus:outline-hidden"
                 />
-                <p className="mt-1 text-[11px] text-pp-muted">
+                <p className="mt-1 text-[11px] text-muted-foreground">
                   Stored securely for your session. Alternatively define{' '}
-                  <code className="text-pp-faint">VITE_GOOGLE_MAPS_API_KEY</code> in environment variables.
+                  <code className="text-muted-foreground font-semibold">VITE_GOOGLE_MAPS_API_KEY</code> in environment variables.
                 </p>
               </div>
 
@@ -758,7 +952,7 @@ export function MapCanvas(props: Props) {
                 <Button
                   type="button"
                   onClick={() => setKeyModalOpen(false)}
-                  className="rounded px-3 py-1.5 text-xs text-pp-muted hover:text-pp-text"
+                  className="rounded px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground"
                 >
                   Cancel
                 </Button>
@@ -816,7 +1010,7 @@ function MapButton({
       title={label}
       onClick={onClick}
       type="button"
-      className="grid h-8 w-8 place-items-center rounded-sm text-pp-muted hover:bg-pp-surface-soft active:translate-y-px"
+      className="grid h-8 w-8 place-items-center rounded-sm text-muted-foreground hover:bg-muted active:translate-y-px"
     >
       {children}
     </Button>

@@ -38,6 +38,7 @@ import {
   User as UserIcon,
   Bookmark,
   Layers,
+  CreditCard,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -101,34 +102,41 @@ export function Header({
 
   const primaryNav: NavItem[] = [
     {
-      to: "/workspace",
-      label: "Map",
-      hint: "Live cadastral parcel genome & geospatial tools",
-      icon: MapPin,
-    },
-    {
       to: "/deals",
-      label: "Ranked Deals",
-      hint: "Monte Carlo risk-adjusted buy rankings & spreads",
+      label: "Deals",
+      hint: "Ranked investment deals, wholesale spreads & underwriting",
       icon: Flame,
     },
     {
+      to: "/workspace",
+      label: "Map",
+      hint: "Interactive parcel map, cadastral boundary & comps radius",
+      icon: MapPin,
+    },
+    {
       to: "/sheriff-sales",
-      label: "Sheriff & Gov Sales",
-      hint: "AI workforce scored auctions & legal intelligence",
+      label: "Auctions",
+      hint: "AI-scored foreclosure & sheriff auction pipeline",
       badge: "AI Scored",
       badgeVariant: "live",
       icon: Gavel,
+    },
+    {
+      to: "/pricing",
+      label: "Pricing",
+      hint: "Subscription plans with 30-day money-back guarantee",
+      badge: "Guarantee",
+      icon: CreditCard,
     },
   ];
 
   const intelligenceGroups: DropdownGroup[] = [
     {
-      label: "Distress & Pre-Market",
+      label: "Advanced Lead Pipeline",
       items: [
         {
           to: "/shadow",
-          label: "Off-Market Shadow",
+          label: "Off-Market Leads",
           hint: "High-probability sellers before public listing",
           badge: "Shadow",
           badgeVariant: "warning",
@@ -137,53 +145,53 @@ export function Header({
         {
           to: "/prophecy",
           label: "Predicted Listings",
-          hint: "Anticipated market velocity & predictive parcels",
+          hint: "Anticipated market velocity & pre-listing distress",
           icon: Sparkles,
         },
         {
           to: "/notices",
-          label: "Notice Reader",
-          hint: "Parse legal sale notices & lien extractions",
+          label: "Court Notice Reader",
+          hint: "Parse legal sale notices & court lien filings",
           icon: FileText,
         },
       ],
     },
     {
-      label: "Institutional Modeling & Risk",
+      label: "Analytics & Accuracy",
       items: [
         {
           to: "/accuracy",
           label: "Model Accuracy",
-          hint: "Historical backtesting & error distributions",
+          hint: "Historical backtesting & realized sale error rates",
           icon: CheckCircle2,
         },
         {
           to: "/monitoring",
           label: "Portfolio Risk & Health",
-          hint: "Stress test portfolio against shocks & downturns",
+          hint: "Stress test deals against market shifts & carry costs",
           icon: Activity,
         },
       ],
     },
     {
-      label: "Data Pipeline & Operations",
+      label: "System & Operations",
       items: [
         {
           to: "/admin",
-          label: "Data Sources",
-          hint: "County cadastre coverage & GIS ingest rings",
+          label: "County Cadastre Coverage",
+          hint: "County GIS coverage & parcel data sources",
           icon: Database,
         },
         {
           to: "/admin/health",
-          label: "Ingest Pipeline Health",
-          hint: "Crawler spiders, worker logs & sync monitors",
+          label: "Crawler Health & Spiders",
+          hint: "Zyte crawler spiders, worker logs & sync monitors",
           icon: Cpu,
         },
         {
           to: "/admin/analytics",
-          label: "Platform Analytics",
-          hint: "Underwrite metrics, query load & telemetry",
+          label: "Usage & Telemetry",
+          hint: "Underwrite metrics, query load & compute latency",
           icon: BarChart3,
         },
       ],
@@ -256,11 +264,11 @@ export function Header({
               );
             })}
 
-            {/* Intelligence Dropdown */}
+            {/* More Tools Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger
-                id={`${id}-intelligence-trigger`}
-                aria-label="Intelligence Tools and Advanced Modeling Menu"
+                id={`${id}-more-tools-trigger`}
+                aria-label="More Advanced Analysis & Operations Tools"
                 aria-haspopup="menu"
                 className={cn(
                   "group inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-muted-foreground transition-all duration-150 hover:bg-muted hover:text-foreground data-[state=open]:bg-muted data-[state=open]:text-foreground whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
@@ -268,7 +276,7 @@ export function Header({
                 )}
               >
                 <Layers className="h-3.5 w-3.5 text-muted-foreground group-hover:text-foreground transition-colors" aria-hidden="true" />
-                <span>Intelligence</span>
+                <span>More Tools</span>
                 <ChevronDown className="h-3.5 w-3.5 opacity-70 transition-transform duration-200 group-data-[state=open]:rotate-180" aria-hidden="true" />
               </DropdownMenuTrigger>
 
@@ -386,6 +394,12 @@ export function Header({
                           <span>Cadastral Workspace</span>
                         </Link>
                       </DropdownMenuItem>
+                      <DropdownMenuItem asChild className="rounded-lg cursor-pointer focus:bg-muted">
+                        <Link to="/pricing" className="flex items-center gap-2 px-2 py-1.5 text-xs">
+                          <CreditCard className="h-3.5 w-3.5 text-emerald-600" />
+                          <span>Subscription & Billing</span>
+                        </Link>
+                      </DropdownMenuItem>
                       <DropdownMenuSeparator className="bg-border my-1" />
                       <DropdownMenuItem
                         onClick={handleSignOut}
@@ -398,21 +412,23 @@ export function Header({
                   </DropdownMenu>
                 ) : (
                   <div className="flex items-center gap-2">
-                    <Link to="/auth" id={`${id}-signin-link`}>
-                      <Button
-                        size="sm"
-                        onClick={onSignIn}
-                        className="h-8.5 px-3 sm:px-3.5 text-xs font-semibold rounded-lg primary-button flex items-center gap-1.5 cursor-pointer"
-                      >
-                        <LogIn className="h-3.5 w-3.5" />
-                        <span>Sign in</span>
-                      </Button>
-                    </Link>
+                    {pathname !== "/auth" && (
+                      <Link to="/auth" id={`${id}-signin-link`}>
+                        <Button
+                          size="sm"
+                          onClick={onSignIn}
+                          className="h-8.5 px-3 sm:px-3.5 text-xs font-semibold rounded-lg primary-button flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <LogIn className="h-3.5 w-3.5" />
+                          <span>Sign in</span>
+                        </Button>
+                      </Link>
+                    )}
                     {onExplore && (
                       <Button
                         size="sm"
                         onClick={onExplore}
-                        className="hidden sm:inline-flex h-8.5 px-3.5 text-xs font-bold bg-foreground text-card hover:bg-foreground/90 rounded-lg shadow-2xs transition-all cursor-pointer"
+                        className="hidden sm:inline-flex h-8.5 px-3.5 text-xs font-bold bg-foreground text-background hover:bg-foreground/90 rounded-lg shadow-2xs transition-all cursor-pointer"
                       >
                         Launch Engine
                       </Button>

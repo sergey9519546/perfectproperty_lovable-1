@@ -15,6 +15,9 @@ export const Route = createFileRoute("/accuracy")({
   beforeLoad: async () => {
     const firebaseUser = await getAuthenticatedFirebaseUser();
     if (!firebaseUser) {
+      if (typeof localStorage !== "undefined" && localStorage.getItem("pp_demo_session")) {
+        return;
+      }
       const { data } = await supabase.auth.getUser();
       if (!data.user) throw redirect({ to: "/auth", search: { next: "/accuracy" } });
     }
@@ -41,17 +44,18 @@ function AccuracyPage() {
       <PageHeader
         title="Prediction accuracy"
         badge="Backtested"
+        breadcrumbs={[{ label: "Model Accuracy" }]}
         sub="How our forecasts compared to what actually happened. Checked automatically every night and published as-is."
       />
 
       {q.isError && (
-        <div id="accuracy-error-banner" className="rounded-xl border border-rose-200 bg-rose-50 p-6 text-center text-sm text-rose-700">
-          Unable to load prediction accuracy metrics: {q.error instanceof Error ? q.error.message : "Query failed"}
+        <div id="accuracy-error-banner" className="rounded-xl border border-destructive/30 bg-destructive/10 p-5 text-center text-xs text-destructive">
+          <span>Unable to load prediction accuracy metrics: {q.error instanceof Error ? q.error.message : "Query failed"}</span>
           <Button
             id="accuracy-retry-btn"
             type="button"
             onClick={() => q.refetch()}
-            className="ml-3 font-semibold text-rose-800 underline hover:text-rose-900 cursor-pointer"
+            className="ml-3 font-semibold underline hover:opacity-80 cursor-pointer"
           >
             Retry
           </Button>

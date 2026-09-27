@@ -18,6 +18,9 @@ export const Route = createFileRoute("/prophecy")({
   beforeLoad: async () => {
     const firebaseUser = await getAuthenticatedFirebaseUser();
     if (!firebaseUser) {
+      if (typeof localStorage !== "undefined" && localStorage.getItem("pp_demo_session")) {
+        return;
+      }
       const { data } = await supabase.auth.getUser();
       if (!data.user) throw redirect({ to: "/auth", search: { next: "/prophecy" } });
     }
@@ -56,6 +59,7 @@ function ProphecyPage() {
         <PageHeader
           title="Predicted to sell"
           badge="Prophecy Feed"
+          breadcrumbs={[{ label: "Predicted Listings" }]}
           sub="Properties showing the pattern that usually comes 60–90 days before an owner sells. Early warning, not a listing."
         />
 
@@ -82,13 +86,13 @@ function ProphecyPage() {
         </div>
 
         {q.isError && (
-          <div id="prophecy-error-banner" className="rounded-xl border border-rose-200 bg-rose-50 p-6 text-center text-sm text-rose-700">
-            Unable to load prophecy predictions: {q.error instanceof Error ? q.error.message : "Query failed"}
+          <div id="prophecy-error-banner" className="rounded-xl border border-destructive/30 bg-destructive/10 p-5 text-center text-xs text-destructive">
+            <span>Unable to load prophecy predictions: {q.error instanceof Error ? q.error.message : "Query failed"}</span>
             <Button
               id="prophecy-retry-btn"
               type="button"
               onClick={() => q.refetch()}
-              className="ml-3 font-semibold text-rose-800 underline hover:text-rose-900 cursor-pointer"
+              className="ml-3 font-semibold underline hover:opacity-80 cursor-pointer"
             >
               Retry
             </Button>
@@ -96,7 +100,7 @@ function ProphecyPage() {
         )}
 
         {q.data && q.data.length === 0 && !q.isError && (
-          <div id="prophecy-empty-state" className="rounded-xl border border-dashed border-border-strong bg-card p-8 text-center text-sm text-muted-foreground">
+          <div id="prophecy-empty-state" className="rounded-xl border border-dashed border-border bg-card p-8 text-center text-xs text-muted-foreground">
             No properties match this pattern right now. We keep watching and will list them here as soon as the signals appear.
           </div>
         )}

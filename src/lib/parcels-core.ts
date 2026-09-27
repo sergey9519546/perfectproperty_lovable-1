@@ -13,7 +13,7 @@ import {
   realieToParcelRow,
   type RealieProperty,
 } from "@/lib/adapters/realie";
-import { matchRealieProperties, realieLookupKey } from "@/lib/realie-batch";
+import { matchRealieProperties, realieLookupKey, cleanRealieCounty } from "@/lib/realie-batch";
 
 export type LookupArgs = {
   address: string;
@@ -322,11 +322,12 @@ export async function persistRealiePropertyCore(
 
 export async function lookupParcelByAddressCore(args: LookupArgs) {
   const state = args.state.trim().toUpperCase();
+  const county = cleanRealieCounty(args.county);
   const lookupKey = realieLookupKey({
     address: args.address,
     state,
     city: args.city,
-    county: args.county,
+    county,
     unit: args.unit,
   });
 
@@ -344,7 +345,7 @@ export async function lookupParcelByAddressCore(args: LookupArgs) {
 
   if (!property) {
     persistSnapshot = true;
-    if (args.city && !args.county) {
+    if (args.city && !county) {
       // Realie's address endpoint rejects city without county. The property
       // search endpoint accepts that combination, so use an exact-address
       // search instead of sending a malformed request.
@@ -378,8 +379,8 @@ export async function lookupParcelByAddressCore(args: LookupArgs) {
         address: args.address,
         state,
         unitNumberStripped: args.unit,
-        city: args.county ? args.city : undefined,
-        county: args.county,
+        city: county ? args.city : undefined,
+        county,
         budgetClass: args.budgetClass ?? "interactive",
       });
     }
@@ -393,7 +394,7 @@ export async function lookupParcelByAddressCore(args: LookupArgs) {
   const persisted = await persistRealiePropertyCore(property, {
     existingParcelId: args.existingParcelId,
     fallbackState: state,
-    county: args.county,
+    county,
     endpoint,
     matchMethod,
     lookupKey,

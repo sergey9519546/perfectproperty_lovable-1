@@ -45,7 +45,7 @@ export function CountyDirectoryView({ loading = false }: { loading?: boolean } =
   return (
     <div id="county-directory-view" className="space-y-6">
       {/* Header */}
-      <div id="county-directory-header" className="bg-card border border-pp-border rounded-2xl p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div id="county-directory-header" className="bg-card border border-border rounded-2xl p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <span className="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary border border-blue-200 text-xs font-mono font-bold">
@@ -124,7 +124,7 @@ export function CountyDirectoryView({ loading = false }: { loading?: boolean } =
       </div>
 
       {/* NJ Director's Ratio Chapter 123 Quick Tool */}
-      <div id="nj-directors-ratio-tool" className="bg-card border border-pp-border rounded-2xl p-6 space-y-4 shadow-sm">
+      <div id="nj-directors-ratio-tool" className="bg-card border border-border rounded-2xl p-6 space-y-4 shadow-sm">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div className="flex items-center gap-2 text-foreground font-bold text-sm">
             <Calculator size={18} className="text-primary" />
@@ -185,7 +185,7 @@ export function CountyDirectoryView({ loading = false }: { loading?: boolean } =
           <div
             key={county.countyName}
             id={`county-card-${county.countyName.toLowerCase().replace(/\s+/g, '-')}`}
-            className="bg-card border border-pp-border rounded-2xl p-5 space-y-3.5 shadow-sm hover:border-blue-300 hover:shadow-md transition-all flex flex-col justify-between"
+            className="bg-card border border-border rounded-2xl p-5 space-y-3.5 shadow-sm hover:border-blue-300 hover:shadow-md transition-all flex flex-col justify-between"
           >
             <div>
               <div className="flex items-center justify-between">

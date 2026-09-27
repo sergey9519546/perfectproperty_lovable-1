@@ -50,6 +50,8 @@ export const MarketContext = () => {
               <img
                 src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&q=80&w=1600"
                 alt="Cadastral Ortho Map View"
+                loading="lazy"
+                decoding="async"
                 className="absolute inset-0 w-full h-full object-cover opacity-45 mix-blend-luminosity"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
@@ -517,7 +519,7 @@ export const MarketContext = () => {
             <span className="text-xs font-mono font-bold uppercase tracking-[0.2em] text-primary block mb-3">
               CONTEXT-AWARE CARTOGRAPHY
             </span>
-            <h2 className="text-[38px] md:text-[46px] font-bold tracking-[-0.03em] leading-[1.05] text-background">
+            <h2 className="text-[38px] md:text-[46px] font-bold tracking-[-0.03em] leading-[1.05] text-foreground">
               AI that knows your parcels. AI that knows your market.
             </h2>
           </div>

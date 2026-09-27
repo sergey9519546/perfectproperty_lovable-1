@@ -43,8 +43,8 @@ export const Route = createFileRoute("/.lovable/oauth/consent")({
   },
   component: Consent,
   errorComponent: ({ error }) => (
-    <main className="flex min-h-[100dvh] items-center justify-center bg-pp-page px-4 dark">
-      <div className="max-w-md text-sm text-pp-text">
+    <main className="flex min-h-[100dvh] items-center justify-center bg-background px-4 dark">
+      <div className="max-w-md text-sm text-foreground">
         Could not load this authorization request: {String((error as Error)?.message ?? error)}
       </div>
     </main>
@@ -72,17 +72,17 @@ function Consent() {
   const clientName = details?.client?.name ?? "an application";
 
   return (
-    <main className="flex min-h-[100dvh] items-center justify-center bg-pp-page px-4 dark">
-      <div className="w-full max-w-md rounded-lg border border-pp-border bg-pp-page p-6">
-        <h1 className="text-xl font-semibold text-pp-text">
+    <main className="flex min-h-[100dvh] items-center justify-center bg-background px-4 dark">
+      <div className="w-full max-w-md rounded-lg border border-border bg-card p-6">
+        <h1 className="text-xl font-semibold text-foreground">
           Connect {clientName} to Perfect Property
         </h1>
-        <p className="mt-2 text-sm text-pp-muted">
+        <p className="mt-2 text-sm text-muted-foreground">
           {clientName} will be able to call this app's enabled tools while you are signed in.
           Row-level security still decides what data is accessible.
         </p>
         {details?.scope && (
-          <p className="mt-3 text-xs text-pp-muted">
+          <p className="mt-3 text-xs text-muted-foreground">
             Requested scopes: <span className="font-mono">{details.scope}</span>
           </p>
         )}
@@ -98,7 +98,7 @@ function Consent() {
           <Button
             disabled={busy}
             onClick={() => decide(false)}
-            className="flex-1 rounded-md border border-pp-border bg-pp-page px-4 py-2 text-sm text-pp-text disabled:opacity-50"
+            className="flex-1 rounded-md border border-border bg-background px-4 py-2 text-sm text-foreground disabled:opacity-50"
           >
             Cancel connection
           </Button>

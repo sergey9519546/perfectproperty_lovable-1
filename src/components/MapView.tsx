@@ -9,6 +9,7 @@ export interface MapParcel {
   lng: number;
   perfect_score: number;
   ring: number;
+  asset_class?: string;
 }
 
 interface Props {
@@ -78,6 +79,7 @@ export function MapView({ parcels, center = [-98, 36], zoom = 4, onSelect, selec
                 title={`Score: ${p.perfect_score}`}
               >
                 <motion.div
+                  data-asset-class={p.asset_class ?? 'residential'}
                   initial={{ scale: 0, opacity: 0 }}
                   animate={{ scale: isSelected ? 1.3 : 1, opacity: 1 }}
                   transition={{ type: "spring", stiffness: 380, damping: 26, mass: 0.6 }}

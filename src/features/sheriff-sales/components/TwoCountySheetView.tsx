@@ -11,7 +11,7 @@ import {
   Funnel,
   Printer,
   X,
-  FileSpreadsheet,
+  FileText,
   CheckCircle,
   CaretUp,
   CaretDown,
@@ -189,7 +189,7 @@ export function TwoCountySheetView({
   return (
     <div id="two-county-sheet-container" className="space-y-6">
       {/* Top Banner & Mode Switcher */}
-      <div id="two-county-sheet-banner" className="bg-card border border-pp-border rounded-2xl p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div id="two-county-sheet-banner" className="bg-card border border-border rounded-2xl p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <span className="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-mono font-bold border border-blue-200">
@@ -228,12 +228,13 @@ export function TwoCountySheetView({
       </div>
 
       {/* Scope Toggles & Filters */}
-      <div id="two-county-filters-bar" className="bg-card border border-pp-border rounded-2xl p-4 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div id="two-county-filters-bar" className="bg-card border border-border rounded-2xl p-4 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         {/* Scope Pill Switcher */}
         <div className="flex items-center gap-1 bg-accent p-1 rounded-xl text-xs font-medium font-mono shrink-0 overflow-x-auto">
           <Button
             id="scope-first-two-btn"
             type="button"
+            variant="ghost"
             onClick={() => setActiveSheetScope('FIRST_TWO')}
             className={`px-3.5 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap ${
               activeSheetScope === 'FIRST_TWO' ? 'bg-card text-foreground font-bold shadow-xs' : 'text-muted-foreground hover:text-foreground'
@@ -244,6 +245,7 @@ export function TwoCountySheetView({
           <Button
             id="scope-statewide-btn"
             type="button"
+            variant="ghost"
             onClick={() => setActiveSheetScope('STATEWIDE_PA')}
             className={`px-3.5 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap ${
               activeSheetScope === 'STATEWIDE_PA' ? 'bg-card text-foreground font-bold shadow-xs' : 'text-muted-foreground hover:text-foreground'
@@ -254,6 +256,7 @@ export function TwoCountySheetView({
           <Button
             id="scope-all-btn"
             type="button"
+            variant="ghost"
             onClick={() => setActiveSheetScope('ALL')}
             className={`px-3.5 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap ${
               activeSheetScope === 'ALL' ? 'bg-card text-foreground font-bold shadow-xs' : 'text-muted-foreground hover:text-foreground'
@@ -295,7 +298,7 @@ export function TwoCountySheetView({
       </div>
 
       {/* Main Table */}
-      <div id="two-county-table-wrapper" className="bg-card border border-pp-border rounded-2xl overflow-hidden shadow-sm">
+      <div id="two-county-table-wrapper" className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table id="two-county-sales-table" className="w-full text-xs text-left">
             <thead className="bg-muted font-mono text-muted-foreground uppercase border-b border-slate-200 text-[11px] tracking-wider">
@@ -378,7 +381,26 @@ export function TwoCountySheetView({
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 font-mono">
-              {filteredSales.map((sale) => (
+              {filteredSales.length === 0 ? (
+                <tr>
+                  <td colSpan={9} className="p-8 text-center text-muted-foreground text-xs font-sans">
+                    <p className="font-semibold text-foreground mb-1">No sheriff sales match your active sheet criteria</p>
+                    <p className="text-muted-foreground mb-3">Try adjusting your Minimum Flip Score or selecting &ldquo;All Markets&rdquo;</p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMinFlipScore(0);
+                        setSearchQuery('');
+                        setActiveSheetScope('ALL');
+                      }}
+                      className="px-3.5 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-mono font-medium hover:bg-primary/90 transition-colors cursor-pointer"
+                    >
+                      Reset Sheet Filters
+                    </button>
+                  </td>
+                </tr>
+              ) : (
+                filteredSales.map((sale) => (
                 <tr key={sale.id} className="hover:bg-muted transition-colors">
                   {/* Property & Docket */}
                   <td className="p-3.5">
@@ -497,8 +519,9 @@ export function TwoCountySheetView({
                     </Button>
                   </td>
                 </tr>
-              ))}
-            </tbody>
+              ))
+            )}
+          </tbody>
           </table>
         </div>
       </div>

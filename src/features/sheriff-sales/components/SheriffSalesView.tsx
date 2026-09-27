@@ -54,7 +54,7 @@ import { TwoCountySheetView } from './TwoCountySheetView';
 import { CountyDirectoryView } from './CountyDirectoryView';
 import { ListingPanelsModal } from './ListingPanelsModal';
 import { AlertsAndTierModal } from './AlertsAndTierModal';
-import { SheriffSalesDashboard } from './SheriffSalesDashboard';
+import { SheriffSalesDashboard, getAssetClass } from './SheriffSalesDashboard';
 import { runGroundedIntelligenceFn } from "@/lib/gemini.functions";
 import {
   useFirebaseAuth,
@@ -207,7 +207,7 @@ export function SheriffSalesView() {
   }, [filteredSales, selectedSale]);
 
   // Toggle watchlist
-  async function handleToggleWatchlist(saleId: string) {
+  const handleToggleWatchlist = useCallback(async (saleId: string) => {
     const sale = SHERIFF_GOV_SALES.find((s) => s.id === saleId);
     if (!sale) return;
 
@@ -244,12 +244,78 @@ export function SheriffSalesView() {
         }
       }
     }
-  }
+  }, [savedIds, user]);
 
   function triggerToast(msg: string) {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 2500);
   }
+
+  // Keyboard navigation for Auctions Pipeline List (Arrow Up/Down, J/K, Home, End)
+  useEffect(() => {
+    if (selectedTab !== 'auctions') return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+
+      if (filteredSales.length === 0) return;
+
+      const currentIndex = filteredSales.findIndex((s) => s.id === currentSale.id);
+
+      if (e.key === 'ArrowDown' || e.key === 'j') {
+        e.preventDefault();
+        const nextIndex =
+          currentIndex < filteredSales.length - 1 ? currentIndex + 1 : 0;
+        const nextSale = filteredSales[nextIndex];
+        setSelectedSale(nextSale);
+        const cardEl = document.getElementById(`deal-card-${nextSale.id}`);
+        if (cardEl) {
+          cardEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      } else if (e.key === 'ArrowUp' || e.key === 'k') {
+        e.preventDefault();
+        const prevIndex =
+          currentIndex > 0 ? currentIndex - 1 : filteredSales.length - 1;
+        const prevSale = filteredSales[prevIndex];
+        setSelectedSale(prevSale);
+        const cardEl = document.getElementById(`deal-card-${prevSale.id}`);
+        if (cardEl) {
+          cardEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        const firstSale = filteredSales[0];
+        setSelectedSale(firstSale);
+        const cardEl = document.getElementById(`deal-card-${firstSale.id}`);
+        if (cardEl) {
+          cardEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        const lastSale = filteredSales[filteredSales.length - 1];
+        setSelectedSale(lastSale);
+        const cardEl = document.getElementById(`deal-card-${lastSale.id}`);
+        if (cardEl) {
+          cardEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      } else if (e.key === 's' || e.key === 'S') {
+        // Toggle watchlist on current sale
+        e.preventDefault();
+        handleToggleWatchlist(currentSale.id);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedTab, filteredSales, currentSale, handleToggleWatchlist]);
 
   // Dynamic Rehab calculations for selected sale
   const rehabCostMultipliers = {
@@ -343,7 +409,7 @@ export function SheriffSalesView() {
   }
 
   return (
-    <div id="sheriff-sales-view-root" className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 text-pp-text">
+    <div id="sheriff-sales-view-root" className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 text-foreground">
       {/* TOAST NOTIFICATION */}
       <AnimatePresence>
         {toastMessage && (
@@ -360,19 +426,19 @@ export function SheriffSalesView() {
       </AnimatePresence>
 
       {/* HERO COMMAND BAR & LIVE METRIC PULSE */}
-      <div id="sheriff-hero-command-card" className="bg-card border border-pp-border rounded-2xl p-6 shadow-sm space-y-6">
+      <div id="sheriff-hero-command-card" className="bg-card border border-border rounded-2xl p-6 shadow-sm space-y-6">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
           <div className="space-y-2 max-w-3xl">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                 Live CivilView & County Dockets
               </span>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-accent text-secondary-foreground border border-slate-200 font-mono">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-muted text-foreground border border-border font-mono">
                 <ShieldCheck size={14} className="text-primary" />
                 Zero Senior Lien Guarantees
               </span>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary border border-blue-200 font-mono">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/25 font-mono">
                 <Sparkle size={14} />
                 USDA NAIP 0.6m Ortho AI
               </span>
@@ -394,9 +460,9 @@ export function SheriffSalesView() {
               id="hero-open-alerts-btn"
               type="button"
               onClick={() => setShowAlertsModal(true)}
-              className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold font-mono flex items-center gap-2 transition-all shadow-sm cursor-pointer"
+              className="px-4 py-2.5 bg-foreground hover:bg-foreground/90 text-background rounded-xl text-xs font-bold font-mono flex items-center gap-2 transition-all shadow-sm cursor-pointer"
             >
-              <BellRinging size={16} className="text-amber-400" />
+              <BellRinging size={16} className="text-primary" />
               <span>Watchlist & Alerts ({savedIds.length})</span>
             </Button>
 
@@ -404,7 +470,7 @@ export function SheriffSalesView() {
               id="hero-quick-notice-ingest-btn"
               type="button"
               onClick={() => setSelectedTab('ingestor')}
-              className="px-4 py-2.5 bg-primary/10 hover:bg-primary/20 text-primary border border-blue-200 rounded-xl text-xs font-bold font-mono flex items-center gap-2 transition-all cursor-pointer"
+              className="px-4 py-2.5 bg-primary/10 hover:bg-primary/20 text-primary border border-primary/25 rounded-xl text-xs font-bold font-mono flex items-center gap-2 transition-all cursor-pointer"
             >
               <Brain size={16} />
               <span>Parse Legal Notice</span>
@@ -413,8 +479,8 @@ export function SheriffSalesView() {
         </div>
 
         {/* METRICS PULSE HUD */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 border-t border-slate-100">
-          <div className="p-3.5 bg-muted border border-slate-200/80 rounded-xl space-y-1">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 border-t border-border">
+          <div className="p-3.5 bg-muted/50 border border-border rounded-xl space-y-1">
             <div className="flex items-center justify-between text-muted-foreground text-[11px] font-mono uppercase">
               <span>Active Dockets</span>
               <Gavel size={14} className="text-primary" />
@@ -461,6 +527,7 @@ export function SheriffSalesView() {
         <Button
           id="tab-dashboard-btn"
           type="button"
+          variant="ghost"
           onClick={() => setSelectedTab('dashboard')}
           className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap ${
             selectedTab === 'dashboard'
@@ -471,13 +538,14 @@ export function SheriffSalesView() {
           <Sparkle size={16} className={selectedTab === 'dashboard' ? 'text-primary' : 'text-slate-400'} />
           <span>Sheriff Sales Dashboard</span>
           <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-primary/20 text-primary font-bold">
-            shadcn UI
+            Executive View
           </span>
         </Button>
 
         <Button
           id="tab-auctions-btn"
           type="button"
+          variant="ghost"
           onClick={() => setSelectedTab('auctions')}
           className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap ${
             selectedTab === 'auctions'
@@ -495,6 +563,7 @@ export function SheriffSalesView() {
         <Button
           id="tab-sheet-btn"
           type="button"
+          variant="ghost"
           onClick={() => setSelectedTab('sheet')}
           className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap ${
             selectedTab === 'sheet'
@@ -512,6 +581,7 @@ export function SheriffSalesView() {
         <Button
           id="tab-counties-btn"
           type="button"
+          variant="ghost"
           onClick={() => setSelectedTab('counties')}
           className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap ${
             selectedTab === 'counties'
@@ -529,6 +599,7 @@ export function SheriffSalesView() {
         <Button
           id="tab-ledger-btn"
           type="button"
+          variant="ghost"
           onClick={() => setSelectedTab('ledger')}
           className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap ${
             selectedTab === 'ledger'
@@ -546,6 +617,7 @@ export function SheriffSalesView() {
         <Button
           id="tab-statutes-btn"
           type="button"
+          variant="ghost"
           onClick={() => setSelectedTab('statutes')}
           className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap ${
             selectedTab === 'statutes'
@@ -563,6 +635,7 @@ export function SheriffSalesView() {
         <Button
           id="tab-ingestor-btn"
           type="button"
+          variant="ghost"
           onClick={() => setSelectedTab('ingestor')}
           className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap ${
             selectedTab === 'ingestor'
@@ -599,7 +672,7 @@ export function SheriffSalesView() {
       {selectedTab === 'auctions' && (
         <div id="tab-content-auctions" className="space-y-6">
           {/* SEARCH & FILTER BAR */}
-          <div className="bg-card border border-pp-border rounded-2xl p-4 shadow-sm space-y-4">
+          <div className="bg-card border border-border rounded-2xl p-4 shadow-sm space-y-4">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               {/* Search Bar */}
               <div className="relative flex-1">
@@ -730,7 +803,15 @@ export function SheriffSalesView() {
             <div className="lg:col-span-5 space-y-3.5">
               <div className="flex items-center justify-between text-xs text-muted-foreground font-mono px-1">
                 <span>Showing {filteredSales.length} of {SHERIFF_GOV_SALES.length} dockets</span>
-                <span>Click card to inspect</span>
+                <div className="hidden sm:flex items-center gap-1.5 text-[11px]">
+                  <kbd className="px-1 py-0.2 rounded bg-muted border border-border text-foreground text-[10px]">↑/↓</kbd>
+                  <span>or</span>
+                  <kbd className="px-1 py-0.2 rounded bg-muted border border-border text-foreground text-[10px]">J/K</kbd>
+                  <span>Select</span>
+                  <span className="text-border">•</span>
+                  <kbd className="px-1 py-0.2 rounded bg-muted border border-border text-foreground text-[10px]">S</kbd>
+                  <span>Save</span>
+                </div>
               </div>
 
               {filteredSales.length === 0 ? (
@@ -760,10 +841,17 @@ export function SheriffSalesView() {
                         (1000 * 60 * 60 * 24)
                     );
 
+                    const assetClass = getAssetClass(sale.parcel.propertyType)
+                    const assetClassNorm = assetClass.toLowerCase().replace(/[\s-]+/g, '_')
+                    const assetClassKebab = assetClass.toLowerCase().replace(/[\s_]+/g, '-')
+
                     return (
                       <div
                         key={sale.id}
                         id={`deal-card-${sale.id}`}
+                        data-asset-class={assetClassNorm}
+                        data-asset-class-kebab={assetClassKebab}
+                        data-asset-class-raw={assetClass}
                         onClick={() => setSelectedSale(sale)}
                         className={`p-4 rounded-2xl border transition-all cursor-pointer relative ${
                           isSelected
@@ -896,7 +984,7 @@ export function SheriffSalesView() {
 
             {/* RIGHT COLUMN: EXPANSIVE MASTER DOSSIER */}
             <div className="lg:col-span-7 space-y-6 sticky top-6">
-              <div id="master-dossier-card" className="bg-card border border-pp-border rounded-2xl p-6 shadow-sm space-y-6">
+              <div id="master-dossier-card" className="bg-card border border-border rounded-2xl p-6 shadow-sm space-y-6">
                 {/* Dossier Header */}
                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-5 border-b border-slate-100">
                   <div className="space-y-1">
@@ -1254,25 +1342,25 @@ export function SheriffSalesView() {
                           <div className="p-2.5 bg-card rounded-lg border border-rose-200">
                             <span className="text-[10px] text-muted-foreground uppercase block">Delinquent Taxes</span>
                             <span className="font-bold text-rose-600">
-                              ${currentSale.assistedLienCheck.verifiedPropertyTaxLien.toLocaleString()}
+                              ${(currentSale.assistedLienCheck.verifiedPropertyTaxLien ?? 0).toLocaleString()}
                             </span>
                           </div>
                           <div className="p-2.5 bg-card rounded-lg border border-rose-200">
-                            <span className="text-[10px] text-muted-foreground uppercase block">Water / Sewer</span>
+                            <span className="text-[10px] text-muted-foreground uppercase block">Water & Sewer</span>
                             <span className="font-bold text-rose-600">
-                              ${currentSale.assistedLienCheck.verifiedWaterSewerLien.toLocaleString()}
+                              ${(currentSale.assistedLienCheck.verifiedWaterSewerLien ?? 0).toLocaleString()}
                             </span>
                           </div>
                           <div className="p-2.5 bg-card rounded-lg border border-rose-200">
                             <span className="text-[10px] text-muted-foreground uppercase block">Code Fines</span>
                             <span className="font-bold text-foreground">
-                              ${currentSale.assistedLienCheck.municipalCodeFines.toLocaleString()}
+                              ${(currentSale.assistedLienCheck.municipalCodeFines ?? 0).toLocaleString()}
                             </span>
                           </div>
                           <div className="p-2.5 bg-card rounded-lg border border-rose-200">
                             <span className="text-[10px] text-muted-foreground uppercase block">Junior Liens Wiped</span>
                             <span className="font-bold text-emerald-600">
-                              ${(currentSale.theCatch.juniorExtinguishedEncumbrances.reduce((a, b) => a + b.amount, 0)).toLocaleString()}
+                              ${(currentSale.theCatch.juniorExtinguishedEncumbrances || []).reduce((a: number, b: any) => a + b.amount, 0).toLocaleString()}
                             </span>
                           </div>
                         </div>
@@ -1469,7 +1557,7 @@ export function SheriffSalesView() {
       {/* ======================================================== */}
       {selectedTab === 'ledger' && (
         <div id="tab-content-ledger" className="space-y-6">
-          <div className="bg-card border border-pp-border rounded-2xl p-6 space-y-6 shadow-sm">
+          <div className="bg-card border border-border rounded-2xl p-6 space-y-6 shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <h2 className="text-xl font-bold text-foreground">
@@ -1573,7 +1661,7 @@ export function SheriffSalesView() {
       {/* ======================================================== */}
       {selectedTab === 'statutes' && (
         <div id="tab-content-statutes" className="space-y-6">
-          <div className="bg-card border border-pp-border rounded-2xl p-6 space-y-6 shadow-sm">
+          <div className="bg-card border border-border rounded-2xl p-6 space-y-6 shadow-sm">
             <div>
               <h2 className="text-xl font-bold text-foreground">
                 Verified August 2026 Primary Statutes & Open-Source Cost Basis
@@ -1637,7 +1725,7 @@ export function SheriffSalesView() {
       {/* ======================================================== */}
       {selectedTab === 'ingestor' && (
         <div id="tab-content-ingestor" className="space-y-6">
-          <div className="bg-card border border-pp-border rounded-2xl p-6 space-y-6 shadow-sm">
+          <div className="bg-card border border-border rounded-2xl p-6 space-y-6 shadow-sm">
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <span className="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary border border-blue-200 text-xs font-mono font-bold">

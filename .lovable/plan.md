@@ -135,29 +135,29 @@ Prophecy, Shadow, MCP agent tools, provenance UI beyond current, multi-metro exp
 
 ## 8. Prioritized backlog
 
-| # | Task | Impact | Effort | Priority |
-|---|---|---|---|---|
-| 1 | Diagnose + fix Realie (403/404/exception) | Critical | S | P0 |
-| 2 | Pick metro, restrict default queries to it | Critical | S | P0 |
-| 3 | Draft T&C / Refund / Privacy pages | Critical | S | P0 |
-| 4 | Fire Scrapy spiders daily in metro | Critical | M | P0 |
-| 5 | `subscriptions` table + Paddle webhook | Critical | M | P0 |
-| 6 | Products + `/pricing` page | Critical | S | P0 |
-| 7 | Server-side paywall on `/deals` and `/workspace` | Critical | S | P0 |
-| 8 | Backfill outcomes + honest `/accuracy` | High | M | P1 |
-| 9 | Deal-card rewrite for lay buyer | High | M | P1 |
-| 10 | Rename internal jargon in UI | High | S | P1 |
-| 11 | Hide Prophecy/Shadow/Monitoring from main nav | High | S | P1 |
-| 12 | Manual sales: 100-prospect list + 15 demos/wk | Critical | L | P1 |
-| 13 | Daily deal email | Medium | M | P2 |
-| 14 | Skip-trace / CRM export | Medium | M | P2 |
-| 15 | Second metro | Low | L | P3 (deferred) |
+| # | Task | Impact | Effort | Priority | Status |
+|---|---|---|---|---|---|
+| 1 | Diagnose + fix Realie (403/404/exception) | Critical | S | P0 | Complete |
+| 2 | Pick metro, restrict default queries to it (Cook County, IL) | Critical | S | P0 | Complete |
+| 3 | Draft T&C / Refund / Privacy pages (PERFECTPROPERTY LLC) | Critical | S | P0 | Complete |
+| 4 | Setup `subscriptions` table + Paddle webhook | Critical | M | P0 | Next (P0) |
+| 5 | Products + `/pricing` page | Critical | S | P0 | Pending (P0) |
+| 6 | Server-side paywall on `/deals` and `/workspace` | Critical | S | P0 | Pending (P0) |
+| 7 | Fire Scrapy spiders daily in metro | Critical | M | P0 | Pending (P0) |
+| 8 | Backfill outcomes + honest `/accuracy` | High | M | P1 | Backlog |
+| 9 | Deal-card rewrite for lay buyer | High | M | P1 | Backlog |
+| 10 | Rename internal jargon in UI | High | S | P1 | Backlog |
+| 11 | Hide Prophecy/Shadow/Monitoring from main nav | High | S | P1 | Backlog |
+| 12 | Manual sales: 100-prospect list + 15 demos/wk | Critical | L | P1 | Backlog |
+| 13 | Daily deal email | Medium | M | P2 | Backlog |
+| 14 | Skip-trace / CRM export | Medium | M | P2 | Backlog |
+| 15 | Second metro | Low | L | P3 (deferred) | Deferred |
 
 ## 9. Next 3 actions
 
-1. **Diagnose Realie.** Take one address from a known-failed audit row, run it through `realieLookupAddress` with full logging. Determine whether 403 is auth/tier and whether 404s are address-normalization. Fix or escalate to Realie support. Do not touch anything else until this is green.
-2. **Pick the metro and lock the app to it.** Confirm Cook County IL (or your choice). Add a metro filter default so `/deals`, `/workspace`, and enrichment queue only act on it.
-3. **Ask you for legal name + confirm metro**, then generate T&C / Refund / Privacy pages (Paddle blocks go-live without these — expected 24h Paddle review after readiness).
+1. **Setup `subscriptions` table + Paddle billing integration.** (Create migration / schema for user subscriptions, customer IDs, and Paddle webhook receiver).
+2. **Build `/pricing` page with Starter & Pro tiers.** (Integrated with Paddle checkout overlay / links).
+3. **Wire server-side paywall on `/deals` and `/workspace`.** (Gate non-subscribed users to 3 sample deals with clean upgrade prompts).
 
 ## 10. Quality bar (release gates)
 

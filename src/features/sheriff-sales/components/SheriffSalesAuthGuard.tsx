@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { Button } from "@/components/ui/button";
 import React, { useState, type ReactNode } from "react";
 import { useLocation, useNavigate } from "@tanstack/react-router";

@@ -4,7 +4,6 @@ import {
   Outlet,
   Link,
   createRootRouteWithContext,
-  useLocation,
   useRouter,
   HeadContent,
   Scripts,
@@ -20,13 +19,13 @@ import { Header } from "@/components/Header";
 
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-[100dvh] items-center justify-center bg-pp-page px-4 dark">
+    <div className="flex min-h-[100dvh] items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-pp-text num">404</h1>
-        <p className="mt-4 text-sm text-pp-muted">This parcel isn't in the genome.</p>
+        <h1 className="text-7xl font-bold text-foreground num">404</h1>
+        <p className="mt-4 text-sm text-muted-foreground">This parcel isn't in the genome.</p>
         <Link
           to="/"
-          className="mt-6 inline-flex rounded-md primary-button"
+          className="mt-6 inline-flex rounded-md bg-primary text-primary-foreground font-semibold px-4 py-2 hover:bg-primary/90 transition-colors"
         >
           Return to the map
         </Link>
@@ -46,23 +45,23 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   }, [error]);
 
   return (
-    <div className="flex min-h-[100dvh] items-center justify-center bg-pp-page px-4 dark">
+    <div className="flex min-h-[100dvh] items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold text-pp-text">The engine hit an exception</h1>
-        <p className="mt-2 text-sm text-pp-muted">{error.message}</p>
+        <h1 className="text-xl font-semibold text-foreground">The engine hit an exception</h1>
+        <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
         <div className="mt-6 flex justify-center gap-2">
           <Button
             onClick={() => {
               router.invalidate();
               reset();
             }}
-            className="rounded-md primary-button"
+            className="rounded-md font-semibold"
           >
             Retry
           </Button>
           <a
             href="/"
-            className="rounded-md border border-pp-border bg-pp-page px-4 py-2 text-sm text-pp-text"
+            className="rounded-md border border-border bg-card px-4 py-2 text-sm text-foreground hover:bg-muted transition-colors"
           >
             Home
           </a>
@@ -128,7 +127,6 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  const pathname = useLocation({ select: (location) => location.pathname });
   use401Interceptor();
 
   return (

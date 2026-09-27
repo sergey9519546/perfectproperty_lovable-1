@@ -71,8 +71,13 @@ export const Route = createFileRoute("/api/public/run-realie-enrichment")({
           readRealieSnapshotCore,
         } = await import("@/lib/parcels-core");
         const { realieLocationSearch, setRealieAuditSink } = await import("@/lib/adapters/realie");
-        const { buildRealieLocationBatches, matchRealieProperties, realieLookupKey } =
-          await import("@/lib/realie-batch");
+        const {
+          buildRealieLocationBatches,
+          cleanRealieCounty,
+          fipsToRealieCounty,
+          matchRealieProperties,
+          realieLookupKey,
+        } = await import("@/lib/realie-batch");
 
         const { data: claimed, error: claimError } = await (supabaseAdmin as any).rpc(
           "claim_enrichment_queue",
@@ -120,19 +125,29 @@ export const Route = createFileRoute("/api/public/run-realie-enrichment")({
             (parcel) =>
               isRealAddress(parcel.address) && parcel.state && queueByParcel.has(parcel.id),
           )
-          .map<WorkItem>((parcel) => ({
-            parcel_id: parcel.id,
-            apn: parcel.apn,
-            address: parcel.address!,
-            city: parcel.city,
-            state: parcel.state,
-            zip: parcel.zip,
-            county_fips: parcel.county_fips,
-            county: countyNames.get(parcel.county_fips),
-            lat: parcel.lat,
-            lng: parcel.lng,
-            queue: queueByParcel.get(parcel.id)!,
-          }));
+          .map<WorkItem>((parcel) => {
+            const rawCounty = countyNames.get(parcel.county_fips);
+            const resolvedCounty =
+              fipsToRealieCounty(parcel.county_fips)?.county ??
+              cleanRealieCounty(rawCounty, parcel.county_fips);
+            return {
+              parcel_id: parcel.id,
+              apn: parcel.apn,
+              address: parcel.address!,
+              city: parcel.city,
+              state: parcel.state,
+              zip: parcel.zip,
+              county_fips: parcel.county_fips,
+              county: resolvedCounty,
+              lat: parcel.lat,
+              lng: parcel.lng,
+              queue: queueByParcel.get(parcel.id)!,
+            };
+          });
+
+        console.log(
+          `[enrichment] Claimed ${queueItems.length} queue rows. Valid addresses: ${work.length}. Batch size: ${batch}`,
+        );
 
         const workById = new Map(work.map((item) => [item.parcel_id, item]));
         const remaining = new Map(workById);
@@ -321,6 +336,9 @@ export const Route = createFileRoute("/api/public/run-realie-enrichment")({
             const captured: RealieAuditEntry[] = [];
             setRealieAuditSink((entry) => captured.push(entry));
             try {
+              console.log(
+                `[enrichment] Exact lookup for parcel ${item.parcel_id}: "${item.address}", city="${item.city}", county="${item.county}", state="${item.state}"`,
+              );
               await lookupParcelByAddressCore({
                 address: item.address,
                 state: item.state,
@@ -337,6 +355,10 @@ export const Route = createFileRoute("/api/public/run-realie-enrichment")({
               });
               await markEnriched(item);
             } catch (error) {
+              const errorMsg = String((error as Error)?.message ?? error);
+              console.warn(
+                `[enrichment] Exact lookup failed for parcel ${item.parcel_id} (${item.address}): ${errorMsg}`,
+              );
               await writeAuditEntries(captured, {
                 parcel_id: item.parcel_id,
                 county_fips: item.county_fips,
@@ -346,7 +368,7 @@ export const Route = createFileRoute("/api/public/run-realie-enrichment")({
                 budgetExhausted = true;
                 break;
               }
-              if (String((error as Error)?.message ?? error).match(/not found/i)) {
+              if (errorMsg.match(/not found/i)) {
                 await cacheRealieMissCore(
                   realieLookupKey(item),
                   "address_not_found",
@@ -356,34 +378,65 @@ export const Route = createFileRoute("/api/public/run-realie-enrichment")({
                     : "/public/property/address/",
                 );
               }
-              await markFailure(item, String((error as Error)?.message ?? error));
+              await markFailure(item, errorMsg);
             } finally {
               setRealieAuditSink(null);
             }
           }
         }
 
-        // A daily cap is normal flow. Return untouched claims to pending and do
-        // not consume their retry allowance.
-        if (budgetExhausted && remaining.size > 0) {
-          const deferredIds = [...remaining.keys()];
-          await supabaseAdmin
-            .from("enrichment_queue")
-            .update({
-              status: "pending",
-              started_at: null,
-              completed_at: null,
-              last_error: "Realie background budget exhausted",
-            })
-            .in("parcel_id", deferredIds);
-          for (const parcelId of deferredIds) {
-            results.push({
-              parcel_id: parcelId,
-              status: "deferred",
-              note: "daily budget exhausted",
+        // A daily cap or 403 plan quota trip is normal flow. Trip the circuit breaker,
+        // alert DLQ, return untouched claims to pending, and do not consume retry allowance.
+        let circuitBreakerOpen = false;
+        if (budgetExhausted) {
+          circuitBreakerOpen = true;
+          console.warn("[enrichment] Realie 403 / budget exhausted — opening circuit breaker");
+          try {
+            const nowIso = new Date().toISOString();
+            await supabaseAdmin.from("source_health").upsert(
+              {
+                source_key: "REALIE:enrichment",
+                county_fips: "17031",
+                status: "red",
+                last_fail_at: nowIso,
+                last_error: "Realie HTTP 403: daily budget or plan quota exhausted",
+                consecutive_failures: 3,
+                tripped_until: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+                updated_at: nowIso,
+              } as any,
+              { onConflict: "source_key" },
+            );
+            const { recordFailure } = await import("@/lib/dlq");
+            await recordFailure({
+              source: "REALIE:enrichment",
+              stage: "circuit_breaker",
+              error: new Error("Realie 403 Forbidden: Plan quota exhausted or tier restricted"),
+              payload: { remainingQueueCount: remaining.size },
             });
+          } catch (e) {
+            console.error("[enrichment] Failed to record circuit breaker trip", e);
           }
-          remaining.clear();
+
+          if (remaining.size > 0) {
+            const deferredIds = [...remaining.keys()];
+            await supabaseAdmin
+              .from("enrichment_queue")
+              .update({
+                status: "pending",
+                started_at: null,
+                completed_at: null,
+                last_error: "Realie background budget exhausted (circuit breaker opened)",
+              })
+              .in("parcel_id", deferredIds);
+            for (const parcelId of deferredIds) {
+              results.push({
+                parcel_id: parcelId,
+                status: "deferred",
+                note: "daily budget exhausted (circuit breaker opened)",
+              });
+            }
+            remaining.clear();
+          }
         }
 
         const enriched = results.filter((result) => result.status === "enriched").length;
@@ -450,7 +503,8 @@ export const Route = createFileRoute("/api/public/run-realie-enrichment")({
         }
 
         return Response.json({
-          ok: failed === 0,
+          ok: failed === 0 && !circuitBreakerOpen,
+          circuit_breaker: circuitBreakerOpen ? "OPEN" : "CLOSED",
           processed: results.length,
           enriched,
           failed,

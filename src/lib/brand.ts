@@ -16,8 +16,10 @@ export const BRAND_CONFIG = {
   tagline: "Real estate deal analysis and property discovery platform with cartographic workspace and underwriting engines.",
   /** Primary web domain */
   domain: "perfectproperty.com",
+  /** Official registered legal business entity */
+  legalName: "PERFECTPROPERTY LLC",
   /** Copyright statement */
-  copyright: `© ${new Date().getFullYear()} Perfect Property. All rights reserved.`,
+  copyright: `© ${new Date().getFullYear()} Perfect Property (PERFECTPROPERTY LLC). All rights reserved.`,
   /** Support address */
   supportEmail: "support@perfectproperty.com",
   /** Default metadata */

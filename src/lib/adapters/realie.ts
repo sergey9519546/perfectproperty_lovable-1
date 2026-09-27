@@ -14,6 +14,7 @@ import {
   safeParseRealieProperty,
   safeParseRealieSearchMetadata,
 } from "./realie.schema";
+import { cleanRealieCounty } from "@/lib/realie-batch";
 
 export type RealieBudgetClass = "background" | "interactive";
 
@@ -401,6 +402,7 @@ async function call<T>(
           // payment method on file. Neither is retryable per-parcel: treat both
           // as budget exhaustion so callers defer the remaining work.
           if (res.status === 403) {
+            console.warn(`[Realie] 403 Forbidden on ${path}: ${msg}`);
             throw new RealieBudgetExhaustedError(path, budgetClass);
           }
           const err = new Error(`Realie ${res.status}: ${msg}`);
@@ -459,6 +461,7 @@ export async function realieLookupAddress(args: {
   county?: string;
   budgetClass?: RealieBudgetClass;
 }): Promise<RealieProperty | null> {
+  const county = cleanRealieCounty(args.county);
   try {
     const r = await call<RealieProperty | { property?: RealieProperty }>(
       "/public/property/address/",
@@ -467,7 +470,7 @@ export async function realieLookupAddress(args: {
         state: args.state,
         unitNumberStripped: args.unitNumberStripped,
         city: args.city,
-        county: args.county,
+        county,
       },
       args.budgetClass,
     );
@@ -486,10 +489,11 @@ export async function realieLookupParcelId(args: {
   county?: string;
   budgetClass?: RealieBudgetClass;
 }): Promise<RealieProperty | null> {
+  const county = cleanRealieCounty(args.county);
   try {
     const r = await call<RealieProperty | { property?: RealieProperty }>(
       "/public/property/parcelId/",
-      { parcelId: args.parcelId, state: args.state, county: args.county },
+      { parcelId: args.parcelId, state: args.state, county },
       args.budgetClass,
     );
     return propertyFromResponse(r);
@@ -536,6 +540,7 @@ function boundedNumber(value: number | undefined, fallback: number, min: number,
 export async function realiePropertySearchPage(
   args: RealiePropertySearchArgs,
 ): Promise<RealiePropertySearchPage> {
+  const county = cleanRealieCounty(args.county);
   try {
     const r = await call<{
       properties?: RealieProperty[];
@@ -545,7 +550,7 @@ export async function realiePropertySearchPage(
       {
         state: args.state,
         zipCode: args.zipCode,
-        county: args.county,
+        county,
         city: args.city,
         transferedSince: args.transferedSince,
         useCode: args.useCode,

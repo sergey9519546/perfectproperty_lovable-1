@@ -15,7 +15,7 @@ export const Storyteller = () => {
           <span className="text-xs font-mono font-bold uppercase tracking-[0.2em] text-primary block mb-3">
             THE UNDERWRITING BOTTLENECK
           </span>
-          <h2 className="text-[38px] md:text-[50px] font-bold tracking-[-0.04em] leading-[1.05] text-background mb-6 max-w-[800px] mx-auto">
+          <h2 className="text-[38px] md:text-[50px] font-bold tracking-[-0.04em] leading-[1.05] text-foreground mb-6 max-w-[800px] mx-auto">
             You're the deal hunter. Perfect Property makes every opportunity clear.
           </h2>
           <p className="text-[19px] text-muted-foreground max-w-[760px] mx-auto leading-[1.6] font-medium">
@@ -64,6 +64,8 @@ export const Storyteller = () => {
                   <img 
                     src="https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&q=80&w=800" 
                     alt="Austin Property" 
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover" 
                   />
                   <div className="absolute top-2.5 left-2.5 px-2.5 py-0.5 bg-card/90 backdrop-blur rounded text-[10px] font-mono font-bold text-primary border border-blue-100 shadow-xs">
@@ -113,6 +115,8 @@ export const Storyteller = () => {
                   <img 
                     src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=800" 
                     alt="Denver Property" 
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover" 
                   />
                   <div className="absolute top-2.5 left-2.5 px-2.5 py-0.5 bg-amber-500 text-white rounded text-[10px] font-mono font-bold shadow-xs">
@@ -163,7 +167,7 @@ export const Storyteller = () => {
                 <Play size={28} fill="#efaa2d" className="text-primary ml-1 transition-transform group-hover/btn:scale-110" />
               </motion.button>
               
-              <h3 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight text-background">
+              <h3 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight text-foreground">
                 See the engine in action
               </h3>
               <p className="text-muted-foreground mb-8 leading-relaxed text-[17px] font-medium">
@@ -173,9 +177,9 @@ export const Storyteller = () => {
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Button
                   onClick={() => setShowDemoModal(true)}
-                  className="h-12 px-8 bg-background text-white rounded-xl font-bold text-sm hover:bg-black shadow-lg transition-all cursor-pointer flex items-center gap-2"
+                  className="h-12 px-8 bg-foreground text-background rounded-xl font-bold text-sm hover:bg-foreground/90 shadow-lg transition-all cursor-pointer flex items-center gap-2"
                 >
-                  <Play size={16} fill="white" />
+                  <Play size={16} fill="currentColor" />
                   Launch Interactive Demo
                 </Button>
               </div>

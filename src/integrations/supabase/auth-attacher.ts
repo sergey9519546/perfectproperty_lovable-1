@@ -13,8 +13,8 @@ export const attachSupabaseAuth = createMiddleware({ type: 'function' }).client(
 
       if (!token) {
         const fbUser = await getAuthenticatedFirebaseUser()
-        if (fbUser) {
-          token = await fbUser.getIdToken()
+        if (fbUser && typeof fbUser.getIdToken === 'function') {
+          token = await fbUser.getIdToken().catch(() => undefined)
         }
       }
 

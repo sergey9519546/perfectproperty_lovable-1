@@ -4,29 +4,27 @@ test.describe('Critical Path: Auth, Sheriff Sales Dashboard, Address Search & Un
   test.beforeEach(async ({ page }) => {
     // Navigate directly to the authentication page
     await page.goto('/auth');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
   });
 
-  test('Step 1 & 2: User can authenticate and navigate to Sheriff Sales dashboard', async ({ page }) => {
-    // 1. Authenticate via Demo Analyst Session
-    const demoButton = page.getByRole('button', { name: /Launch Demo Analyst Session/i });
+  async function performDemoLogin(page: any) {
+    const demoButton = page.locator('#auth-launch-demo-btn');
     if (await demoButton.isVisible()) {
       await demoButton.click();
     } else {
-      // Fallback: fill email and password if form is in credentials view
       await page.locator('#auth-email').fill('analyst@perfectproperty.com');
       await page.locator('#auth-password').fill('DemoPass123!');
-      await page.getByRole('button', { name: /Sign in/i }).click();
+      await page.getByRole('button', { name: /Sign in with Email/i }).click();
     }
-
-    // Wait for authentication and redirection to resolve
     await page.waitForURL((url) => !url.pathname.includes('/auth'), { timeout: 15000 });
+  }
 
-    // 2. Navigate directly to /sheriff-sales
+  test('Step 1 & 2: User can authenticate and navigate to Sheriff Sales dashboard', async ({ page }) => {
+    await performDemoLogin(page);
+
     await page.goto('/sheriff-sales');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
-    // 3. Verify Sheriff Sales Dashboard Header & Elements are present
     await expect(page.locator('text=Upcoming Sheriff & Foreclosure Auctions')).toBeVisible({ timeout: 10000 });
     await expect(page.locator('#sheriff-sales-address-search-input')).toBeVisible();
     await expect(page.locator('#county-filter-trigger')).toBeVisible();
@@ -35,14 +33,10 @@ test.describe('Critical Path: Auth, Sheriff Sales Dashboard, Address Search & Un
   });
 
   test('Step 3: Perform address search and filter validation on live auction roster', async ({ page }) => {
-    // Authenticate and load sheriff sales page
-    const demoButton = page.getByRole('button', { name: /Launch Demo Analyst Session/i });
-    if (await demoButton.isVisible()) {
-      await demoButton.click();
-      await page.waitForURL((url) => !url.pathname.includes('/auth'), { timeout: 15000 });
-    }
+    await performDemoLogin(page);
+
     await page.goto('/sheriff-sales');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const searchInput = page.locator('#sheriff-sales-address-search-input');
     await expect(searchInput).toBeVisible();
@@ -69,14 +63,10 @@ test.describe('Critical Path: Auth, Sheriff Sales Dashboard, Address Search & Un
   });
 
   test('Step 4: Trigger AI Underwriting Score Analysis and inspect MAB valuation modal', async ({ page }) => {
-    // Authenticate and load sheriff sales page
-    const demoButton = page.getByRole('button', { name: /Launch Demo Analyst Session/i });
-    if (await demoButton.isVisible()) {
-      await demoButton.click();
-      await page.waitForURL((url) => !url.pathname.includes('/auth'), { timeout: 15000 });
-    }
+    await performDemoLogin(page);
+
     await page.goto('/sheriff-sales');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Locate the first Analyze button in the auction table
     const analyzeButtons = page.locator('button[id^="analyze-sale-btn-"]');

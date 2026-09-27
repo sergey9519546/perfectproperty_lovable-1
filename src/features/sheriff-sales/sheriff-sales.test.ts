@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { getAssetClass } from './components/SheriffSalesDashboard';
 import { SheriffSalesPage } from './components/SheriffSalesPage';
 import { SHERIFF_GOV_SALES } from './data';
-import { computeLienWaterfall } from './lien-waterfall';
+import { calculateLienSeniorityWaterfall } from './lien-waterfall';
 
 describe('Sheriff Sales E2E & Business Logic Suite', () => {
   describe('Asset Class Normalization', () => {
@@ -72,11 +72,16 @@ describe('Sheriff Sales E2E & Business Logic Suite', () => {
   describe('Lien Waterfall & Underwriting Mechanics', () => {
     it('calculates waterfall distribution and senior surviving liens correctly', () => {
       const sample = SHERIFF_GOV_SALES[0];
-      if (sample.lienWaterfall) {
-        const waterfall = computeLienWaterfall(sample);
+      if (sample.assistedLienCheck.waterfall) {
+        const waterfall = calculateLienSeniorityWaterfall(
+          sample.assistedLienCheck.waterfall,
+          sample.compsAndMargin.submarketMedianPpsf * 1500, // mock ARV
+          sample.compsAndMargin.modeledRehabEstimate,
+          sample.jurisdictionState
+        );
         expect(waterfall).toBeDefined();
-        expect(waterfall.totalLienExposure).toBeGreaterThanOrEqual(0);
-        expect(waterfall.survivingSeniorLienEstimate).toBeGreaterThanOrEqual(0);
+        expect(waterfall.totalSurvivingDebt).toBeGreaterThanOrEqual(0);
+        expect(waterfall.safeMaxBid).toBeGreaterThanOrEqual(0);
       }
     });
   });

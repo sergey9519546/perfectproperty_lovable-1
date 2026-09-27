@@ -31,6 +31,8 @@ interface Props {
 }
 
 import { runGroundedIntelligenceFn } from "@/lib/gemini.functions";
+import { PropertySearchGroundingNews } from "@/components/PropertySearchGroundingNews";
+import { Newspaper } from "lucide-react";
 
 interface GroundingResult {
   ok: boolean;
@@ -60,7 +62,7 @@ export function GroundedIntelligenceSection({
   maxBid,
 }: Props) {
   const { user } = useFirebaseAuth();
-  const [activeTab, setActiveTab] = useState<"maps" | "search" | "comprehensive">("maps");
+  const [activeTab, setActiveTab] = useState<"maps" | "search" | "comprehensive" | "news">("news");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<GroundingResult | null>(null);
   const [customInquiry, setCustomInquiry] = useState("");
@@ -136,17 +138,17 @@ export function GroundedIntelligenceSection({
   };
 
   return (
-    <div className="rounded-lg border border-pp-border bg-pp-header p-4">
+    <div className="rounded-lg border border-border bg-card p-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="flex h-6 w-6 items-center justify-center rounded bg-amber-500/20 text-amber-400">
             <Sparkles className="h-3.5 w-3.5" />
           </div>
           <div>
-            <h3 className="text-xs font-semibold tracking-wider text-pp-text uppercase">
+            <h3 className="text-xs font-semibold tracking-wider text-foreground uppercase">
               Grounded Market Intelligence
             </h3>
-            <p className="text-[11px] text-pp-muted">
+            <p className="text-[11px] text-muted-foreground">
               Live Google Maps spatial telemetry & Google Search public record grounding (Gemini 3.5 Flash)
             </p>
           </div>
@@ -170,7 +172,20 @@ export function GroundedIntelligenceSection({
       </div>
 
       {/* Tabs */}
-      <div className="mt-3 flex gap-1.5 border-b border-pp-border pb-2 text-xs">
+      <div className="mt-3 flex flex-wrap gap-1.5 border-b border-border pb-2 text-xs">
+        <Button
+          type="button"
+          onClick={() => setActiveTab("news")}
+          className={`flex items-center gap-1.5 rounded px-2.5 py-1 transition-colors ${
+            activeTab === "news"
+              ? "bg-emerald-900/40 text-emerald-300 font-medium border border-emerald-500/30"
+              : "text-muted-foreground hover:bg-muted hover:text-foreground"
+          }`}
+        >
+          <Newspaper className="h-3.5 w-3.5 text-emerald-400" />
+          <span>Live News & Comps</span>
+        </Button>
+
         <Button
           type="button"
           onClick={() => {
@@ -181,7 +196,7 @@ export function GroundedIntelligenceSection({
           className={`flex items-center gap-1.5 rounded px-2.5 py-1 transition-colors ${
             activeTab === "maps"
               ? "bg-blue-900/40 text-blue-300 font-medium border border-blue-500/30"
-              : "text-pp-muted hover:bg-pp-page hover:text-pp-text"
+              : "text-muted-foreground hover:bg-muted hover:text-foreground"
           }`}
         >
           <MapPin className="h-3.5 w-3.5 text-blue-400" />
@@ -198,7 +213,7 @@ export function GroundedIntelligenceSection({
           className={`flex items-center gap-1.5 rounded px-2.5 py-1 transition-colors ${
             activeTab === "search"
               ? "bg-emerald-900/40 text-emerald-300 font-medium border border-emerald-500/30"
-              : "text-pp-muted hover:bg-pp-page hover:text-pp-text"
+              : "text-muted-foreground hover:bg-muted hover:text-foreground"
           }`}
         >
           <Globe className="h-3.5 w-3.5 text-emerald-400" />
@@ -215,7 +230,7 @@ export function GroundedIntelligenceSection({
           className={`flex items-center gap-1.5 rounded px-2.5 py-1 transition-colors ${
             activeTab === "comprehensive"
               ? "bg-purple-900/40 text-purple-300 font-medium border border-purple-500/30"
-              : "text-pp-muted hover:bg-pp-page hover:text-pp-text"
+              : "text-muted-foreground hover:bg-muted hover:text-foreground"
           }`}
         >
           <Building className="h-3.5 w-3.5 text-purple-400" />
@@ -223,46 +238,61 @@ export function GroundedIntelligenceSection({
         </Button>
       </div>
 
+      {activeTab === "news" && (
+        <div className="mt-3">
+          <PropertySearchGroundingNews
+            address={address}
+            city={city}
+            county={county}
+            state={state}
+            apn={apn}
+            autoLoad={true}
+          />
+        </div>
+      )}
+
       {/* Custom Inquiry input */}
-      <div className="mt-2.5 flex gap-2">
-        <Input
-          type="text"
-          placeholder="Optional: Enter specific prompt (e.g. proximity to light rail, tax lien risk, zoning restrictions)..."
-          value={customInquiry}
-          onChange={(e) => setCustomInquiry(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") handleRunAnalysis(activeTab);
-          }}
-          className="h-8 flex-1 rounded border border-pp-border bg-pp-page px-2.5 text-xs text-pp-text placeholder:text-pp-muted/70 focus:border-amber-500/60 focus:outline-none"
-        />
-        <Button
-          type="button"
-          onClick={() => handleRunAnalysis(activeTab)}
-          disabled={loading}
-          className="flex h-8 items-center gap-1 rounded bg-amber-600 px-3 text-xs font-medium text-white transition-colors hover:bg-amber-500 disabled:opacity-50"
-        >
-          {loading ? (
-            <>
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              <span>Analyzing…</span>
-            </>
-          ) : (
-            <>
-              <Sparkles className="h-3.5 w-3.5" />
-              <span>Query Gemini</span>
-            </>
-          )}
-        </Button>
-      </div>
+      {activeTab !== "news" && (
+        <div className="mt-2.5 flex gap-2">
+          <Input
+            type="text"
+            placeholder="Optional: Enter specific prompt (e.g. proximity to light rail, tax lien risk, zoning restrictions)..."
+            value={customInquiry}
+            onChange={(e) => setCustomInquiry(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleRunAnalysis(activeTab);
+            }}
+            className="h-8 flex-1 rounded border border-border bg-background px-2.5 text-xs text-foreground placeholder:text-muted-foreground/70 focus:border-amber-500/60 focus:outline-none"
+          />
+          <Button
+            type="button"
+            onClick={() => handleRunAnalysis(activeTab)}
+            disabled={loading}
+            className="flex h-8 items-center gap-1 rounded bg-amber-600 px-3 text-xs font-medium text-white transition-colors hover:bg-amber-500 disabled:opacity-50"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                <span>Analyzing…</span>
+              </>
+            ) : (
+              <>
+                <Sparkles className="h-3.5 w-3.5" />
+                <span>Query Gemini</span>
+              </>
+            )}
+          </Button>
+        </div>
+      )}
 
       {/* Result Display */}
       {loading && (
-        <div className="mt-4 flex flex-col items-center justify-center rounded border border-pp-border bg-pp-page/50 p-6 text-center">
+        <div className="mt-4 flex flex-col items-center justify-center rounded border border-border bg-background/50 p-6 text-center">
           <Loader2 className="h-6 w-6 animate-spin text-amber-400" />
-          <p className="mt-2 text-xs font-medium text-pp-text">
+          <p className="mt-2 text-xs font-medium text-foreground">
             Executing {activeTab === "maps" ? "Google Maps Spatial Query" : activeTab === "search" ? "Google Search Public Record Audit" : "Dual Grounded Verification"}
           </p>
-          <p className="mt-1 text-[11px] text-pp-muted">
+          <p className="mt-1 text-[11px] text-muted-foreground">
             Grounding parcel signals via Gemini 3.5 Flash with live Google platform tools
           </p>
         </div>
@@ -279,17 +309,17 @@ export function GroundedIntelligenceSection({
               </div>
             </div>
           ) : (
-            <div className="rounded border border-pp-border bg-pp-page p-3">
-              <div className="flex items-center justify-between pb-2 border-b border-pp-border/50">
+            <div className="rounded border border-border bg-background p-3">
+              <div className="flex items-center justify-between pb-2 border-b border-border/50">
                 <div className="flex items-center gap-1.5 text-[11px] font-medium text-amber-400">
                   <ShieldCheck className="h-3.5 w-3.5" />
                   <span>Grounding Verification Complete</span>
                 </div>
-                <span className="text-[10px] text-pp-muted">Model: gemini-3.5-flash</span>
+                <span className="text-[10px] text-muted-foreground">Model: gemini-3.8-flash (Search & Maps Grounded)</span>
               </div>
 
               {/* Summary narrative */}
-              <div className="mt-2.5 whitespace-pre-wrap text-xs leading-relaxed text-pp-text">
+              <div className="mt-2.5 whitespace-pre-wrap text-xs leading-relaxed text-foreground">
                 {result.type === "comprehensive" ? (
                   <div className="space-y-3">
                     {result.maps?.summary && (
@@ -318,8 +348,8 @@ export function GroundedIntelligenceSection({
               {((result.groundingSources && result.groundingSources.length > 0) ||
                 (result.maps?.groundingSources && result.maps.groundingSources.length > 0) ||
                 (result.search?.groundingSources && result.search.groundingSources.length > 0)) && (
-                <div className="mt-3 border-t border-pp-border/50 pt-2">
-                  <p className="text-[10px] font-medium uppercase tracking-wider text-pp-muted">
+                <div className="mt-3 border-t border-border/50 pt-2">
+                  <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
                     Verified Grounding Citations
                   </p>
                   <div className="mt-1.5 flex flex-wrap gap-1.5">
@@ -333,7 +363,7 @@ export function GroundedIntelligenceSection({
                         href={source.url || "#"}
                         target="_blank"
                         rel="noreferrer noopener"
-                        className="inline-flex items-center gap-1 rounded border border-pp-border bg-pp-header px-2 py-0.5 text-[11px] text-blue-300 transition-colors hover:border-blue-400/50 hover:text-blue-200"
+                        className="inline-flex items-center gap-1 rounded border border-border bg-card px-2 py-0.5 text-[11px] text-blue-300 transition-colors hover:border-blue-400/50 hover:text-blue-200"
                       >
                         <span className="max-w-[200px] truncate">{source.title || "External Source"}</span>
                         <ExternalLink className="h-2.5 w-2.5" />
@@ -348,7 +378,7 @@ export function GroundedIntelligenceSection({
       )}
 
       {!loading && !result && (
-        <div className="mt-2.5 text-center py-3 text-[11px] text-pp-muted">
+        <div className="mt-2.5 text-center py-3 text-[11px] text-muted-foreground">
           Click any mode above to fetch real-time grounded intelligence from Google Maps and Google Search.
         </div>
       )}

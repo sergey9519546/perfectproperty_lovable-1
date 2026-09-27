@@ -40,7 +40,7 @@ export interface CountySource {
 
 export const COUNTY_SOURCES: CountySource[] = [
   {
-    fips: "06037", state: "CA", name: "Los Angeles County",
+    fips: "06037", state: "CA", name: "Los Angeles",
     center: [34.0522, -118.2437],
     parcels: {
       kind: "ARCGIS",
@@ -62,7 +62,7 @@ export const COUNTY_SOURCES: CountySource[] = [
     },
   },
   {
-    fips: "36061", state: "NY", name: "New York (PLUTO)",
+    fips: "36061", state: "NY", name: "New York",
     center: [40.7580, -73.9855],
     parcels: {
       kind: "SOCRATA",
@@ -85,7 +85,7 @@ export const COUNTY_SOURCES: CountySource[] = [
     },
   },
   {
-    fips: "17031", state: "IL", name: "Chicago (Cook)",
+    fips: "17031", state: "IL", name: "Cook",
     center: [41.8781, -87.6298],
     parcels: {
       kind: "SOCRATA",

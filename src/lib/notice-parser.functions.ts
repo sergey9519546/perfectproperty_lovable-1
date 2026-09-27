@@ -5,7 +5,7 @@ import { parseLegalNotice as runParse } from "./notice-parser.server";
 
 export const parseNotice = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ text: z.string().min(1) }).parse(d))
+  .validator((data: unknown) => z.object({ text: z.string().min(1) }).parse(data))
   .handler(async ({ data }) => runParse(data.text));
 
 export const listDistressSources = createServerFn({ method: "GET" })
