@@ -42,7 +42,7 @@ export function HoverEffect({ items, className }: HoverEffectProps) {
             <AnimatePresence>
               {hoveredIndex === idx && (
                 <motion.span
-                  className="absolute inset-0 h-full w-full bg-primary/10/80 rounded-2xl block border border-blue-200/60"
+                  className="absolute inset-0 h-full w-full bg-primary/10 rounded-2xl block border border-primary/20"
                   layoutId="hoverBackground"
                   initial={{ opacity: 0 }}
                   animate={{
@@ -56,7 +56,7 @@ export function HoverEffect({ items, className }: HoverEffectProps) {
                 />
               )}
             </AnimatePresence>
-            <div className="rounded-xl h-full w-full p-5 overflow-hidden bg-card border border-slate-200/80 group-hover:border-slate-300 relative z-20 flex flex-col justify-between transition-all duration-200 shadow-sm">
+            <div className="rounded-xl h-full w-full p-5 overflow-hidden bg-card border border-border group-hover:border-border-strong relative z-20 flex flex-col justify-between transition-all duration-200 shadow-sm">
               <div>
                 <div className="flex items-center justify-between gap-2 mb-3">
                   {item.icon && (

@@ -2,6 +2,7 @@ import { TableSkeleton, MetricsHeaderSkeleton } from '@/components/ui/skeleton-l
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState, useMemo } from 'react';
+import { Link } from '@tanstack/react-router';
 import {
   PresentationChart,
   MagnifyingGlass,
@@ -206,6 +207,14 @@ export function TwoCountySheetView({
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5">
+          <Link
+            to="/workspace"
+            className="px-3.5 py-2.5 bg-card hover:bg-muted text-foreground border border-border rounded-xl text-xs font-bold font-mono flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer"
+            title="Inspect properties on interactive Cadastral Map"
+          >
+            <Eye size={15} className="text-primary" />
+            <span>Cadastral Map</span>
+          </Link>
           <Button
             id="reia-packet-btn"
             type="button"

@@ -1,4 +1,11 @@
 
+@import "@fontsource/plus-jakarta-sans/400.css";
+@import "@fontsource/plus-jakarta-sans/500.css";
+@import "@fontsource/plus-jakarta-sans/600.css";
+@import "@fontsource/plus-jakarta-sans/700.css";
+@import "@fontsource/ibm-plex-mono/400.css";
+@import "@fontsource/ibm-plex-mono/500.css";
+@import "@fontsource/ibm-plex-mono/600.css";
 @import "@fontsource-variable/geist";
 @import "@fontsource-variable/geist-mono";
 @import "tailwindcss" source(none);
@@ -158,11 +165,11 @@
   --sidebar-accent-foreground: oklch(0.47 0.12 46.20);
   --sidebar-border: oklch(0.93 0.01 264.53);
   --sidebar-ring: oklch(0.77 0.16 70.08);
-  --font-sans: Geist, Inter, sans-serif;
+  --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-serif: Playfair Display, Source Serif 4, serif;
-  --font-mono: "IBM Plex Mono", monospace;
-  --font-display: "Space Grotesk", Geist, sans-serif;
-  --font-text: Geist, sans-serif;
+  --font-mono: "IBM Plex Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  --font-display: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-text: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif;
   --shadow-2xs: 0px 4px 8px -1px hsl(0 0% 0% / 0.05);
   --shadow-xs: 0px 4px 8px -1px hsl(0 0% 0% / 0.05);
   --shadow-sm: 0px 4px 8px -1px hsl(0 0% 0% / 0.10), 0px 1px 2px -2px hsl(0 0% 0% / 0.10);

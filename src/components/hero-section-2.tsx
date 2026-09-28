@@ -52,7 +52,7 @@ export default function HeroSection({ onExplore }: HeroSection2Props) {
                 {/* Headline */}
                 <h1 className="mx-auto mt-8 max-w-4xl text-balance text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl md:text-6xl leading-[1.12]">
                   Underwrite 10x Faster with{' '}
-                  <span className="text-primary font-bold">Perfect Property</span>
+                  <span className="text-primary font-bold">Profit Property</span>
                 </h1>
 
                 {/* Subtitle */}

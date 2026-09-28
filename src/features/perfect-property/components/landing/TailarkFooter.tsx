@@ -1,4 +1,5 @@
-import { Building2, ShieldCheck, Activity } from 'lucide-react';
+import { ShieldCheck, Activity } from 'lucide-react';
+import { Brand } from "@/features/perfect-property/components/Brand";
 import { Link } from '@tanstack/react-router';
 
 export function TailarkFooter() {
@@ -11,12 +12,7 @@ export function TailarkFooter() {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8 pb-12 border-b border-border/80">
           {/* Brand Col */}
           <div className="col-span-2 space-y-4">
-            <div className="flex items-center gap-2 text-foreground font-bold text-base">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                <Building2 className="h-4 w-4" />
-              </div>
-              <span className="tracking-tight">Perfect Property</span>
-            </div>
+            <Brand id="tailark-footer-brand" compact={false} iconClassName="h-7 w-7 shrink-0 text-primary" textClassName="text-[14px] font-bold tracking-[0.12em] text-foreground inline" />
             <p className="text-xs leading-relaxed max-w-sm">
               Institutional real estate intelligence terminal. Sub-meter GIS parcel boundaries, chancery court docket feeds, and algorithmic financial underwriting for acquisitions teams.
             </p>
@@ -29,56 +25,56 @@ export function TailarkFooter() {
           {/* Navigation Col 1: Platform */}
           <div className="space-y-3">
             <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground">
-              Platform
+              Platform Tools
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
+                <Link to="/deals" className="hover:text-foreground transition-colors">
+                  Top Deals & Portfolio
+                </Link>
+              </li>
+              <li>
                 <Link to="/workspace" className="hover:text-foreground transition-colors">
-                  Cartographic Workspace
+                  Underwrite Map Canvas
                 </Link>
               </li>
               <li>
                 <Link to="/sheriff-sales" className="hover:text-foreground transition-colors">
-                  Sheriff Sales Radar
+                  Foreclosure Auctions
                 </Link>
               </li>
               <li>
-                <Link to="/deals" className="hover:text-foreground transition-colors">
-                  Direct Deals Pipeline
-                </Link>
-              </li>
-              <li>
-                <Link to="/shadow" className="hover:text-foreground transition-colors">
-                  Foreclosure Tracker
+                <Link to="/notices" className="hover:text-foreground transition-colors">
+                  Legal Notice Parser
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Navigation Col 2: Intelligence */}
+          {/* Navigation Col 2: Account & Pricing */}
           <div className="space-y-3">
             <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground">
-              Intelligence
+              Plans & Access
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
                 <Link to="/pricing" className="hover:text-foreground transition-colors">
-                  Subscription Tiers
+                  Subscription Plans
                 </Link>
               </li>
               <li>
-                <Link to="/accuracy" className="hover:text-foreground transition-colors">
-                  Title Accuracy Audits
+                <Link to="/auth" className="hover:text-foreground transition-colors">
+                  Investor Login
                 </Link>
               </li>
               <li>
-                <Link to="/monitoring" className="hover:text-foreground transition-colors">
-                  Data Freshness Feeds
+                <Link to="/pricing" className="hover:text-foreground transition-colors">
+                  Money-Back Guarantee
                 </Link>
               </li>
               <li>
-                <Link to="/prophecy" className="hover:text-foreground transition-colors">
-                  Downside Simulations
+                <Link to="/admin" className="hover:text-foreground transition-colors">
+                  Data Pipeline Health
                 </Link>
               </li>
             </ul>
@@ -117,7 +113,7 @@ export function TailarkFooter() {
         {/* Bottom copyright and disclaimer */}
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
           <p>
-            &copy; {new Date().getFullYear()} Perfect Property Intelligence Inc. Built with Tailark architecture.
+            &copy; {new Date().getFullYear()} Profit Property Intelligence Inc. Built with Tailark architecture.
           </p>
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1">

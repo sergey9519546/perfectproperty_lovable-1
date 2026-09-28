@@ -47,7 +47,7 @@ export const GTMSection = ({ onExplore }: { onExplore: () => void }) => {
                 Engineered for serious acquisition desks & fund velocity
               </h2>
               <p className="text-[17px] text-slate-400 leading-[1.6] font-medium max-w-[500px]">
-                Whether you analyze five distressed properties a week or scale a 1,000-parcel fund portfolio, Perfect Property handles ingestion, underwriting, and compliance automatically.
+                Whether you analyze five distressed properties a week or scale a 1,000-parcel fund portfolio, Profit Property handles ingestion, underwriting, and compliance automatically.
               </p>
 
               <div className="mt-8 flex flex-col sm:flex-row gap-4">

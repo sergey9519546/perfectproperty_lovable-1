@@ -343,7 +343,7 @@ export const MarketContext = () => {
               <span className="text-xs font-mono font-bold uppercase tracking-wider text-amber-800">SHADOW INVENTORY</span>
               <h4 className="text-lg font-bold text-foreground mt-2 mb-3">Before The Listing Happens</h4>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                By the time a property appears on the MLS, your competitors are already in a bidding war. Perfect Property reveals shadow inventory weeks before public listing.
+                By the time a property appears on the MLS, your competitors are already in a bidding war. Profit Property reveals shadow inventory weeks before public listing.
               </p>
             </div>
             <div className="p-4 rounded-xl bg-card border border-amber-200/60 shadow-sm">
@@ -498,7 +498,7 @@ export const MarketContext = () => {
               <span className="text-xs font-mono font-bold uppercase tracking-wider text-blue-400">EMPIRICAL PROOF</span>
               <h4 className="text-lg font-bold text-white mt-2 mb-3">No Black-Box Hallucinations</h4>
               <p className="text-sm text-slate-300 leading-relaxed">
-                Traditional generic LLMs invent comps that don't exist. Perfect Property roots every single valuation in registered county deeds and recorded title filings.
+                Traditional generic LLMs invent comps that don't exist. Profit Property roots every single valuation in registered county deeds and recorded title filings.
               </p>
             </div>
             <div className="p-4 rounded-xl bg-slate-800/80 border border-slate-700">
@@ -524,7 +524,7 @@ export const MarketContext = () => {
             </h2>
           </div>
           <p className="text-[18px] text-muted-foreground leading-[1.6] font-medium pt-2">
-            Perfect Property isn't a generic chatbot. It starts with your actual parcels and your specific submarket context, so every memo, ARV model, and cadastral visual looks like your best principal analyst's hand-crafted work.
+            Profit Property isn't a generic chatbot. It starts with your actual parcels and your specific submarket context, so every memo, ARV model, and cadastral visual looks like your best principal analyst's hand-crafted work.
           </p>
         </div>
 

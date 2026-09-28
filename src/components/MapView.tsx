@@ -1,7 +1,16 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { APIProvider, Map as GoogleMap, AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 import { motion } from "motion/react";
-import { GMP_ATTRIBUTION_ID, DEFAULT_MAP_ID, getGoogleMapsApiKey, DARK_MAP_STYLE } from "@/lib/google-maps";
+import {
+  GMP_ATTRIBUTION_ID,
+  DEFAULT_MAP_ID,
+  getGoogleMapsApiKey,
+  DARK_MAP_STYLE,
+  isGoogleMapsBillingError,
+  onGoogleMapsStatusChange,
+  BILLING_ENABLE_URL,
+} from "@/lib/google-maps";
+import { Globe, MapPin } from "@phosphor-icons/react";
 
 export interface MapParcel {
   parcel_id: string;
@@ -51,10 +60,49 @@ function MapBoundsFitter({ parcels }: { parcels: MapParcel[] }) {
 
 export function MapView({ parcels, center = [-98, 36], zoom = 4, onSelect, selectedId, className }: Props) {
   const apiKey = getGoogleMapsApiKey();
+  const [isBillingError, setIsBillingError] = useState(() => isGoogleMapsBillingError());
+
+  useEffect(() => {
+    return onGoogleMapsStatusChange((isErr) => {
+      setIsBillingError(isErr);
+    });
+  }, []);
+
+  if (isBillingError) {
+    return (
+      <div className={className ?? "h-full w-full relative overflow-hidden bg-zinc-950 p-6 flex flex-col items-center justify-center text-center border border-border"}>
+        <div className="max-w-md space-y-3">
+          <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-amber-500/20 text-amber-400">
+            <Globe size={22} />
+          </div>
+          <h4 className="text-sm font-semibold text-zinc-100">Google Cloud Billing Account Required</h4>
+          <p className="text-xs text-zinc-400 leading-relaxed">
+            Your Google Maps API key requires an active Google Cloud Billing account linked to the project (Google provides $200 monthly free credit).
+          </p>
+          <div className="pt-2 flex flex-wrap items-center justify-center gap-2">
+            <a
+              href={BILLING_ENABLE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-md bg-amber-500 px-3 py-1.5 text-xs font-semibold text-zinc-950 hover:bg-amber-400 transition-colors"
+            >
+              <span>Enable Cloud Billing</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={className ?? "h-full w-full relative overflow-hidden"}>
-      <APIProvider apiKey={apiKey} libraries={["marker", "places", "geometry"]}>
+      <APIProvider
+        apiKey={apiKey}
+        libraries={["marker", "places", "geometry"]}
+        onError={(err) => {
+          console.warn("[MapView Google Maps API error]:", err);
+        }}
+      >
         <GoogleMap
           mapId={DEFAULT_MAP_ID}
           internalUsageAttributionIds={[GMP_ATTRIBUTION_ID]}

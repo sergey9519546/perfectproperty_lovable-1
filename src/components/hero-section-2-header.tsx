@@ -48,7 +48,7 @@ export const HeroHeader = () => {
                 className="flex items-center space-x-2 text-foreground font-bold tracking-tight"
               >
                 <LogoIcon />
-                <span className="text-base font-bold">Perfect Property</span>
+                <span className="text-base font-bold">Profit Property</span>
               </Link>
               <button
                 type="button"

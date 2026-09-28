@@ -96,7 +96,8 @@ export function PageHeader({
                 {title}
               </h1>
               {badge && (
-                <span className="inline-flex items-center rounded-full border border-primary/25 bg-primary/10 px-2.5 py-0.5 text-[11px] font-semibold tracking-wide text-primary">
+                <span className="text-xs font-semibold text-muted-foreground flex items-center">
+                  <span aria-hidden="true" className="mx-2 opacity-50">/</span>
                   {badge}
                 </span>
               )}
@@ -111,8 +112,8 @@ export function PageHeader({
 
       {/* Cross-Page Intelligence Sub-Nav Bar */}
       {showQuickNav && (
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground/70 pr-2 shrink-0">
+        <div className="flex items-center gap-1 overflow-x-auto pb-1 scrollbar-none text-xs">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70 pr-2 shrink-0">
             {activeNavLabel}
           </span>
           {activeTabs.map((tab) => {
@@ -125,10 +126,10 @@ export function PageHeader({
                 key={tab.to}
                 to={tab.to}
                 className={cn(
-                  "px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-colors shrink-0",
+                  "px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-colors shrink-0",
                   isActive
-                    ? "bg-primary/15 text-primary border border-primary/30 font-semibold"
-                    : "bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground border border-transparent"
+                    ? "bg-foreground text-background font-semibold"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
               >
                 {tab.label}

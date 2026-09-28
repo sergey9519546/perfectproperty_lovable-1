@@ -9,6 +9,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { parseNotice, listDistressSources } from "@/lib/notice-parser.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { getAuthenticatedFirebaseUser } from "@/integrations/firebase";
+import { NoticeParserSkeleton } from "@/components/ui/skeleton-loaders";
 
 export const Route = createFileRoute("/notices")({
   ssr: false,
@@ -24,13 +25,13 @@ export const Route = createFileRoute("/notices")({
   },
   head: () => ({
     meta: [
-      { title: "Read a sale notice — Perfect Property" },
+      { title: "Read a sale notice — Profit Property" },
       {
         name: "description",
         content:
           "Paste a sheriff, trustee, or tax sale notice and get the address, date, opening bid, deposit terms and the risks explained in plain English.",
       },
-      { property: "og:title", content: "Read a sale notice — Perfect Property" },
+      { property: "og:title", content: "Read a sale notice — Profit Property" },
       {
         property: "og:description",
         content: "Turn dense foreclosure notices into a clear summary of what is being sold and what could go wrong.",
@@ -133,8 +134,9 @@ function NoticesPage() {
               <Button
                 id="notices-load-sample-btn"
                 type="button"
+                variant="link"
                 onClick={() => setText(SAMPLE_NOTICE)}
-                className="text-primary hover:text-primary font-semibold underline underline-offset-2 cursor-pointer"
+                className="h-auto p-0 text-xs text-primary hover:text-primary/90 font-semibold underline underline-offset-2 cursor-pointer"
               >
                 Load sample notice
               </Button>
@@ -142,8 +144,9 @@ function NoticesPage() {
                 <Button
                   id="notices-clear-btn"
                   type="button"
+                  variant="ghost"
                   onClick={() => setText("")}
-                  className="text-muted-foreground hover:text-foreground cursor-pointer font-medium"
+                  className="h-auto p-0 text-xs text-muted-foreground hover:text-foreground cursor-pointer font-medium"
                 >
                   Clear
                 </Button>
@@ -175,6 +178,7 @@ function NoticesPage() {
         </div>
 
         <div className="space-y-4">
+          {m.isPending && <NoticeParserSkeleton />}
           {!notice && !m.isPending && (
             <div id="notices-empty-placeholder" className="rounded-xl border border-dashed border-border-strong bg-card p-8 text-center text-xs text-muted-foreground">
               Paste a foreclosure, tax, or trustee notice on the left and click &quot;Read This Notice&quot; to parse parties, judgment debt, redemption periods, and legal risks.
@@ -247,7 +251,7 @@ function NoticesPage() {
                       search={{ query: `${notice.property_address}, ${notice.city || ""}, ${notice.state || ""}` }}
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors cursor-pointer"
                     >
-                      <span>Locate on Map</span>
+                      <span>⚡ Instant Underwrite on Map</span>
                     </Link>
                   )}
                   <Link

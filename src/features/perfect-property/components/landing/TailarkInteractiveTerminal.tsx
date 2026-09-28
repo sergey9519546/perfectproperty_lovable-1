@@ -11,9 +11,11 @@ import {
   ExternalLink,
   CheckCircle2,
   AlertTriangle,
-  Gavel
+  Gavel,
+  Calculator,
+  SlidersHorizontal,
+  Home
 } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { RainbowButton } from '@/components/ui/rainbow-button';
 
@@ -30,16 +32,16 @@ interface DemoProperty {
   type: string;
   purchasePrice: number;
   arv: number;
-  rehabEstimate: number;
+  baseRehab: number;
   projectedRent: number;
   capRate: number;
-  dscr: number;
   score: number;
   zoning: string;
+  zoningPlain: string;
   lotDimensions: string;
-  lienStatus: string;
-  titleClearance: 'Clean' | 'Warning';
-  summary: string;
+  lienSummary: string;
+  titleClearance: 'Clean' | 'Notice';
+  whyItWorks: string;
 }
 
 const DEMO_PROPERTIES: DemoProperty[] = [
@@ -47,41 +49,41 @@ const DEMO_PROPERTIES: DemoProperty[] = [
     id: 'prop-1',
     name: '2418 W Augusta Blvd',
     address: '2418 W Augusta Blvd, Chicago, IL 60622',
-    neighborhood: 'Humboldt Park / West Town border',
+    neighborhood: 'West Town / Humboldt Park',
     mode: 'Deals',
     type: 'Brick 3-Flat Multi-Family',
     purchasePrice: 420000,
     arv: 695000,
-    rehabEstimate: 75000,
+    baseRehab: 65000,
     projectedRent: 5850,
     capRate: 8.8,
-    dscr: 1.52,
-    score: 91,
-    zoning: 'RT-4 Two-Flat / Multi-Family',
-    lotDimensions: "25' × 125' (3,125 sq ft)",
-    lienStatus: 'Clear Title / Single Conventional Mortgage',
+    score: 92,
+    zoning: 'RT-4',
+    zoningPlain: 'Two-Flat & Multi-Family Residential (Up to 3 legal apartments)',
+    lotDimensions: "25' × 125' (3,125 sq ft standard Chicago lot)",
+    lienSummary: 'Clean title. Single original mortgage recorded, no second mortgages or mechanics liens.',
     titleClearance: 'Clean',
-    summary: 'High-spread value add 3-flat with detached 2-car brick garage. Separate gas and electric meters in place.',
+    whyItWorks: 'Off-market 3-flat with separate gas and electric meters already installed. Detached 2-car brick garage adds $350/mo extra rental income.',
   },
   {
     id: 'prop-2',
-    name: '4822 S Michigan Ave (Sheriff Sale)',
+    name: '4822 S Michigan Ave',
     address: '4822 S Michigan Ave, Chicago, IL 60615',
-    neighborhood: 'Bronzeville Historic Boulevard',
+    neighborhood: 'Historic Bronzeville',
     mode: 'Shadow',
-    type: 'Historic Greystone 4-Unit',
+    type: 'Greystone 4-Unit Apartment',
     purchasePrice: 285000,
     arv: 580000,
-    rehabEstimate: 110000,
+    baseRehab: 95000,
     projectedRent: 6200,
     capRate: 9.6,
-    dscr: 1.65,
-    score: 87,
-    zoning: 'RM-5 High Density Multi-Family',
-    lotDimensions: "30' × 140' (4,200 sq ft)",
-    lienStatus: 'Chancery Docket #2024-CH-03189 (Upset: $285k)',
+    score: 88,
+    zoning: 'RM-5',
+    zoningPlain: 'High-Density Residential Multi-Family',
+    lotDimensions: "30' × 140' (4,200 sq ft oversized parcel)",
+    lienSummary: 'Cook County Foreclosure. Junior HELOC second mortgage ($45k) wiped out at sale. Winning bidder pays $1,180 city water bill.',
     titleClearance: 'Clean',
-    summary: 'Judicial sale foreclosure. Junior second mortgage extinguished at sale. 10% cashier check deposit required.',
+    whyItWorks: 'Courthouse auction sale starting at $285k. Similar renovated 4-units on Michigan Ave sold for $580k+. Solid stone foundation.',
   },
   {
     id: 'prop-3',
@@ -89,29 +91,35 @@ const DEMO_PROPERTIES: DemoProperty[] = [
     address: '1945 S Blue Island Ave, Chicago, IL 60608',
     neighborhood: 'Pilsen Arts District',
     mode: 'Deals',
-    type: 'Mixed-Use Storefront + 2 Apartments',
+    type: 'Storefront + 2 Apartments',
     purchasePrice: 510000,
     arv: 780000,
-    rehabEstimate: 60000,
+    baseRehab: 50000,
     projectedRent: 6900,
-    capRate: 9.1,
-    dscr: 1.48,
-    score: 94,
-    zoning: 'B3-2 Community Shopping District',
-    lotDimensions: "24' × 110' (2,640 sq ft)",
-    lienStatus: 'Clear Title / Estate Sale Filing',
+    capRate: 9.2,
+    score: 95,
+    zoning: 'B3-2',
+    zoningPlain: 'Neighborhood Commercial Shopping + Upper Apartments',
+    lotDimensions: "24' × 110' (2,640 sq ft corner parcel)",
+    lienSummary: 'Probate estate sale with clear title commitment in place. All property taxes paid to date.',
     titleClearance: 'Clean',
-    summary: 'Turnkey ground floor retail plus two gut-rehabbed loft apartments. High foot traffic commercial corridor.',
+    whyItWorks: 'High foot-traffic street. Ground floor leased to long-term specialty bakery. Upper two loft apartments recently updated.',
   },
 ];
 
 export function TailarkInteractiveTerminal({ onExplore }: TailarkInteractiveTerminalProps) {
   const [selectedPropId, setSelectedPropId] = useState<string>('prop-1');
-  const [activeTab, setActiveTab] = useState<'financials' | 'gis' | 'title'>('financials');
+  const [rehabScope, setRehabScope] = useState<'light' | 'moderate' | 'heavy'>('moderate');
+  const [activeTab, setActiveTab] = useState<'calculator' | 'lot' | 'title'>('calculator');
 
   const property = DEMO_PROPERTIES.find((p) => p.id === selectedPropId) || DEMO_PROPERTIES[0];
 
-  const spread = property.arv - property.purchasePrice - property.rehabEstimate;
+  // Dynamic Rehab multiplier
+  const rehabMultiplier = rehabScope === 'light' ? 0.6 : rehabScope === 'moderate' ? 1.0 : 1.5;
+  const rehabCost = Math.round(property.baseRehab * rehabMultiplier);
+  const closingAndHolding = Math.round(property.arv * 0.08); // 8% commissions, transfer tax, holding
+  const netProfit = property.arv - property.purchasePrice - rehabCost - closingAndHolding;
+  const safeMaxOffer = property.arv - rehabCost - closingAndHolding - 60000; // Target $60k minimum spread
 
   return (
     <section
@@ -119,22 +127,21 @@ export function TailarkInteractiveTerminal({ onExplore }: TailarkInteractiveTerm
       className="border-b border-border bg-muted/20 py-20 md:py-28"
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary mb-3">
-            <Sparkles className="h-3.5 w-3.5" />
-            <span>Interactive Terminal Preview</span>
+        {/* Section Header: Clean unboxed typography */}
+        <div className="text-center max-w-3xl mx-auto mb-10">
+          <div className="text-xs font-semibold uppercase tracking-wider text-primary mb-2">
+            Try It Live · Interactive Deal Inspector
           </div>
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground leading-tight">
-            See how the underwriting engine scores live assets.
+            See how the profit math works on real properties.
           </h2>
           <p className="mt-3 text-base text-muted-foreground">
-            Select a verified property below to inspect cadastral boundaries, financial yields, and public record title audits.
+            Select a verified property below to test repair budgets, check neighborhood comps, and verify clean title.
           </p>
         </div>
 
-        {/* Property Selector Pills */}
-        <div className="flex flex-wrap items-center justify-center gap-2 mb-8">
+        {/* Property Selector */}
+        <div className="flex flex-wrap items-center justify-center gap-2 mb-6">
           {DEMO_PROPERTIES.map((prop) => {
             const isSelected = prop.id === selectedPropId;
             return (
@@ -164,179 +171,312 @@ export function TailarkInteractiveTerminal({ onExplore }: TailarkInteractiveTerm
           })}
         </div>
 
-        {/* Main Terminal Card */}
+        {/* Main Deal Inspector Window */}
         <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
-          {/* Terminal Window Header */}
+          {/* Header Bar */}
           <div className="flex flex-wrap items-center justify-between border-b border-border bg-muted/40 px-6 py-4 gap-4">
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1.5">
-                <span className="h-3 w-3 rounded-full bg-rose-400/80" />
-                <span className="h-3 w-3 rounded-full bg-amber-400/80" />
-                <span className="h-3 w-3 rounded-full bg-emerald-400/80" />
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <Home className="h-4 w-4" />
               </div>
-              <span className="text-xs font-mono font-semibold text-muted-foreground">
-                PERFECT_PROPERTY_TERMINAL // {property.address}
-              </span>
+              <div>
+                <span className="text-sm font-bold text-foreground">
+                  {property.address}
+                </span>
+                <span className="text-xs text-muted-foreground block">
+                  {property.neighborhood} · {property.type}
+                </span>
+              </div>
             </div>
 
-            {/* Terminal Inner Navigation Tabs */}
+            {/* Sub-Navigation Tabs */}
             <div className="flex items-center gap-1 rounded-lg border border-border bg-background p-1">
               <button
                 type="button"
-                onClick={() => setActiveTab('financials')}
-                className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${
-                  activeTab === 'financials' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+                onClick={() => setActiveTab('calculator')}
+                className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-colors cursor-pointer ${
+                  activeTab === 'calculator'
+                    ? 'bg-foreground text-background shadow-2xs'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
-                Financial Pro-Forma
+                Profit & Repair Calculator
               </button>
               <button
                 type="button"
-                onClick={() => setActiveTab('gis')}
-                className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${
-                  activeTab === 'gis' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+                onClick={() => setActiveTab('lot')}
+                className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-colors cursor-pointer ${
+                  activeTab === 'lot'
+                    ? 'bg-foreground text-background shadow-2xs'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
-                Cadastral & Zoning
+                Lot Size & Zoning
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab('title')}
-                className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${
-                  activeTab === 'title' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+                className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-colors cursor-pointer ${
+                  activeTab === 'title'
+                    ? 'bg-foreground text-background shadow-2xs'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
-                Title & Court Liens
+                Title & Debt Check
               </button>
             </div>
           </div>
 
-          {/* Terminal Body */}
+          {/* Body Content */}
           <div className="p-6 sm:p-8">
-            {/* Top Property Brief Bar */}
+            {/* Top Numbers Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pb-6 border-b border-border">
               <div>
-                <span className="text-xs text-muted-foreground">Target Acquisition Price</span>
-                <p className="text-xl sm:text-2xl font-bold font-mono text-foreground mt-0.5">
+                <span className="text-xs text-muted-foreground font-medium">Purchase / Starting Price</span>
+                <p className="text-xl sm:text-2xl font-bold font-mono text-foreground mt-0.5 num">
                   ${property.purchasePrice.toLocaleString()}
                 </p>
+                <span className="text-[11px] text-muted-foreground mt-0.5 block">Estimated entry cost</span>
               </div>
               <div>
-                <span className="text-xs text-muted-foreground">After Repair Value (ARV)</span>
-                <p className="text-xl sm:text-2xl font-bold font-mono text-emerald-600 dark:text-emerald-400 mt-0.5">
+                <span className="text-xs text-muted-foreground font-medium">Market Value (Comps)</span>
+                <p className="text-xl sm:text-2xl font-bold font-mono text-foreground mt-0.5 num">
                   ${property.arv.toLocaleString()}
                 </p>
+                <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium mt-0.5 block">
+                  +${(property.arv - property.purchasePrice).toLocaleString()} gross spread
+                </span>
               </div>
               <div>
-                <span className="text-xs text-muted-foreground">Net Equity Spread</span>
-                <p className="text-xl sm:text-2xl font-bold font-mono text-primary mt-0.5">
-                  +${spread.toLocaleString()}
+                <span className="text-xs text-muted-foreground font-medium">Estimated Net Profit</span>
+                <p className="text-xl sm:text-2xl font-bold font-mono text-emerald-600 dark:text-emerald-400 mt-0.5 num">
+                  +${netProfit.toLocaleString()}
                 </p>
+                <span className="text-[11px] text-muted-foreground mt-0.5 block">After repairs & closing fees</span>
               </div>
               <div>
-                <span className="text-xs text-muted-foreground">Composite Deal Score</span>
-                <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-xl sm:text-2xl font-bold font-mono text-foreground">
-                    {property.score}/100
-                  </span>
-                  <Badge variant="outline" className="text-xs font-semibold text-emerald-600 border-emerald-500/30 bg-emerald-500/5">
-                    Institutional Pass
-                  </Badge>
-                </div>
+                <span className="text-xs text-muted-foreground font-medium">Recommended Max Bid</span>
+                <p className="text-xl sm:text-2xl font-bold font-mono text-primary mt-0.5 num">
+                  ${safeMaxOffer.toLocaleString()}
+                </p>
+                <span className="text-[11px] text-muted-foreground mt-0.5 block">Highest safe offer price</span>
               </div>
             </div>
 
-            {/* Tab Specific Content */}
-            <div className="pt-6">
-              {activeTab === 'financials' && (
-                <div className="space-y-4">
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    {property.summary}
-                  </p>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-2">
-                    <div className="rounded-xl border border-border bg-muted/20 p-3.5">
-                      <span className="text-xs text-muted-foreground">Rehab Budget (Tier 2)</span>
-                      <p className="text-base font-bold font-mono text-foreground mt-1">
-                        ${property.rehabEstimate.toLocaleString()}
+            {/* Tab 1: Interactive Profit & Repair Calculator */}
+            {activeTab === 'calculator' && (
+              <div className="pt-6 space-y-6">
+                {/* Interactive Repair Selector */}
+                <div className="rounded-xl border border-border bg-muted/30 p-5">
+                  <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+                    <div>
+                      <h4 className="text-sm font-bold text-foreground">Interactive Repair Scope Simulator</h4>
+                      <p className="text-xs text-muted-foreground">
+                        Change the estimated renovation scope to see how your profit and max bid adjust in real time.
                       </p>
                     </div>
-                    <div className="rounded-xl border border-border bg-muted/20 p-3.5">
-                      <span className="text-xs text-muted-foreground">Monthly In-Place Rent</span>
-                      <p className="text-base font-bold font-mono text-foreground mt-1">
-                        ${property.projectedRent.toLocaleString()}/mo
-                      </p>
-                    </div>
-                    <div className="rounded-xl border border-border bg-muted/20 p-3.5">
-                      <span className="text-xs text-muted-foreground">Stabilized Cap Rate</span>
-                      <p className="text-base font-bold font-mono text-emerald-600 dark:text-emerald-400 mt-1">
-                        {property.capRate}%
-                      </p>
-                    </div>
-                    <div className="rounded-xl border border-border bg-muted/20 p-3.5">
-                      <span className="text-xs text-muted-foreground">Debt Coverage (DSCR)</span>
-                      <p className="text-base font-bold font-mono text-foreground mt-1">
-                        {property.dscr}x (Bank Qualified)
+                    <div className="text-right">
+                      <span className="text-xs text-muted-foreground">Estimated Repairs:</span>
+                      <p className="text-lg font-bold font-mono text-foreground num">
+                        ${rehabCost.toLocaleString()}
                       </p>
                     </div>
                   </div>
-                </div>
-              )}
 
-              {activeTab === 'gis' && (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="rounded-xl border border-border bg-muted/20 p-4">
-                      <span className="text-xs text-muted-foreground">Zoning Classification</span>
-                      <p className="text-sm font-bold font-mono text-foreground mt-1">{property.zoning}</p>
-                      <p className="text-xs text-muted-foreground mt-1">Permits multi-unit residential with standard FAR envelope.</p>
-                    </div>
-                    <div className="rounded-xl border border-border bg-muted/20 p-4">
-                      <span className="text-xs text-muted-foreground">Lot Geometry & Frontage</span>
-                      <p className="text-sm font-bold font-mono text-foreground mt-1">{property.lotDimensions}</p>
-                      <p className="text-xs text-muted-foreground mt-1">Dedicated paved alley access and detached garage footprint.</p>
-                    </div>
-                    <div className="rounded-xl border border-border bg-muted/20 p-4">
-                      <span className="text-xs text-muted-foreground">Geospatial Environmental</span>
-                      <p className="text-sm font-bold font-mono text-emerald-600 dark:text-emerald-400 mt-1">FEMA Zone X (Minimal Flood)</p>
-                      <p className="text-xs text-muted-foreground mt-1">No special flood hazard insurance mandated by conventional lenders.</p>
-                    </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    <button
+                      type="button"
+                      onClick={() => setRehabScope('light')}
+                      className={`p-3 rounded-lg border text-left transition-all cursor-pointer ${
+                        rehabScope === 'light'
+                          ? 'border-primary bg-card text-foreground shadow-xs ring-1 ring-primary/20'
+                          : 'border-border bg-background text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between text-xs font-bold text-foreground">
+                        <span>Light Refresh</span>
+                        <span className="num font-mono text-primary">${Math.round(property.baseRehab * 0.6).toLocaleString()}</span>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground mt-1">
+                        Paint, flooring, modern lighting, and minor cosmetic touchups.
+                      </p>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setRehabScope('moderate')}
+                      className={`p-3 rounded-lg border text-left transition-all cursor-pointer ${
+                        rehabScope === 'moderate'
+                          ? 'border-primary bg-card text-foreground shadow-xs ring-1 ring-primary/20'
+                          : 'border-border bg-background text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between text-xs font-bold text-foreground">
+                        <span>Standard Rental Turn</span>
+                        <span className="num font-mono text-primary">${property.baseRehab.toLocaleString()}</span>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground mt-1">
+                        Kitchen cabinets, stone counters, bath tile, plus mechanical inspection.
+                      </p>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setRehabScope('heavy')}
+                      className={`p-3 rounded-lg border text-left transition-all cursor-pointer ${
+                        rehabScope === 'heavy'
+                          ? 'border-primary bg-card text-foreground shadow-xs ring-1 ring-primary/20'
+                          : 'border-border bg-background text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between text-xs font-bold text-foreground">
+                        <span>Full Renovation</span>
+                        <span className="num font-mono text-primary">${Math.round(property.baseRehab * 1.5).toLocaleString()}</span>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground mt-1">
+                        New HVAC, full plumbing & electrical update, full interior remodel.
+                      </p>
+                    </button>
                   </div>
                 </div>
-              )}
 
-              {activeTab === 'title' && (
-                <div className="space-y-4">
+                {/* Additional Cash Flow Numbers */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="rounded-xl border border-border bg-muted/20 p-3.5">
+                    <span className="text-xs text-muted-foreground">Expected Monthly Rent</span>
+                    <p className="text-base font-bold font-mono text-foreground mt-1 num">
+                      ${property.projectedRent.toLocaleString()}/mo
+                    </p>
+                    <span className="text-[10px] text-muted-foreground">Based on local neighborhood comps</span>
+                  </div>
+                  <div className="rounded-xl border border-border bg-muted/20 p-3.5">
+                    <span className="text-xs text-muted-foreground">Rental Return (Cap Rate)</span>
+                    <p className="text-base font-bold font-mono text-emerald-600 dark:text-emerald-400 mt-1 num">
+                      {property.capRate}%
+                    </p>
+                    <span className="text-[10px] text-muted-foreground">Net operating cashflow yield</span>
+                  </div>
+                  <div className="rounded-xl border border-border bg-muted/20 p-3.5">
+                    <span className="text-xs text-muted-foreground">Closing & Holding Reserve</span>
+                    <p className="text-base font-bold font-mono text-foreground mt-1 num">
+                      ${closingAndHolding.toLocaleString()}
+                    </p>
+                    <span className="text-[10px] text-muted-foreground">8% transfer taxes & commissions</span>
+                  </div>
+                  <div className="rounded-xl border border-border bg-muted/20 p-3.5">
+                    <span className="text-xs text-muted-foreground">Deal Quality Score</span>
+                    <p className="text-base font-bold font-mono text-primary mt-1 num">
+                      {property.score} / 100
+                    </p>
+                    <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">
+                      Top 10% Profit Potential
+                    </span>
+                  </div>
+                </div>
+
+                {/* Plain-English summary of why this deal works */}
+                <div className="rounded-xl border border-border/80 bg-card p-4 text-xs text-muted-foreground flex items-start gap-3">
+                  <Sparkles className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-bold text-foreground">Why this deal makes sense: </span>
+                    <span>{property.whyItWorks}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Tab 2: Lot Size & Zoning Details */}
+            {activeTab === 'lot' && (
+              <div className="pt-6 space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="rounded-xl border border-border bg-muted/20 p-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">Court & Docket Filing Status</span>
-                      <Badge variant="outline" className="text-xs border-emerald-500/30 text-emerald-600 bg-emerald-500/5">
-                        {property.titleClearance === 'Clean' ? 'No Clouded Deeds Detected' : 'Requires Review'}
-                      </Badge>
-                    </div>
-                    <p className="text-sm font-mono font-bold text-foreground mt-2">{property.lienStatus}</p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Cross-referenced against Cook County Recorder of Deeds and Illinois Chancery Court dockets.
+                    <span className="text-xs text-muted-foreground font-medium">Permitted Zoning</span>
+                    <p className="text-sm font-bold text-foreground mt-1 font-mono">{property.zoning}</p>
+                    <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
+                      {property.zoningPlain}
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-border bg-muted/20 p-4">
+                    <span className="text-xs text-muted-foreground font-medium">Lot Dimensions</span>
+                    <p className="text-sm font-bold text-foreground mt-1 font-mono">{property.lotDimensions}</p>
+                    <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
+                      Standard rectangular city lot with paved rear alley access and detached garage footprint.
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-border bg-muted/20 p-4">
+                    <span className="text-xs text-muted-foreground font-medium">Flood Risk & Insurance</span>
+                    <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400 mt-1">
+                      FEMA Zone X (Low Risk)
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
+                      Property is outside the 100-year and 500-year flood plains. No expensive flood insurance required.
                     </p>
                   </div>
                 </div>
-              )}
-            </div>
-
-            {/* Bottom Launch Action */}
-            <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-border pt-6">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                <span>Audited with Cook County Assessor & Sheriff records</span>
               </div>
+            )}
 
-              <RainbowButton
-                id="tailark-terminal-open-btn"
-                onClick={() => onExplore(property.address, property.mode)}
-                className="font-semibold rounded-xl text-xs h-10 px-5 shadow-sm"
-              >
-                <span>Open in Full Cartographic Workspace</span>
-                <ArrowRight className="h-4 w-4 ml-1.5" />
-              </RainbowButton>
+            {/* Tab 3: Title & Debt Check */}
+            {activeTab === 'title' && (
+              <div className="pt-6 space-y-4">
+                <div className="rounded-xl border border-border bg-muted/20 p-5">
+                  <div className="flex items-center gap-2 mb-3">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                    <h4 className="text-sm font-bold text-foreground">Official Title & Recorded Debt Audit</h4>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed mb-4">
+                    {property.lienSummary}
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                    <div className="p-3 rounded-lg border border-border bg-card">
+                      <span className="text-muted-foreground block text-[11px]">County Property Taxes</span>
+                      <span className="font-bold text-emerald-600 dark:text-emerald-400 mt-0.5 block">
+                        ✓ Current & Paid
+                      </span>
+                    </div>
+                    <div className="p-3 rounded-lg border border-border bg-card">
+                      <span className="text-muted-foreground block text-[11px]">Unpaid Contractor Liens</span>
+                      <span className="font-bold text-emerald-600 dark:text-emerald-400 mt-0.5 block">
+                        ✓ None Found
+                      </span>
+                    </div>
+                    <div className="p-3 rounded-lg border border-border bg-card">
+                      <span className="text-muted-foreground block text-[11px]">Ownership Verification</span>
+                      <span className="font-bold text-foreground mt-0.5 block">
+                        ✓ Official County Deed on Record
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Bottom Action Footer */}
+            <div className="mt-8 pt-5 border-t border-border flex flex-wrap items-center justify-between gap-4">
+              <div className="text-xs text-muted-foreground">
+                Want to search all 500+ Cook County properties or find auctions in your zip code?
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onExplore(property.address, property.mode)}
+                  className="text-xs h-9 cursor-pointer"
+                >
+                  <span>View in Property Map</span>
+                  <ArrowRight className="h-3.5 w-3.5 ml-1" />
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={() => onExplore()}
+                  className="text-xs h-9 bg-primary text-primary-foreground font-semibold cursor-pointer"
+                >
+                  <span>Explore Ranked Dealflow</span>
+                  <ArrowRight className="h-3.5 w-3.5 ml-1" />
+                </Button>
+              </div>
             </div>
           </div>
         </div>

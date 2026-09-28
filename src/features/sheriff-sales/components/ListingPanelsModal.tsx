@@ -2,6 +2,7 @@ import { Input } from "@/components/ui/input";
 import { DossierModalSkeleton } from '@/components/ui/skeleton-loaders';
 import { Button } from "@/components/ui/button";
 import { useState } from 'react';
+import { Link } from '@tanstack/react-router';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   X,
@@ -140,7 +141,16 @@ export function ListingPanelsModal({
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
+            <Link
+              to="/workspace"
+              search={{ parcelId: sale.parcel.id }}
+              className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors"
+              title="Inspect on Cadastral Map"
+            >
+              <HouseLine size={14} className="text-blue-400" />
+              <span className="hidden sm:inline">Map</span>
+            </Link>
             <span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-full text-xs font-mono font-bold">
               PERFECT SCORE: {sale.aiWorkforce.dealUnderwriter.perfectScore}/100
             </span>

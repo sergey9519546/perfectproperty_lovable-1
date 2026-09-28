@@ -2,40 +2,40 @@ import { ShieldCheck, Database, Landmark, FileText, Map, Activity } from 'lucide
 
 const INTEGRATIONS = [
   {
-    name: 'Cook County Sheriff',
-    role: 'Auction Dockets & Judgments',
+    name: 'County Sheriff Auctions',
+    role: 'Verified Court Sales & Opening Bids',
     icon: Landmark,
     status: 'Live Synced',
   },
   {
-    name: 'Municipal GIS Cadastre',
-    role: 'Sub-Meter Boundary Polygons',
+    name: 'Official Property Records',
+    role: 'Exact Lot Lines & Zoning Codes',
     icon: Map,
-    status: 'Direct API',
+    status: 'Direct County Feed',
   },
   {
-    name: 'County Recorder of Deeds',
-    role: 'Mortgage Liens & Lis Pendens',
+    name: 'Recorder of Deeds',
+    role: 'Mortgage Liens & Tax Arrears',
     icon: FileText,
-    status: 'Continuous',
+    status: 'Continuous Audit',
   },
   {
-    name: 'US Census Bureau',
-    role: 'Demographics & Median Income',
+    name: 'Neighborhood Sales Comps',
+    role: 'Recent Arms-Length Sold Prices',
     icon: Database,
-    status: 'ACS 2024',
+    status: 'Daily Updates',
   },
   {
-    name: 'FEMA Flood Portal',
-    role: 'Hazard Zone X / AE Models',
+    name: 'FEMA Flood Risk Database',
+    role: 'Flood Zone & Elevation Hazard',
     icon: ShieldCheck,
-    status: 'Real-Time',
+    status: 'Zone Verified',
   },
   {
-    name: 'USPS CASS Service',
-    role: 'Address Verification & Status',
+    name: 'USPS Address Database',
+    role: 'Occupancy & Vacancy Verification',
     icon: Activity,
-    status: 'Verified',
+    status: 'CASS Certified',
   },
 ];
 
@@ -48,7 +48,7 @@ export function TailarkIntegrations() {
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8">
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Direct Public Record Grounding & Title Intelligence
+            Directly Grounded in Official Public Records & Deeds
           </p>
         </div>
 
@@ -70,9 +70,9 @@ export function TailarkIntegrations() {
                 <span className="text-[11px] text-muted-foreground mt-0.5 line-clamp-1">
                   {item.role}
                 </span>
-                <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+                <span className="mt-2 inline-flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                  {item.status}
+                  <span>{item.status}</span>
                 </span>
               </div>
             );

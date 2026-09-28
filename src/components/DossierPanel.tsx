@@ -1,10 +1,38 @@
 import { Button } from "@/components/ui/button";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { Link } from "@tanstack/react-router";
 import { getDossier } from "@/lib/parcels.functions";
 import { fmt$, pct, tierLabel, ringLabel } from "@/lib/format";
-import { X, TrendUp, Warning, Buildings, Scroll, Lightning, Pulse, ShieldCheck, Lock, Check, Bookmark } from "@phosphor-icons/react";
+import { formatDealMemoMarkdown } from "@/lib/deal-memo";
+import {
+  X,
+  TrendUp,
+  Warning,
+  Buildings,
+  Scroll,
+  Lightning,
+  Pulse,
+  ShieldCheck,
+  Lock,
+  Check,
+  Bookmark,
+  FileText,
+  Printer,
+  Copy,
+  DownloadSimple,
+  MapTrifold,
+  Gavel as GavelIcon,
+  ArrowSquareOut,
+} from "@phosphor-icons/react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { DataFreshness } from "@/components/DataFreshness";
 import { WhyThisScorePanel } from "@/components/WhyThisScorePanel";
 import { ParcelMiniMap } from "@/components/ParcelMiniMap";
@@ -30,6 +58,8 @@ export function DossierPanel({ parcelId, onClose }: Props) {
   const { user } = useFirebaseAuth();
   const queryClient = useQueryClient();
   const [isSaving, setIsSaving] = useState(false);
+  const [memoOpen, setMemoOpen] = useState(false);
+  const [copiedMemo, setCopiedMemo] = useState(false);
   const panelRef = useRef<HTMLElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const q = useQuery({
@@ -37,6 +67,73 @@ export function DossierPanel({ parcelId, onClose }: Props) {
     queryFn: () => fetchDossier({ data: { parcel_id: parcelId! } }),
     enabled: !!parcelId,
   });
+
+  const memoText = useMemo(() => {
+    if (!q.data?.parcel) return "";
+    const p = q.data.parcel;
+    const s = q.data.score;
+    return formatDealMemoMarkdown({
+      parcel: {
+        id: p.id,
+        address: p.address || "",
+        city: p.city || "",
+        state: p.state || "",
+        zip: p.zip,
+        countyFips: p.county_fips,
+        livingSqft: p.living_sqft ? Number(p.living_sqft) : null,
+        yearBuilt: p.year_built ? Number(p.year_built) : null,
+        bedrooms: p.bedrooms ? Number(p.bedrooms) : null,
+        bathrooms: p.bathrooms ? Number(p.bathrooms) : null,
+        conditionGrade: p.condition_grade,
+        isVacant: p.is_vacant,
+        isAbsentee: p.owner_is_absentee,
+      },
+      score: s ? {
+        perfectScore: Number(s.perfect_score),
+        grossProfit: Number(s.gross_profit),
+        modeledOffer: Number(s.modeled_offer),
+        fullRenoArv: Number(s.full_reno_arv),
+        cosmeticArv: Number(s.cosmetic_arv),
+        asIsValue: Number(s.as_is_value),
+        renoCost: Number(s.reno_cost),
+        carryCost: Number(s.carry_cost),
+        sellingCost: Number(s.selling_cost),
+        exitDays: Number(s.exit_days),
+        confidenceGrade: s.confidence_grade,
+        recommendedScope: s.recommended_scope,
+        mcProfitP5: Number(s.mc_profit_p5),
+        mcProfitP50: Number(s.mc_profit_p50),
+        mcPLoss: s.mc_p_loss != null ? Number(s.mc_p_loss) : null,
+        skepticFlags: s.skeptic_flags as string[],
+        computedAt: s.computed_at,
+      } : null,
+    });
+  }, [q.data]);
+
+  const handleCopyMemo = () => {
+    if (!memoText) return;
+    void navigator.clipboard.writeText(memoText);
+    setCopiedMemo(true);
+    toast.success("Deal Memorandum copied to clipboard");
+    setTimeout(() => setCopiedMemo(false), 2500);
+  };
+
+  const handleDownloadMemo = () => {
+    if (!memoText) return;
+    const cleanAddress = (q.data?.parcel?.address || "deal-memo").replace(/[^a-zA-Z0-9_-]/g, "_");
+    const filename = `Deal_Memo_${cleanAddress}.md`;
+    const blob = new Blob([memoText], { type: "text/markdown;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", filename);
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast.success("Deal Memorandum downloaded (.md)");
+  };
 
   const savedQ = useQuery({
     queryKey: ["saved-deals", user?.uid],
@@ -147,23 +244,35 @@ export function DossierPanel({ parcelId, onClose }: Props) {
       className="pointer-events-auto fixed top-0 bottom-0 right-0 z-50 flex w-full max-w-[520px] flex-col overflow-hidden border-l border-border bg-card text-foreground shadow-[0_24px_80px_-20px_rgba(0,0,0,0.4)] animate-in slide-in-from-right duration-300 max-md:max-w-none"
     >
       <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-card px-5 py-3">
-        <div className="flex items-center gap-3">
-          <h2 id="dossier-heading" className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Property Dossier</h2>
+        <div className="flex items-center gap-2">
+          <h2 id="dossier-heading" className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mr-1">Property Dossier</h2>
           {q.data?.parcel && (
-            <Button
-              type="button"
-              onClick={handleToggleSave}
-              disabled={isSaving}
-              aria-label={isSaved ? "Remove from my list" : "Add to my list"}
-              className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[11px] font-bold tracking-wide transition-colors ${
-                isSaved
-                  ? "border-amber-500/40 bg-amber-500/15 text-amber-600 dark:text-amber-400 hover:bg-amber-500/25"
-                  : "border-border bg-muted/60 text-foreground hover:bg-muted hover:border-border-strong"
-              }`}
-            >
-              <Bookmark size={13} weight={isSaved ? "fill" : "bold"} />
-              <span>{isSaving ? "Saving..." : isSaved ? "In My List" : "Add to my list"}</span>
-            </Button>
+            <>
+              <Button
+                type="button"
+                onClick={handleToggleSave}
+                disabled={isSaving}
+                aria-label={isSaved ? "Remove from my list" : "Add to my list"}
+                className={`inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-[11px] font-bold tracking-wide transition-colors ${
+                  isSaved
+                    ? "border-amber-500/40 bg-amber-500/15 text-amber-600 dark:text-amber-400 hover:bg-amber-500/25"
+                    : "border-border bg-muted/60 text-foreground hover:bg-muted hover:border-border-strong"
+                }`}
+              >
+                <Bookmark size={13} weight={isSaved ? "fill" : "bold"} />
+                <span>{isSaving ? "Saving..." : isSaved ? "In List" : "Add to list"}</span>
+              </Button>
+
+              <Button
+                type="button"
+                onClick={() => setMemoOpen(true)}
+                aria-label="Generate Investment Deal Memorandum"
+                className="inline-flex items-center gap-1 rounded-lg border border-border bg-muted/60 px-2 py-1 text-[11px] font-bold tracking-wide text-foreground transition-colors hover:bg-muted hover:border-border-strong cursor-pointer"
+              >
+                <FileText size={13} weight="bold" />
+                <span>Deal Memo</span>
+              </Button>
+            </>
           )}
         </div>
         <Button ref={closeRef} onClick={onClose} aria-label="Close dossier" className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
@@ -234,6 +343,82 @@ export function DossierPanel({ parcelId, onClose }: Props) {
         </div>
       )}
     </aside>
+
+    {/* Institutional Deal Memorandum & Bid Card Modal */}
+    <Dialog open={memoOpen} onOpenChange={setMemoOpen}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-6 bg-card text-foreground border-border">
+        <DialogHeader className="border-b border-border pb-4">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
+              Investment Brief & Underwriting Memo
+            </span>
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleDownloadMemo}
+                className="h-8 text-xs font-semibold gap-1.5 cursor-pointer"
+              >
+                <DownloadSimple size={14} weight="bold" />
+                <span>Download .md</span>
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleCopyMemo}
+                className="h-8 text-xs font-semibold gap-1.5 cursor-pointer"
+              >
+                <Copy size={14} />
+                <span>{copiedMemo ? "Copied!" : "Copy Memo"}</span>
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => window.print()}
+                className="h-8 text-xs font-semibold gap-1.5 cursor-pointer"
+              >
+                <Printer size={14} />
+                <span>Print</span>
+              </Button>
+            </div>
+          </div>
+          <DialogTitle className="text-xl font-bold tracking-tight text-foreground mt-2">
+            {q.data?.parcel?.address || "Investment Deal Memorandum"}
+          </DialogTitle>
+          <DialogDescription className="text-xs text-muted-foreground">
+            {q.data?.parcel?.city}, {q.data?.parcel?.state} {q.data?.parcel?.zip} · Ready for lender, partner, or acquisition committee presentation.
+          </DialogDescription>
+        </DialogHeader>
+
+        {/* Formatted Text Memo Display */}
+        <div className="mt-4 rounded-xl border border-border bg-muted/40 p-4 font-mono text-[12px] whitespace-pre-wrap leading-relaxed overflow-x-auto text-foreground">
+          {memoText}
+        </div>
+
+        <div className="mt-4 pt-3 border-t border-border flex flex-wrap items-center justify-between gap-3">
+          <div className="text-xs text-muted-foreground">
+            Underwritten via Profit Property Multi-Stage Risk Engine
+          </div>
+          <div className="flex items-center gap-2">
+            <Link
+              to="/workspace"
+              search={{ parcelId: parcelId || undefined }}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-semibold hover:bg-muted text-foreground transition-colors"
+            >
+              <MapTrifold size={14} className="text-primary" />
+              <span>Open in Map</span>
+            </Link>
+            <Button
+              size="sm"
+              onClick={() => setMemoOpen(false)}
+              className="h-8 text-xs font-semibold px-4 cursor-pointer"
+            >
+              Done
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
     </>
   );
 }
@@ -276,6 +461,26 @@ function Header({
           </Button>
         )}
       </div>
+
+      {/* Cadastral & Distress Quick Navigation */}
+      <div className="mt-2.5 flex items-center gap-2">
+        <Link
+          to="/workspace"
+          search={{ parcelId: p.id }}
+          className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-muted/40 px-2.5 py-1 text-[11px] font-semibold text-foreground hover:bg-muted transition-colors"
+        >
+          <MapTrifold size={13} className="text-primary" />
+          <span>Cadastral Map</span>
+        </Link>
+        <Link
+          to="/sheriff-sales"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-muted/40 px-2.5 py-1 text-[11px] font-semibold text-foreground hover:bg-muted transition-colors"
+        >
+          <GavelIcon size={13} className="text-amber-500" />
+          <span>Sheriff Desk</span>
+        </Link>
+      </div>
+
       <div className="mt-3 grid grid-cols-4 gap-2 text-[11px] text-muted-foreground">
 
         <Cell label="Beds/Ba" value={`${p.bedrooms ?? "—"}/${p.bathrooms ?? "—"}`} />

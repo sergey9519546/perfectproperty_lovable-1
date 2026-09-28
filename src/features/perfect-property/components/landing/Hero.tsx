@@ -59,10 +59,10 @@ export const Hero = ({ onExplore }: { onExplore: (query?: string, mode?: 'Deals'
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-primary/10/90 border border-blue-200/80 text-blue-800 text-xs font-bold tracking-wider uppercase mb-6 shadow-xs"
+          className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold tracking-wider uppercase mb-6 shadow-xs"
         >
           <Sparkles className="w-3.5 h-3.5 text-primary" />
-          <span>Perfect Property Intelligence Engine</span>
+          <span>Profit Property Intelligence Engine</span>
         </motion.div>
 
         <motion.h1 

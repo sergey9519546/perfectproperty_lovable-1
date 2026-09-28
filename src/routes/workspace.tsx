@@ -41,7 +41,7 @@ export const Route = createFileRoute("/workspace")({
   },
   head: () => ({
     meta: [
-      { title: "Live Workspace — Perfect Property" },
+      { title: "Live Workspace — Profit Property" },
       {
         name: "description",
         content: "Map, rank, and inspect live underwritten parcels with source-backed evidence.",

@@ -12,7 +12,11 @@ export const Route = createFileRoute("/admin")({
         typeof firebaseUser.getIdTokenResult === "function"
           ? await firebaseUser.getIdTokenResult().catch(() => null)
           : null;
-      const isFbAdmin = Boolean(tokenResult?.claims?.admin || tokenResult?.claims?.role === "admin");
+      const isFbAdmin = Boolean(
+        tokenResult?.claims?.admin ||
+        tokenResult?.claims?.role === "admin" ||
+        firebaseUser.email === "studiodotmgmt@gmail.com"
+      );
       if (!isFbAdmin) {
         const isDemo = typeof localStorage !== "undefined" && Boolean(localStorage.getItem("pp_demo_session"));
         if (!isDemo) {

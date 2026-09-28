@@ -15,7 +15,7 @@ export const CTASection = ({ onExplore }: { onExplore: () => void }) => {
           viewport={{ once: true }}
           className="text-[48px] md:text-[64px] font-bold tracking-[-0.04em] leading-[1.05] mb-8 max-w-[800px] mx-auto"
         >
-          Ready to find your next perfect property?
+          Ready to find your next profit property?
         </motion.h2>
         <motion.p 
           initial={{ opacity: 0, y: 20 }}

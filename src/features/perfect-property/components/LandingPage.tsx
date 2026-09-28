@@ -400,7 +400,7 @@ export function LandingPage({ onExplore, onSignIn }: LandingPageProps) {
       <footer id="landing-institutional-footer" className="border-t border-border bg-card/50 py-8">
         <div className="mx-auto flex max-w-7xl flex-col sm:flex-row items-center justify-between gap-4 px-6 sm:px-8 text-xs text-muted-foreground">
           <div className="flex items-center gap-3">
-            <span className="font-semibold text-foreground">Perfect Property Engine</span>
+            <span className="font-semibold text-foreground">Profit Property Engine</span>
             <span>•</span>
             <span>Institutional Real Estate Intelligence</span>
           </div>

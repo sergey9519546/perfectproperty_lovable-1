@@ -1,44 +1,118 @@
-import { Buildings, ChartLineUp, Crosshair, Gavel, MapTrifold, Rows, Scroll, Stack } from '@phosphor-icons/react'
-import { motion } from 'motion/react'
+import {
+  Columns,
+  MapTrifold,
+  Rows,
+  MagnifyingGlass,
+  ArrowClockwise,
+  Gavel,
+  Flame,
+  FileText,
+} from '@phosphor-icons/react';
+import { motion } from 'motion/react';
 
-const items = [
-  { id: 'map', label: 'Market map', icon: MapTrifold },
-  { id: 'deals', label: 'Deals', icon: Rows },
-  { id: 'sheriff', label: 'Sheriff & Gov Sales', icon: Gavel },
-  { id: 'notices', label: 'Legal Notice Reader', icon: Scroll },
-  { id: 'assets', label: 'Assets', icon: Buildings },
-  { id: 'models', label: 'Model accuracy', icon: ChartLineUp },
-  { id: 'targets', label: 'Targets', icon: Crosshair },
-  { id: 'sources', label: 'Data sources', icon: Stack },
-]
+export interface NavigationRailProps {
+  active?: string;
+  onChange?: (id: string) => void;
+  layoutMode?: 'split' | 'map' | 'table';
+  onLayoutChange?: (mode: 'split' | 'map' | 'table') => void;
+  onOpenPalette?: () => void;
+  onRefresh?: () => void;
+}
 
-export function NavigationRail({ active, onChange }: { active: string; onChange: (id: string) => void }) {
+export function NavigationRail({
+  layoutMode = 'split',
+  onLayoutChange,
+  onOpenPalette,
+  onRefresh,
+}: NavigationRailProps) {
   return (
-    <nav
-      className="nav-rail flex w-[72px] flex-col items-center border-r border-border bg-card py-6 max-md:h-14 max-md:w-full max-md:flex-row max-md:justify-center max-md:border-r-0 max-md:border-b max-md:py-0 z-10 relative"
-      aria-label="Product navigation"
+    <aside
+      className="nav-rail flex w-14 flex-col items-center justify-between border-r border-border bg-card py-3 max-md:hidden z-10 shrink-0 select-none"
+      aria-label="Workspace View Controls"
     >
-      <div className="flex flex-col gap-3 max-md:flex-row max-md:gap-2">
-        {items.map(({ id, label, icon: Icon }) => (
+      {/* Top Group: View Modes */}
+      <div className="flex flex-col items-center gap-2">
+        {onLayoutChange && (
+          <>
+            <motion.button
+              whileTap={{ scale: 0.94 }}
+              onClick={() => onLayoutChange('split')}
+              type="button"
+              aria-label="Split View (Map and Table)"
+              title="Split View (Map + Table)"
+              className={`grid h-10 w-10 place-items-center rounded-xl transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                layoutMode === 'split'
+                  ? 'bg-foreground text-background font-semibold shadow-xs'
+                  : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+              }`}
+            >
+              <Columns size={19} weight={layoutMode === 'split' ? 'fill' : 'regular'} />
+            </motion.button>
+
+            <motion.button
+              whileTap={{ scale: 0.94 }}
+              onClick={() => onLayoutChange('map')}
+              type="button"
+              aria-label="Focus Map (Expanded Map Canvas)"
+              title="Focus Map"
+              className={`grid h-10 w-10 place-items-center rounded-xl transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                layoutMode === 'map'
+                  ? 'bg-foreground text-background font-semibold shadow-xs'
+                  : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+              }`}
+            >
+              <MapTrifold size={19} weight={layoutMode === 'map' ? 'fill' : 'regular'} />
+            </motion.button>
+
+            <motion.button
+              whileTap={{ scale: 0.94 }}
+              onClick={() => onLayoutChange('table')}
+              type="button"
+              aria-label="Focus Table (Expanded Deal Grid)"
+              title="Focus Table"
+              className={`grid h-10 w-10 place-items-center rounded-xl transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                layoutMode === 'table'
+                  ? 'bg-foreground text-background font-semibold shadow-xs'
+                  : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+              }`}
+            >
+              <Rows size={19} weight={layoutMode === 'table' ? 'fill' : 'regular'} />
+            </motion.button>
+
+            <div className="my-1.5 h-px w-6 bg-border" aria-hidden="true" />
+          </>
+        )}
+
+        {/* Command Palette Trigger */}
+        {onOpenPalette && (
           <motion.button
-            key={id}
-            whileHover={{ y: -1 }}
             whileTap={{ scale: 0.94 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-            onClick={() => onChange(id)}
+            onClick={onOpenPalette}
             type="button"
-            aria-label={label}
-            title={label}
-            className={`relative grid h-12 w-12 place-items-center rounded-xl transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
-              active === id
-                ? 'bg-background text-foreground shadow-xs border border-border font-semibold'
-                : 'bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground border border-transparent'
-            }`}
+            aria-label="Quick Search Parcels (Command+K)"
+            title="Search Parcels (⌘K)"
+            className="grid h-10 w-10 place-items-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
-            <Icon size={22} weight={active === id ? "fill" : "regular"} />
+            <MagnifyingGlass size={19} />
           </motion.button>
-        ))}
+        )}
       </div>
-    </nav>
-  )
+
+      {/* Bottom Group: Data Refresh */}
+      <div className="flex flex-col items-center gap-2">
+        {onRefresh && (
+          <motion.button
+            whileTap={{ scale: 0.94 }}
+            onClick={onRefresh}
+            type="button"
+            aria-label="Refresh Scored Parcels"
+            title="Refresh Parcels"
+            className="grid h-10 w-10 place-items-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          >
+            <ArrowClockwise size={18} />
+          </motion.button>
+        )}
+      </div>
+    </aside>
+  );
 }

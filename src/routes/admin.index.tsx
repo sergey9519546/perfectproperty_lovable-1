@@ -18,7 +18,7 @@ export const Route = createFileRoute("/admin/")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Ingestion — Perfect Property Engine" },
+      { title: "Ingestion — Profit Property Engine" },
       { name: "description", content: "Data adapters, coverage, and the nightly underwrite pipeline." },
     ],
   }),

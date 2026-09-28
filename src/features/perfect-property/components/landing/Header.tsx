@@ -36,7 +36,7 @@ export const Header = ({
           <Link
             to="/"
             id="landing-header-logo-link"
-            aria-label="Perfect Property Home"
+            aria-label="Profit Property Home"
             className="flex items-center text-foreground hover:opacity-90 transition-opacity shrink-0 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md"
           >
             <Brand

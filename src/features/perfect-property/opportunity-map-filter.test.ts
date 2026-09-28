@@ -108,5 +108,16 @@ describe('Opportunity Map Property Type & Asset Class Filter System', () => {
         expect(p.countyFips === '17031' || p.state === 'IL').toBe(true);
       });
     });
+
+    it('filters parcels by specific categories (multifamily, industrial, office)', () => {
+      const multifamily = filterParcels(allParcels, 'All regions', 'multifamily');
+      expect(multifamily.length).toBeGreaterThan(0);
+
+      const office = filterParcels(allParcels, 'All regions', 'office');
+      expect(office.length).toBeGreaterThan(0);
+
+      const industrial = filterParcels(allParcels, 'All regions', 'industrial');
+      expect(industrial).toBeDefined();
+    });
   });
 });

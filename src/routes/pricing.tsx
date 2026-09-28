@@ -133,9 +133,11 @@ function PricingPage() {
       {/* Hero Header */}
       <section className="relative overflow-hidden border-b border-border bg-radial from-card via-background to-background py-16 px-4 text-center sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl space-y-4">
-          <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-            <ShieldCheck className="h-3.5 w-3.5" />
+          <div className="flex items-center justify-center gap-2 text-xs font-semibold text-muted-foreground">
+            <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
             <span>30-Day 100% Money-Back Guarantee</span>
+            <span aria-hidden="true">·</span>
+            <span>Zero Long-Term Lock-in</span>
           </div>
           <h1 className="text-3xl font-extrabold tracking-tight sm:text-5xl text-foreground">
             Institutional Deal Underwriting <br className="hidden sm:inline" />
@@ -147,13 +149,13 @@ function PricingPage() {
 
           {/* Billing Interval Switcher */}
           <div className="pt-6 flex justify-center items-center gap-3">
-            <div className="inline-flex items-center rounded-xl border border-border bg-card p-1 shadow-xs">
+            <div className="inline-flex items-center rounded-xl border border-border bg-card p-1 shadow-2xs">
               <button
                 type="button"
                 onClick={() => setBillingCycle("month")}
                 className={`rounded-lg px-4 py-2 text-xs font-bold transition-all cursor-pointer ${
                   billingCycle === "month"
-                    ? "bg-primary text-primary-foreground shadow-xs"
+                    ? "bg-foreground text-background shadow-2xs"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -164,13 +166,13 @@ function PricingPage() {
                 onClick={() => setBillingCycle("year")}
                 className={`flex items-center gap-1.5 rounded-lg px-4 py-2 text-xs font-bold transition-all cursor-pointer ${
                   billingCycle === "year"
-                    ? "bg-primary text-primary-foreground shadow-xs"
+                    ? "bg-foreground text-background shadow-2xs"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 <span>Annual Billing</span>
-                <span className="rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 text-[10px] font-black uppercase">
-                  Save 20%
+                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold uppercase">
+                  (Save 20%)
                 </span>
               </button>
             </div>
@@ -195,7 +197,7 @@ function PricingPage() {
                 }`}
               >
                 {plan.badge && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-0.5 text-[11px] font-bold text-primary-foreground shadow-xs uppercase tracking-wider">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-md bg-foreground px-3 py-0.5 text-[10px] font-bold text-background uppercase tracking-wider shadow-2xs">
                     {plan.badge}
                   </div>
                 )}
@@ -210,7 +212,7 @@ function PricingPage() {
 
                   {/* Price */}
                   <div className="mt-6 flex items-baseline gap-1">
-                    <span className="text-4xl font-extrabold tracking-tight text-foreground">
+                    <span className="text-4xl font-extrabold tracking-tight text-foreground num">
                       ${billingCycle === "year" && "monthlyEquivalent" in price ? (price as any).monthlyEquivalent : price.amount}
                     </span>
                     <span className="text-xs text-muted-foreground">

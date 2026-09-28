@@ -84,6 +84,40 @@ describe('Sheriff Sales E2E & Business Logic Suite', () => {
         expect(waterfall.safeMaxBid).toBeGreaterThanOrEqual(0);
       }
     });
+
+    it('exports sheriff sales dockets to standardized CSV format', () => {
+      const sample = SHERIFF_GOV_SALES.slice(0, 3);
+      const rows = sample.map((s) => ({
+        parcelId: s.id,
+        address: s.parcel.address,
+        city: s.parcel.city,
+        state: s.parcel.state,
+        zip: s.parcel.zip,
+        countyFips: s.county,
+        arv: s.aiWorkforce.dealUnderwriter.modeledArv,
+        maxOffer: s.aiWorkforce.dealUnderwriter.maximumAllowableBid,
+        expectedProfit: s.compsAndMargin.netSpreadDollars,
+        dealScore: s.flipScoreAndEndGame.flipScore,
+        confidenceGrade: s.aiWorkforce.legalProseReader.titleRiskGrade,
+        strategy: s.flipScoreAndEndGame.recommendedExitStrategy,
+        livingSqft: s.parcel.livingSqft,
+        yearBuilt: s.parcel.yearBuilt,
+        bedrooms: s.parcel.bedrooms,
+        bathrooms: s.parcel.bathrooms,
+        pLossPercent: Math.round((1 - s.flipScoreAndEndGame.flipScore / 100) * 15),
+        typicalProfitP50: s.compsAndMargin.netSpreadDollars,
+        worstCaseProfitP5: Math.round(s.compsAndMargin.netSpreadDollars * 0.4),
+        exitDays: s.flipScoreAndEndGame.estimatedTurnaroundDays,
+        warningsCount: s.theCatch.seniorSurvivingLiens.length,
+        warnings: s.theCatch.seniorSurvivingLiens.map((l) => `${l.type}: $${l.estimatedAmount}`).join('; '),
+        isSaved: false,
+      }));
+
+      expect(rows).toHaveLength(3);
+      expect(rows[0].address).toBe(sample[0].parcel.address);
+      expect(rows[0].expectedProfit).toBeGreaterThan(0);
+      expect(rows[0].dealScore).toBeGreaterThanOrEqual(0);
+    });
   });
 
   describe('SheriffSalesPage Component Contract', () => {

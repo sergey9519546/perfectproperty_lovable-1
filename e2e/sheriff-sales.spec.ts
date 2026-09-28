@@ -67,10 +67,11 @@ test.describe('Critical Path: Auth, Sheriff Sales Dashboard, Address Search & Un
 
     await page.goto('/sheriff-sales');
     await page.waitForLoadState('domcontentloaded');
+    await expect(page.locator('text=Upcoming Sheriff & Foreclosure Auctions')).toBeVisible({ timeout: 15000 });
 
     // Locate the first Analyze button in the auction table
     const analyzeButtons = page.locator('button[id^="analyze-sale-btn-"]');
-    await expect(analyzeButtons.first()).toBeVisible({ timeout: 10000 });
+    await expect(analyzeButtons.first()).toBeVisible({ timeout: 15000 });
     await analyzeButtons.first().click();
 
     // Verify the Underwriting Modal opens

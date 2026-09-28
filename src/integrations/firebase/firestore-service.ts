@@ -178,9 +178,25 @@ export async function getSavedDealsFromFirestore(userId: string): Promise<SavedD
   
   try {
     const snap = await getDocs(q);
-    return snap.docs.map((docSnap) => docSnap.data() as SavedDealData);
+    const results = snap.docs.map((docSnap) => docSnap.data() as SavedDealData);
+    if (typeof localStorage !== "undefined") {
+      try {
+        localStorage.setItem(`pp_saved_deals_${userId}`, JSON.stringify(results));
+      } catch {
+        // storage quota fallback
+      }
+    }
+    return results;
   } catch (error) {
-    handleFirestoreError(error);
+    if (typeof localStorage !== "undefined") {
+      try {
+        const cached = localStorage.getItem(`pp_saved_deals_${userId}`);
+        if (cached) return JSON.parse(cached);
+      } catch {
+        // fallback
+      }
+    }
+    return [];
   }
 }
 
@@ -259,9 +275,25 @@ export async function getFilterPresetsFromFirestore(userId: string): Promise<Use
   const q = query(presetsCol, orderBy("createdAt", "desc"));
   try {
     const snap = await getDocs(q);
-    return snap.docs.map((docSnap) => docSnap.data() as UserFilterPresetData);
+    const presets = snap.docs.map((docSnap) => docSnap.data() as UserFilterPresetData);
+    if (typeof localStorage !== "undefined") {
+      try {
+        localStorage.setItem(`pp_filter_presets_${userId}`, JSON.stringify(presets));
+      } catch {
+        // storage quota fallback
+      }
+    }
+    return presets;
   } catch (error) {
-    handleFirestoreError(error);
+    if (typeof localStorage !== "undefined") {
+      try {
+        const cached = localStorage.getItem(`pp_filter_presets_${userId}`);
+        if (cached) return JSON.parse(cached);
+      } catch {
+        // fallback
+      }
+    }
+    return [];
   }
 }
 

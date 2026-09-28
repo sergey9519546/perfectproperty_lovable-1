@@ -150,7 +150,7 @@ function AnalyticsError({ error, reset }: { error: Error; reset: () => void }) {
 }
 
 export const Route = createFileRoute("/admin/analytics")({
-  head: () => ({ meta: [{ title: "Product KPIs — Perfect Property" }] }),
+  head: () => ({ meta: [{ title: "Product KPIs — Profit Property" }] }),
   component: () => <SectionBoundary label="Product KPI dashboard unavailable" minHeight={400}><AnalyticsView /></SectionBoundary>,
   errorComponent: AnalyticsError,
 });

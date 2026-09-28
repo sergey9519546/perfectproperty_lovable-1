@@ -16,10 +16,10 @@ export const Storyteller = () => {
             THE UNDERWRITING BOTTLENECK
           </span>
           <h2 className="text-[38px] md:text-[50px] font-bold tracking-[-0.04em] leading-[1.05] text-foreground mb-6 max-w-[800px] mx-auto">
-            You're the deal hunter. Perfect Property makes every opportunity clear.
+            You're the deal hunter. Profit Property makes every opportunity clear.
           </h2>
           <p className="text-[19px] text-muted-foreground max-w-[760px] mx-auto leading-[1.6] font-medium">
-            In a fast-moving market, deal velocity and analytical rigor matter most. Perfect Property automates underwriting in seconds.
+            In a fast-moving market, deal velocity and analytical rigor matter most. Profit Property automates underwriting in seconds.
           </p>
         </div>
 
@@ -269,7 +269,7 @@ export const Storyteller = () => {
                       : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
-                  Perfect Property Nightly Engine (8 sec)
+                  Profit Property Nightly Engine (8 sec)
                 </Button>
               </div>
 

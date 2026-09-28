@@ -75,7 +75,7 @@ function Consent() {
     <main className="flex min-h-[100dvh] items-center justify-center bg-background px-4 dark">
       <div className="w-full max-w-md rounded-lg border border-border bg-card p-6">
         <h1 className="text-xl font-semibold text-foreground">
-          Connect {clientName} to Perfect Property
+          Connect {clientName} to Profit Property
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
           {clientName} will be able to call this app's enabled tools while you are signed in.

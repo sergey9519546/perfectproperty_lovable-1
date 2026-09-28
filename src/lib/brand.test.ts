@@ -3,14 +3,14 @@ import { BRAND_CONFIG } from "./brand";
 
 describe("Brand Identity - Single Source of Truth", () => {
   it("defines the official brand names correctly", () => {
-    expect(BRAND_CONFIG.name).toBe("Perfect Property");
-    expect(BRAND_CONFIG.displayName).toBe("PERFECT PROPERTY");
-    expect(BRAND_CONFIG.shortName).toBe("Perfect Property");
+    expect(BRAND_CONFIG.name).toBe("Profit Property");
+    expect(BRAND_CONFIG.displayName).toBe("PROFIT PROPERTY");
+    expect(BRAND_CONFIG.shortName).toBe("Profit Property");
   });
 
   it("contains valid domain and legal metadata", () => {
-    expect(BRAND_CONFIG.domain).toBe("perfectproperty.com");
-    expect(BRAND_CONFIG.copyright).toContain("Perfect Property");
+    expect(BRAND_CONFIG.domain).toBe("profitproperty.com");
+    expect(BRAND_CONFIG.copyright).toContain("Profit Property");
     expect(BRAND_CONFIG.copyright).toContain("All rights reserved");
   });
 

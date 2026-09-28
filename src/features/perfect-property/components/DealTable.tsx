@@ -195,13 +195,13 @@ export function DealTable({
     align: 'left' | 'right'
     width: string
   }> = [
-    { label: 'Address', field: 'address', align: 'left', width: '25%' },
-    { label: 'Market', field: 'marketLabel', align: 'left', width: '15%' },
-    { label: 'Source', align: 'left', width: '10%' },
-    { label: 'Offer', field: 'offer', align: 'right', width: '10%' },
-    { label: 'Profit', field: 'profit', align: 'right', width: '10%' },
-    { label: 'Score', field: 'score', align: 'right', width: '10%' },
-    { label: 'Loss risk', field: 'lossRisk', align: 'right', width: '10%' },
+    { label: 'Property Address', field: 'address', align: 'left', width: '25%' },
+    { label: 'Location', field: 'marketLabel', align: 'left', width: '15%' },
+    { label: 'Type', align: 'left', width: '10%' },
+    { label: 'Max Offer', field: 'offer', align: 'right', width: '10%' },
+    { label: 'Est. Profit', field: 'profit', align: 'right', width: '10%' },
+    { label: 'Deal Score', field: 'score', align: 'right', width: '10%' },
+    { label: 'Risk', field: 'lossRisk', align: 'right', width: '10%' },
     { label: 'Updated', field: 'computedAt', align: 'right', width: '10%' },
   ]
 
@@ -321,34 +321,29 @@ export function DealTable({
                   aria-selected={active}
                   role="row"
                 >
-                  <td className="relative px-6 py-3.5 font-semibold text-foreground">
+                  <td className="relative px-6 py-3 font-semibold text-foreground">
                     {active && <span className="absolute left-0 top-0 bottom-0 w-1 bg-primary" />}
                     <div className="flex items-center gap-2">
-                      <span>{parcel.address}</span>
+                      <span className="truncate max-w-[280px]">{parcel.address}</span>
                       <span
                         data-asset-class={parcel.assetClass}
-                        className="px-1.5 py-0.5 rounded text-[10px] font-sans font-medium bg-muted/80 text-muted-foreground"
+                        className="text-[11px] font-mono text-muted-foreground font-normal"
                       >
                         {parcel.assetClassLabel}
                       </span>
-                      {active && (
-                        <span className="px-1.5 py-0.2 rounded text-[10px] font-mono font-bold bg-primary text-primary-foreground hidden sm:inline-block">
-                          Active
-                        </span>
-                      )}
                     </div>
                   </td>
-                  <td className="px-6 py-3.5 text-muted-foreground font-medium">{parcel.marketLabel}</td>
-                  <td className="px-6 py-3.5 text-muted-foreground font-medium">{parcel.ringLabel}</td>
-                  <td className="px-6 py-3.5 font-mono text-right text-foreground">{formatMoney(parcel.offer)}</td>
-                  <td className="px-6 py-3.5 font-mono text-right font-medium text-emerald-600 dark:text-emerald-400">
+                  <td className="px-6 py-3 text-muted-foreground text-xs">{parcel.marketLabel}</td>
+                  <td className="px-6 py-3 text-muted-foreground text-xs">{parcel.ringLabel}</td>
+                  <td className="px-6 py-3 font-mono text-right text-foreground num">{formatMoney(parcel.offer)}</td>
+                  <td className="px-6 py-3 font-mono text-right font-semibold text-emerald-600 dark:text-emerald-400 num">
                     {formatMoney(parcel.profit)}
                   </td>
-                  <td className="px-6 py-3.5 font-mono text-right font-bold text-foreground">
+                  <td className="px-6 py-3 font-mono text-right font-bold text-foreground num">
                     {parcel.score.toFixed(1)}
                   </td>
-                  <td className="px-6 py-3.5 font-mono text-right text-foreground">{pct(parcel.lossRisk)}</td>
-                  <td className="px-6 py-3.5 text-right text-xs text-muted-foreground/70 font-medium">
+                  <td className="px-6 py-3 font-mono text-right text-foreground num">{pct(parcel.lossRisk)}</td>
+                  <td className="px-6 py-3 text-right text-xs text-muted-foreground font-mono">
                     {parcel.computedAt ? (
                       <time dateTime={parcel.computedAt}>{formatShortDate(parcel.computedAt)}</time>
                     ) : (

@@ -2,6 +2,7 @@ import { CardGridSkeleton, MetricsHeaderSkeleton } from '@/components/ui/skeleto
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState, useMemo, useEffect } from 'react';
+import { Link } from '@tanstack/react-router';
 import { runSheriffLegalAnalysisFn } from "@/lib/gemini.functions";
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -56,6 +57,7 @@ import { ListingPanelsModal } from './ListingPanelsModal';
 import { AlertsAndTierModal } from './AlertsAndTierModal';
 import { SheriffSalesDashboard, getAssetClass } from './SheriffSalesDashboard';
 import { runGroundedIntelligenceFn } from "@/lib/gemini.functions";
+import { generateDealsCsv, downloadCsvFile, type DealExportRow } from "@/lib/deal-memo";
 import {
   useFirebaseAuth,
   getSavedDealsFromFirestore,
@@ -251,6 +253,40 @@ export function SheriffSalesView() {
     setTimeout(() => setToastMessage(null), 2500);
   }
 
+  const handleExportAuctionsCsv = () => {
+    if (filteredSales.length === 0) return;
+    const rows: DealExportRow[] = filteredSales.map((s) => ({
+      parcelId: s.id,
+      address: s.parcel.address,
+      city: s.parcel.city,
+      state: s.parcel.state,
+      zip: s.parcel.zip,
+      countyFips: s.county,
+      arv: s.aiWorkforce.dealUnderwriter.modeledArv,
+      maxOffer: s.aiWorkforce.dealUnderwriter.maximumAllowableBid,
+      expectedProfit: s.compsAndMargin.netSpreadDollars,
+      dealScore: s.flipScoreAndEndGame.flipScore,
+      confidenceGrade: s.aiWorkforce.legalProseReader.titleRiskGrade,
+      strategy: s.flipScoreAndEndGame.recommendedExitStrategy,
+      livingSqft: s.parcel.livingSqft,
+      yearBuilt: s.parcel.yearBuilt,
+      bedrooms: s.parcel.bedrooms,
+      bathrooms: s.parcel.bathrooms,
+      pLossPercent: Math.round((1 - s.flipScoreAndEndGame.flipScore / 100) * 15),
+      typicalProfitP50: s.compsAndMargin.netSpreadDollars,
+      worstCaseProfitP5: Math.round(s.compsAndMargin.netSpreadDollars * 0.4),
+      exitDays: s.flipScoreAndEndGame.estimatedTurnaroundDays,
+      warningsCount: s.theCatch.seniorSurvivingLiens.length,
+      warnings: s.theCatch.seniorSurvivingLiens.map((l) => `${l.type}: $${l.estimatedAmount}`).join('; '),
+      isSaved: savedIds.includes(s.id),
+    }));
+
+    const csv = generateDealsCsv(rows);
+    const dateStr = new Date().toISOString().slice(0, 10);
+    downloadCsvFile(csv, `perfect-property-sheriff-auctions-${filterState.toLowerCase()}-${dateStr}.csv`);
+    triggerToast(`Exported ${rows.length} auction dockets to CSV`);
+  };
+
   // Keyboard navigation for Auctions Pipeline List (Arrow Up/Down, J/K, Home, End)
   useEffect(() => {
     if (selectedTab !== 'auctions') return;
@@ -426,229 +462,214 @@ export function SheriffSalesView() {
       </AnimatePresence>
 
       {/* HERO COMMAND BAR & LIVE METRIC PULSE */}
-      <div id="sheriff-hero-command-card" className="bg-card border border-border rounded-2xl p-6 shadow-sm space-y-6">
+      <div id="sheriff-hero-command-card" className="bg-card border border-border rounded-2xl p-6 shadow-xs space-y-6">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
           <div className="space-y-2 max-w-3xl">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                Live CivilView & County Dockets
+            <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground font-mono">
+              <span className="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                Live Official County Court Calendars
               </span>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-muted text-foreground border border-border font-mono">
-                <ShieldCheck size={14} className="text-primary" />
-                Zero Senior Lien Guarantees
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/25 font-mono">
-                <Sparkle size={14} />
-                USDA NAIP 0.6m Ortho AI
-              </span>
+              <span aria-hidden="true">·</span>
+              <span>Automated Hidden Debt Checks</span>
+              <span aria-hidden="true">·</span>
+              <span>Maximum Safe Bid Limits</span>
             </div>
 
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-              Sheriff & Government Sales Intelligence Desk
+              Foreclosure & Sheriff Auctions Radar
             </h1>
 
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Autonomous legal notice parsing, de-anonymized securitization trusts, senior surviving lien waterfalls,
-              and 70% rule bidding ceilings before the courthouse knockdown.
+              Find deep-discount foreclosure properties before the courthouse auction. We check public records for hidden secondary liens, unpaid back taxes, and calculate your exact maximum safe bid so you never overpay.
             </p>
           </div>
 
           {/* Quick Actions */}
           <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+            <Link
+              to="/deals"
+              className="px-3.5 py-2.5 bg-card hover:bg-muted text-foreground border border-border rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-2xs cursor-pointer"
+            >
+              <TrendUp size={15} className="text-emerald-600" />
+              <span>Top Deals</span>
+            </Link>
+
+            <Link
+              to="/workspace"
+              className="px-3.5 py-2.5 bg-card hover:bg-muted text-foreground border border-border rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-2xs cursor-pointer"
+            >
+              <MapPin size={15} className="text-primary" />
+              <span>Property Map</span>
+            </Link>
+
             <Button
               id="hero-open-alerts-btn"
               type="button"
               onClick={() => setShowAlertsModal(true)}
-              className="px-4 py-2.5 bg-foreground hover:bg-foreground/90 text-background rounded-xl text-xs font-bold font-mono flex items-center gap-2 transition-all shadow-sm cursor-pointer"
+              className="px-4 py-2.5 bg-foreground hover:bg-foreground/90 text-background rounded-xl text-xs font-semibold flex items-center gap-2 transition-colors cursor-pointer"
             >
-              <BellRinging size={16} className="text-primary" />
-              <span>Watchlist & Alerts ({savedIds.length})</span>
+              <BellRinging size={15} />
+              <span>Saved Auctions ({savedIds.length})</span>
             </Button>
 
             <Button
               id="hero-quick-notice-ingest-btn"
               type="button"
               onClick={() => setSelectedTab('ingestor')}
-              className="px-4 py-2.5 bg-primary/10 hover:bg-primary/20 text-primary border border-primary/25 rounded-xl text-xs font-bold font-mono flex items-center gap-2 transition-all cursor-pointer"
+              className="px-4 py-2.5 bg-card hover:bg-muted text-foreground border border-border rounded-xl text-xs font-semibold flex items-center gap-2 transition-colors cursor-pointer"
             >
-              <Brain size={16} />
-              <span>Parse Legal Notice</span>
+              <Brain size={15} className="text-primary" />
+              <span>Analyze Auction Notice</span>
             </Button>
           </div>
         </div>
 
         {/* METRICS PULSE HUD */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 border-t border-border">
-          <div className="p-3.5 bg-muted/50 border border-border rounded-xl space-y-1">
+          <div className="p-3.5 bg-muted/40 border border-border rounded-xl space-y-1">
             <div className="flex items-center justify-between text-muted-foreground text-[11px] font-mono uppercase">
-              <span>Active Dockets</span>
+              <span>Upcoming Sales</span>
               <Gavel size={14} className="text-primary" />
             </div>
-            <div className="text-xl font-bold text-foreground font-mono">{totalActiveDockets}</div>
-            <div className="text-[11px] text-muted-foreground">Scheduled for auction</div>
+            <div className="text-xl font-bold text-foreground font-mono num">{totalActiveDockets}</div>
+            <div className="text-[11px] text-muted-foreground">Properties on calendar</div>
           </div>
 
-          <div className="p-3.5 bg-emerald-50/60 border border-emerald-200/80 rounded-xl space-y-1">
-            <div className="flex items-center justify-between text-emerald-700 text-[11px] font-mono uppercase">
-              <span>Total Equity Spread</span>
+          <div className="p-3.5 bg-muted/40 border border-border rounded-xl space-y-1">
+            <div className="flex items-center justify-between text-muted-foreground text-[11px] font-mono uppercase">
+              <span>Estimated Profit Pool</span>
               <TrendUp size={14} className="text-emerald-600" />
             </div>
-            <div className="text-xl font-bold text-emerald-700 font-mono">
+            <div className="text-xl font-bold text-emerald-600 dark:text-emerald-400 font-mono num">
               +${(totalAggregateSpread / 1000).toFixed(0)}k
             </div>
-            <div className="text-[11px] text-emerald-600 font-medium">Model net spread</div>
+            <div className="text-[11px] text-muted-foreground">Combined profit potential</div>
           </div>
 
-          <div className="p-3.5 bg-muted border border-slate-200/80 rounded-xl space-y-1">
+          <div className="p-3.5 bg-muted/40 border border-border rounded-xl space-y-1">
             <div className="flex items-center justify-between text-muted-foreground text-[11px] font-mono uppercase">
-              <span>Ledger Precision</span>
+              <span>Valuation Accuracy</span>
               <ChartLineUp size={14} className="text-primary" />
             </div>
-            <div className="text-xl font-bold text-foreground font-mono">
+            <div className="text-xl font-bold text-foreground font-mono num">
               ±{outcomesStats.meanAbsoluteArvErrorPct}%
             </div>
-            <div className="text-[11px] text-muted-foreground">Mean ARV variance</div>
+            <div className="text-[11px] text-muted-foreground">Average price accuracy</div>
           </div>
 
-          <div className="p-3.5 bg-muted border border-slate-200/80 rounded-xl space-y-1">
+          <div className="p-3.5 bg-muted/40 border border-border rounded-xl space-y-1">
             <div className="flex items-center justify-between text-muted-foreground text-[11px] font-mono uppercase">
-              <span>Jurisdictions</span>
+              <span>Coverage</span>
               <Buildings size={14} className="text-primary" />
             </div>
             <div className="text-xl font-bold text-foreground font-mono">17 Counties</div>
-            <div className="text-[11px] text-muted-foreground">NJ, PA, OH, TX Portals</div>
+            <div className="text-[11px] text-muted-foreground">Active auction dockets</div>
           </div>
         </div>
       </div>
 
       {/* MODERN TABBED SEGMENTED NAVIGATION */}
-      <div id="sheriff-tabs-bar" className="flex items-center gap-1.5 p-1.5 bg-accent/70 border border-slate-200 rounded-2xl overflow-x-auto">
-        <Button
+      <div id="sheriff-tabs-bar" className="flex items-center gap-1 p-1 bg-muted/50 border border-border rounded-xl overflow-x-auto">
+        <button
           id="tab-dashboard-btn"
           type="button"
-          variant="ghost"
           onClick={() => setSelectedTab('dashboard')}
-          className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap ${
+          className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors flex items-center gap-2 cursor-pointer whitespace-nowrap ${
             selectedTab === 'dashboard'
-              ? 'bg-card text-foreground shadow-sm'
-              : 'text-muted-foreground hover:text-foreground hover:bg-card/50'
+              ? 'bg-card text-foreground shadow-2xs border border-border'
+              : 'text-muted-foreground hover:text-foreground'
           }`}
         >
-          <Sparkle size={16} className={selectedTab === 'dashboard' ? 'text-primary' : 'text-slate-400'} />
-          <span>Sheriff Sales Dashboard</span>
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-primary/20 text-primary font-bold">
-            Executive View
-          </span>
-        </Button>
+          <Sparkle size={15} className={selectedTab === 'dashboard' ? 'text-primary' : 'text-muted-foreground'} />
+          <span>Overview</span>
+        </button>
 
-        <Button
+        <button
           id="tab-auctions-btn"
           type="button"
-          variant="ghost"
           onClick={() => setSelectedTab('auctions')}
-          className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap ${
+          className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors flex items-center gap-2 cursor-pointer whitespace-nowrap ${
             selectedTab === 'auctions'
-              ? 'bg-card text-foreground shadow-sm'
-              : 'text-muted-foreground hover:text-foreground hover:bg-card/50'
+              ? 'bg-card text-foreground shadow-2xs border border-border'
+              : 'text-muted-foreground hover:text-foreground'
           }`}
         >
-          <Gavel size={16} className={selectedTab === 'auctions' ? 'text-primary' : 'text-slate-400'} />
-          <span>Pipeline & Master Dossier</span>
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-accent text-secondary-foreground">
-            {filteredSales.length}
-          </span>
-        </Button>
+          <Gavel size={15} className={selectedTab === 'auctions' ? 'text-primary' : 'text-muted-foreground'} />
+          <span>Upcoming Auctions</span>
+          <span className="num text-[11px] opacity-75">({filteredSales.length})</span>
+        </button>
 
-        <Button
+        <button
           id="tab-sheet-btn"
           type="button"
-          variant="ghost"
           onClick={() => setSelectedTab('sheet')}
-          className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap ${
+          className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors flex items-center gap-2 cursor-pointer whitespace-nowrap ${
             selectedTab === 'sheet'
-              ? 'bg-card text-foreground shadow-sm'
-              : 'text-muted-foreground hover:text-foreground hover:bg-card/50'
+              ? 'bg-card text-foreground shadow-2xs border border-border'
+              : 'text-muted-foreground hover:text-foreground'
           }`}
         >
-          <ListDashes size={16} className={selectedTab === 'sheet' ? 'text-primary' : 'text-slate-400'} />
-          <span>Pro Spreadsheet Grid</span>
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-accent text-secondary-foreground">
-            Statewide
-          </span>
-        </Button>
+          <ListDashes size={15} className={selectedTab === 'sheet' ? 'text-primary' : 'text-muted-foreground'} />
+          <span>All Properties List</span>
+        </button>
 
-        <Button
+        <button
           id="tab-counties-btn"
           type="button"
-          variant="ghost"
           onClick={() => setSelectedTab('counties')}
-          className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap ${
+          className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors flex items-center gap-2 cursor-pointer whitespace-nowrap ${
             selectedTab === 'counties'
-              ? 'bg-card text-foreground shadow-sm'
-              : 'text-muted-foreground hover:text-foreground hover:bg-card/50'
+              ? 'bg-card text-foreground shadow-2xs border border-border'
+              : 'text-muted-foreground hover:text-foreground'
           }`}
         >
-          <Buildings size={16} className={selectedTab === 'counties' ? 'text-primary' : 'text-slate-400'} />
-          <span>17-County Directory & Rules</span>
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-primary/20 text-primary">
-            NJ Equalization
-          </span>
-        </Button>
+          <Buildings size={15} className={selectedTab === 'counties' ? 'text-primary' : 'text-muted-foreground'} />
+          <span>County Rules & Locations</span>
+        </button>
 
-        <Button
+        <button
           id="tab-ledger-btn"
           type="button"
-          variant="ghost"
           onClick={() => setSelectedTab('ledger')}
-          className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap ${
+          className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors flex items-center gap-2 cursor-pointer whitespace-nowrap ${
             selectedTab === 'ledger'
-              ? 'bg-card text-foreground shadow-sm'
-              : 'text-muted-foreground hover:text-foreground hover:bg-card/50'
+              ? 'bg-card text-foreground shadow-2xs border border-border'
+              : 'text-muted-foreground hover:text-foreground'
           }`}
         >
-          <ChartLineUp size={16} className={selectedTab === 'ledger' ? 'text-primary' : 'text-slate-400'} />
-          <span>Outcomes Ledger & Realized Margins</span>
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-emerald-100 text-emerald-700">
-            {outcomesStats.totalRecordedSales} Closed
-          </span>
-        </Button>
+          <ChartLineUp size={15} className={selectedTab === 'ledger' ? 'text-primary' : 'text-muted-foreground'} />
+          <span>Past Sale Results</span>
+          <span className="num text-[11px] opacity-75">({outcomesStats.totalRecordedSales})</span>
+        </button>
 
-        <Button
+        <button
           id="tab-statutes-btn"
           type="button"
-          variant="ghost"
           onClick={() => setSelectedTab('statutes')}
-          className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap ${
+          className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors flex items-center gap-2 cursor-pointer whitespace-nowrap ${
             selectedTab === 'statutes'
-              ? 'bg-card text-foreground shadow-sm'
-              : 'text-muted-foreground hover:text-foreground hover:bg-card/50'
+              ? 'bg-card text-foreground shadow-2xs border border-border'
+              : 'text-muted-foreground hover:text-foreground'
           }`}
         >
-          <Scales size={16} className={selectedTab === 'statutes' ? 'text-primary' : 'text-slate-400'} />
-          <span>Controlling Statutes & Cost Basis</span>
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-accent text-secondary-foreground">
-            $240/mo
-          </span>
-        </Button>
+          <Scales size={15} className={selectedTab === 'statutes' ? 'text-primary' : 'text-muted-foreground'} />
+          <span>Auction Rules & Fees</span>
+        </button>
 
-        <Button
+        <button
           id="tab-ingestor-btn"
           type="button"
-          variant="ghost"
           onClick={() => setSelectedTab('ingestor')}
-          className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap ${
+          className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors flex items-center gap-2 cursor-pointer whitespace-nowrap ${
             selectedTab === 'ingestor'
-              ? 'bg-card text-foreground shadow-sm'
-              : 'text-muted-foreground hover:text-foreground hover:bg-card/50'
+              ? 'bg-card text-foreground shadow-2xs border border-border'
+              : 'text-muted-foreground hover:text-foreground'
           }`}
         >
-          <Brain size={16} className={selectedTab === 'ingestor' ? 'text-primary' : 'text-slate-400'} />
-          <span>Live Legal Notice Ingestor</span>
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-primary/20 text-primary">
-            Gemini Flash
-          </span>
-        </Button>
+          <Brain size={15} className={selectedTab === 'ingestor' ? 'text-primary' : 'text-muted-foreground'} />
+          <span>Analyze Newspaper Notice</span>
+        </button>
       </div>
 
       {/* ======================================================== */}
@@ -794,6 +815,21 @@ export function SheriffSalesView() {
               >
                 $150k+ Net Spread
               </Button>
+
+              <div className="ml-auto">
+                <Button
+                  id="auctions-export-csv-btn"
+                  type="button"
+                  variant="outline"
+                  onClick={handleExportAuctionsCsv}
+                  disabled={filteredSales.length === 0}
+                  className="px-3 py-1 text-xs font-semibold gap-1.5 border-border bg-card hover:bg-muted cursor-pointer flex items-center"
+                  title="Export filtered auction dockets to CSV for CRM or spreadsheet"
+                >
+                  <DownloadSimple size={14} className="text-primary" />
+                  <span>Export CSV ({filteredSales.length})</span>
+                </Button>
+              </div>
             </div>
           </div>
 
@@ -855,39 +891,38 @@ export function SheriffSalesView() {
                         onClick={() => setSelectedSale(sale)}
                         className={`p-4 rounded-2xl border transition-all cursor-pointer relative ${
                           isSelected
-                            ? 'bg-primary/10/40 border-blue-500 shadow-md ring-1 ring-primary/20'
-                            : 'bg-card border-slate-200 hover:border-slate-300 hover:shadow-sm'
+                            ? 'bg-primary/10 border-primary shadow-md ring-1 ring-primary/20'
+                            : 'bg-card border-border hover:border-border-strong hover:shadow-sm'
                         }`}
                       >
-                        {/* Card Top Row: State/County Badge, Flip Score & Watchlist Star */}
+                        {/* Card Top Row: State/County, Flip Score & Watchlist Star */}
                         <div className="flex items-start justify-between gap-3 mb-2">
-                          <div className="flex items-center gap-1.5 flex-wrap">
-                            <span className="px-2 py-0.5 rounded-md text-[10px] font-bold font-mono bg-accent text-secondary-foreground border border-slate-200">
-                              {sale.county.split(',')[0]}
-                            </span>
-                            <span className="px-2 py-0.5 rounded-md text-[10px] font-bold font-mono bg-primary/20 text-primary">
-                              {sale.parcel.state}
-                            </span>
+                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-mono">
+                            <span className="font-semibold text-foreground">{sale.county.split(',')[0]}</span>
+                            <span>/</span>
+                            <span>{sale.parcel.state}</span>
                             {sale.dailyStatus.statutoryAdjournmentCount >= 2 && (
-                              <span className="px-2 py-0.5 rounded-md text-[10px] font-bold font-mono bg-amber-100 text-amber-800">
-                                Peremptory
-                              </span>
+                              <>
+                                <span>·</span>
+                                <span className="text-amber-600 dark:text-amber-400 font-semibold">Peremptory</span>
+                              </>
                             )}
                           </div>
 
                           <div className="flex items-center gap-2 shrink-0">
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold font-mono bg-emerald-50 text-emerald-700 border border-emerald-200">
-                              <TrendUp size={13} />
-                              {sale.flipScoreAndEndGame.flipScore}
-                            </span>
+                            <div className="flex items-center gap-1 text-xs font-mono">
+                              <span className="text-muted-foreground">Score</span>
+                              <span className="num font-bold text-foreground">{sale.flipScoreAndEndGame.flipScore}</span>
+                            </div>
                             <Button
                               type="button"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                handleToggleWatchlist(sale.id);
+                                void handleToggleWatchlist(sale.id);
                               }}
-                              className="p-1 text-slate-400 hover:text-amber-500 transition-colors"
+                              className="p-1 text-muted-foreground hover:text-amber-500 transition-colors cursor-pointer"
                               title={isSaved ? 'Remove from Watchlist' : 'Add to Watchlist'}
+                              aria-label={isSaved ? 'Remove from Watchlist' : 'Add to Watchlist'}
                             >
                               <Star size={16} weight={isSaved ? 'fill' : 'regular'} className={isSaved ? 'text-amber-500' : ''} />
                             </Button>
@@ -1011,6 +1046,16 @@ export function SheriffSalesView() {
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0">
+                    <Link
+                      to="/workspace"
+                      search={{ parcelId: currentSale.parcel.id }}
+                      className="px-3 py-2 rounded-xl text-xs font-bold font-mono flex items-center gap-1.5 transition-colors cursor-pointer border border-border bg-card hover:bg-muted text-foreground"
+                      title="Inspect parcel boundary on Cadastral Map"
+                    >
+                      <MapPin size={14} className="text-primary" />
+                      <span className="hidden sm:inline">Map</span>
+                    </Link>
+
                     <Button
                       id="dossier-save-watchlist-btn"
                       type="button"

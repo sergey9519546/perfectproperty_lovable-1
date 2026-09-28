@@ -24,23 +24,22 @@ export function TailarkBentoFeatures() {
       className="border-b border-border bg-background py-20 md:py-28"
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
+        {/* Section Header: Clear, welcoming, and thoughtful */}
         <div className="max-w-2xl mb-14">
-          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-muted/60 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary mb-4">
-            <Sparkles className="h-3.5 w-3.5" />
-            <span>Institutional Underwriting Architecture</span>
+          <div className="text-xs font-semibold uppercase tracking-wider text-primary mb-3">
+            Built for Smart Property Buyers
           </div>
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground leading-tight">
-            Engineered for institutional speed. Grounded in legal public records.
+            Everything you need to buy with total confidence.
           </h2>
           <p className="mt-4 text-base sm:text-lg text-muted-foreground leading-relaxed">
-            Replace fragmented county recorder searches, manual spreadsheets, and auction flyer guesswork with a unified cartographic intelligence system.
+            Replace messy county clerk searches, manual spreadsheets, and auction flyer guesswork with transparent, verified numbers that make complete sense.
           </p>
         </div>
 
         {/* Bento Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Card 1: Sub-Meter Cadastral & GIS Parcel Engine (2 cols wide on desktop) */}
+          {/* Card 1: Property Boundaries & Lot Dimensions (2 cols wide on desktop) */}
           <div
             id="tailark-bento-card-gis"
             className="lg:col-span-2 rounded-2xl border border-border bg-card p-6 sm:p-8 flex flex-col justify-between shadow-2xs hover:border-primary/40 transition-all"
@@ -52,31 +51,31 @@ export function TailarkBentoFeatures() {
                     <Layers className="h-5 w-5" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-foreground">Sub-Meter Parcel Cadastre</h3>
-                    <p className="text-xs text-muted-foreground">Spatial boundary polygons & zoning overlays</p>
+                    <h3 className="text-lg font-bold text-foreground">Interactive Boundaries & Lot Dimensions</h3>
+                    <p className="text-xs text-muted-foreground">Exact lot sizes, yard frontage & residential zoning</p>
                   </div>
                 </div>
-                <Badge variant="outline" className="text-xs font-mono border-primary/30 text-primary bg-primary/5">
-                  APN: 14-06-218-012
-                </Badge>
+                <span className="text-xs font-mono text-muted-foreground">
+                  Parcel APN: 14-06-218-012
+                </span>
               </div>
 
               <p className="text-sm text-muted-foreground leading-relaxed mb-6">
-                Direct integration with county parcel shapes reveals exact lot dimensions, setbacks, alley access, easements, and municipal zoning envelopes before committing capital.
+                See exact lot dimensions, street frontage, yard setbacks, alley access, and residential zoning without visiting the county records office or ordering expensive surveys.
               </p>
             </div>
 
-            {/* Interactive Cadastral SVG Display */}
+            {/* Interactive Lot Dimensions Visual Display */}
             <div className="rounded-xl border border-border bg-muted/30 p-4 relative overflow-hidden">
               <div className="flex items-center justify-between mb-3 text-xs">
                 <div className="flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                  <span className="font-mono font-medium text-foreground">ZONING: R-4 RESIDENTIAL</span>
+                  <span className="font-semibold text-foreground">ZONING: 3-UNIT RESIDENTIAL</span>
                 </div>
-                <span className="text-muted-foreground font-mono">LOT SIZE: 3,125 SQ FT (25&apos; × 125&apos;)</span>
+                <span className="text-muted-foreground font-medium">LOT SIZE: 3,125 SQ FT (25&apos; × 125&apos;)</span>
               </div>
 
-              {/* Cadastral Lot Drawing SVG */}
+              {/* Lot Drawing SVG */}
               <div className="relative h-44 w-full rounded-lg border border-border bg-card/80 flex items-center justify-center overflow-hidden">
                 <svg className="w-full h-full" viewBox="0 0 500 160" fill="none">
                   {/* Grid Lines */}
@@ -89,38 +88,35 @@ export function TailarkBentoFeatures() {
 
                   {/* Adjacent Lots */}
                   <rect x="40" y="25" width="110" height="110" fill="currentColor" className="text-muted/40" stroke="currentColor" strokeWidth="1" strokeDasharray="3 3" />
-                  <text x="95" y="85" textAnchor="middle" className="text-[10px] fill-muted-foreground font-mono">LOT 11 (ADJ)</text>
+                  <text x="95" y="85" textAnchor="middle" className="text-[10px] fill-muted-foreground font-medium">Neighboring Lot</text>
 
                   <rect x="350" y="25" width="110" height="110" fill="currentColor" className="text-muted/40" stroke="currentColor" strokeWidth="1" strokeDasharray="3 3" />
-                  <text x="405" y="85" textAnchor="middle" className="text-[10px] fill-muted-foreground font-mono">LOT 13 (ADJ)</text>
+                  <text x="405" y="85" textAnchor="middle" className="text-[10px] fill-muted-foreground font-medium">Neighboring Lot</text>
 
                   {/* Target Parcel Highlight */}
                   <rect x="170" y="20" width="160" height="120" fill="currentColor" className="text-primary/10 stroke-primary" stroke="currentColor" strokeWidth="2" />
                   
                   {/* Boundary Dimension Callouts */}
-                  <text x="250" y="15" textAnchor="middle" className="text-[11px] font-bold fill-primary font-mono">25.0 FT WIDTH (STREET FRONTAGE)</text>
+                  <text x="250" y="15" textAnchor="middle" className="text-[11px] font-bold fill-primary font-mono">25.0 FT STREET FRONTAGE</text>
                   <text x="338" y="85" textAnchor="start" className="text-[11px] font-bold fill-primary font-mono">125.0 FT DEPTH</text>
                   
                   {/* Footprint Inside Target */}
                   <rect x="195" y="45" width="110" height="70" fill="currentColor" className="text-primary/20" stroke="currentColor" strokeWidth="1" />
-                  <text x="250" y="82" textAnchor="middle" className="text-[11px] font-bold fill-foreground font-mono">3-FLAT FOOTPRINT</text>
-                  <text x="250" y="98" textAnchor="middle" className="text-[10px] fill-muted-foreground font-mono">2,850 GSF • 3 UNITS</text>
+                  <text x="250" y="82" textAnchor="middle" className="text-[11px] font-bold fill-foreground">MAIN BUILDING</text>
+                  <text x="250" y="98" textAnchor="middle" className="text-[10px] fill-muted-foreground">2,850 sq ft • 3 Apartments</text>
                 </svg>
 
-                {/* Spatial pill tags */}
-                <div className="absolute bottom-2 left-2 flex items-center gap-1.5">
-                  <span className="rounded bg-background/90 px-2 py-0.5 text-[10px] font-mono font-semibold border border-border text-foreground">
-                    FAR: 1.20
-                  </span>
-                  <span className="rounded bg-background/90 px-2 py-0.5 text-[10px] font-mono font-semibold border border-border text-emerald-600 dark:text-emerald-400">
-                    FEMA: ZONE X (NO FLOOD)
-                  </span>
+                {/* Spatial unboxed tags */}
+                <div className="absolute bottom-2 left-2 flex items-center gap-2 text-[11px] text-muted-foreground bg-card/90 px-2 py-1 rounded border border-border">
+                  <span>Permitted: Multi-Family</span>
+                  <span aria-hidden="true">·</span>
+                  <span className="text-emerald-600 dark:text-emerald-400 font-semibold">Low Flood Risk (No Flood Insurance Required)</span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Card 2: Sheriff & Foreclosure Auction Radar (1 col) */}
+          {/* Card 2: Foreclosure & Courthouse Auctions (1 col) */}
           <div
             id="tailark-bento-card-sheriff"
             className="rounded-2xl border border-border bg-card p-6 sm:p-8 flex flex-col justify-between shadow-2xs hover:border-primary/40 transition-all"
@@ -131,53 +127,53 @@ export function TailarkBentoFeatures() {
                   <Gavel className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-foreground">Sheriff Auction Radar</h3>
-                  <p className="text-xs text-muted-foreground">Chancery court docket intelligence</p>
+                  <h3 className="text-lg font-bold text-foreground">Foreclosure & Sheriff Auctions</h3>
+                  <p className="text-xs text-muted-foreground">Upcoming courthouse sales & opening bids</p>
                 </div>
               </div>
 
               <p className="text-sm text-muted-foreground leading-relaxed mb-6">
-                Monitor judicial foreclosure filings, scheduled sale dates, upset limits, plaintiff judgments, and required deposit amounts before court steps.
+                Track court foreclosure dates, starting upset bids, bank judgments, and the exact cashier check deposit required to bid at the courthouse.
               </p>
             </div>
 
-            {/* Live Docket Simulation Card */}
+            {/* Live Auction Card */}
             <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-3">
               <div className="flex items-center justify-between text-xs pb-2 border-b border-border/80">
-                <span className="font-mono font-bold text-foreground">DOCKET: 2024-CH-04812</span>
-                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full">
-                  Sale in 4 Days
+                <span className="font-semibold text-foreground">Cook County Court Auction</span>
+                <span className="text-[11px] font-semibold text-amber-600 dark:text-amber-400">
+                  Auction in 4 Days
                 </span>
               </div>
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div>
-                  <span className="text-muted-foreground text-[11px]">Judgment Amount:</span>
-                  <p className="font-mono font-bold text-foreground">$312,450</p>
+                  <span className="text-muted-foreground text-[11px]">Bank Judgment:</span>
+                  <p className="font-mono font-bold text-foreground num">$312,450</p>
                 </div>
                 <div>
-                  <span className="text-muted-foreground text-[11px]">Upset Limit:</span>
-                  <p className="font-mono font-bold text-emerald-600 dark:text-emerald-400">$195,000</p>
+                  <span className="text-muted-foreground text-[11px]">Starting Bid:</span>
+                  <p className="font-mono font-bold text-emerald-600 dark:text-emerald-400 num">$195,000</p>
                 </div>
                 <div>
                   <span className="text-muted-foreground text-[11px]">Required 10% Deposit:</span>
-                  <p className="font-mono font-bold text-foreground">$19,500</p>
+                  <p className="font-mono font-bold text-foreground num">$19,500</p>
                 </div>
                 <div>
-                  <span className="text-muted-foreground text-[11px]">Plaintiff Lender:</span>
+                  <span className="text-muted-foreground text-[11px]">Foreclosing Lender:</span>
                   <p className="font-medium text-foreground truncate">JPMorgan Chase</p>
                 </div>
               </div>
 
               <Link to="/sheriff-sales" className="block pt-1">
-                <Button variant="outline" size="sm" className="w-full text-xs h-8">
-                  <span>View Live Auction Radar</span>
+                <Button variant="outline" size="sm" className="w-full text-xs h-8 cursor-pointer">
+                  <span>Browse Foreclosure Calendar</span>
                   <ArrowRight className="h-3.5 w-3.5 ml-1" />
                 </Button>
               </Link>
             </div>
           </div>
 
-          {/* Card 3: Algorithmic Underwriting & Cap Rate Engine (1 col) */}
+          {/* Card 3: Instant Profit & Maximum Offer Calculator (1 col) */}
           <div
             id="tailark-bento-card-underwrite"
             className="rounded-2xl border border-border bg-card p-6 sm:p-8 flex flex-col justify-between shadow-2xs hover:border-primary/40 transition-all"
@@ -188,38 +184,38 @@ export function TailarkBentoFeatures() {
                   <Calculator className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-foreground">Algorithmic Underwriting</h3>
-                  <p className="text-xs text-muted-foreground">DSCR, Cap Rate & MAO pro-formas</p>
+                  <h3 className="text-lg font-bold text-foreground">Smart Max Bid Calculator</h3>
+                  <p className="text-xs text-muted-foreground">Never overpay or make a blind offer</p>
                 </div>
               </div>
 
               <p className="text-sm text-muted-foreground leading-relaxed mb-6">
-                Automated rent comps, rehab budget tiering, and financing debt stress tests deliver an institutional score and max allowable offer in under 2 seconds.
+                Our formula factors in recent neighborhood sales comps, estimated repairs, and closing costs so you know the exact maximum price to offer to guarantee your profit.
               </p>
             </div>
 
-            {/* Financial Metrics Strip */}
+            {/* Financial Numbers Breakdown */}
             <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-2.5">
               <div className="flex justify-between items-center text-xs">
-                <span className="text-muted-foreground">Projected ARV:</span>
-                <span className="font-mono font-bold text-foreground">$540,000</span>
+                <span className="text-muted-foreground">Market Resale Value (Comps):</span>
+                <span className="font-mono font-bold text-foreground num">$540,000</span>
               </div>
               <div className="flex justify-between items-center text-xs">
-                <span className="text-muted-foreground">Estimated Rehab (Heavy):</span>
-                <span className="font-mono font-bold text-amber-600 dark:text-amber-400">-$75,000</span>
+                <span className="text-muted-foreground">Estimated Repairs:</span>
+                <span className="font-mono font-bold text-amber-600 dark:text-amber-400 num">-$75,000</span>
               </div>
               <div className="flex justify-between items-center text-xs">
-                <span className="text-muted-foreground">Max Allowable Offer (MAO):</span>
-                <span className="font-mono font-bold text-primary">$303,000</span>
+                <span className="text-muted-foreground">Your Safe Maximum Bid:</span>
+                <span className="font-mono font-bold text-primary num">$303,000</span>
               </div>
               <div className="border-t border-border/80 pt-2 flex justify-between items-center text-xs">
-                <span className="font-semibold text-foreground">Pro-Forma Cap Rate:</span>
-                <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">8.9% (DSCR 1.45x)</span>
+                <span className="font-semibold text-foreground">Estimated Net Profit:</span>
+                <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400 num">+$162,000</span>
               </div>
             </div>
           </div>
 
-          {/* Card 4: Title & Lien Priority Risk Scanner (2 cols wide on desktop) */}
+          {/* Card 4: Hidden Debt & Lien Priority Scanner (2 cols wide on desktop) */}
           <div
             id="tailark-bento-card-liens"
             className="lg:col-span-2 rounded-2xl border border-border bg-card p-6 sm:p-8 flex flex-col justify-between shadow-2xs hover:border-primary/40 transition-all"
@@ -231,60 +227,54 @@ export function TailarkBentoFeatures() {
                     <ShieldAlert className="h-5 w-5" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-foreground">Clouded Title & Lien Priority Radar</h3>
-                    <p className="text-xs text-muted-foreground">Surviving municipal liens & redemption audits</p>
+                    <h3 className="text-lg font-bold text-foreground">Hidden Debt & Back-Taxes Checker</h3>
+                    <p className="text-xs text-muted-foreground">Second mortgages, city water bills & past-due liens</p>
                   </div>
                 </div>
-                <Badge variant="outline" className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 border-emerald-500/30 bg-emerald-500/5">
-                  Overall Title Risk: Clean
-                </Badge>
+                <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                  Title Status: Clean & Safe to Bid
+                </span>
               </div>
 
               <p className="text-sm text-muted-foreground leading-relaxed mb-6">
-                Avoid costly auction traps. Instantly identify senior liens that survive a foreclosure sale, unreleased mechanics liens, water department debt, and statutory redemption rights.
+                Avoid nasty auction surprises. We automatically verify whether second mortgages get wiped out by the foreclosure, and flag any unpaid water bills or back taxes you would need to settle.
               </p>
             </div>
 
-            {/* Lien Priority Table Preview */}
+            {/* Lien Priority Table */}
             <div className="rounded-xl border border-border bg-muted/30 p-4 overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
                   <tr className="border-b border-border/80 text-muted-foreground">
-                    <th className="pb-2 font-medium">Lien / Claim Type</th>
-                    <th className="pb-2 font-medium">Recorded Amount</th>
+                    <th className="pb-2 font-medium">Lien or Debt Type</th>
+                    <th className="pb-2 font-medium">Amount on Record</th>
                     <th className="pb-2 font-medium">Recorded Date</th>
-                    <th className="pb-2 font-medium">Auction Status</th>
+                    <th className="pb-2 font-medium">What Happens at Auction?</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/60">
                   <tr>
-                    <td className="py-2.5 font-medium text-foreground">1st Deed of Trust (Foreclosing)</td>
-                    <td className="py-2.5 font-mono text-foreground">$285,000</td>
+                    <td className="py-2.5 font-medium text-foreground">1st Mortgage (Foreclosing Bank)</td>
+                    <td className="py-2.5 font-mono text-foreground num">$285,000</td>
                     <td className="py-2.5 text-muted-foreground">04/12/2018</td>
-                    <td className="py-2.5">
-                      <span className="inline-flex items-center gap-1 rounded bg-muted px-2 py-0.5 font-medium text-muted-foreground text-[11px]">
-                        Foreclosing Senior
-                      </span>
+                    <td className="py-2.5 text-foreground font-medium">
+                      Wiped clean at auction
                     </td>
                   </tr>
                   <tr>
-                    <td className="py-2.5 font-medium text-foreground">2nd HELOC Junior Lien</td>
-                    <td className="py-2.5 font-mono text-foreground">$45,000</td>
+                    <td className="py-2.5 font-medium text-foreground">2nd Mortgage (HELOC)</td>
+                    <td className="py-2.5 font-mono text-foreground num">$45,000</td>
                     <td className="py-2.5 text-muted-foreground">09/18/2021</td>
-                    <td className="py-2.5">
-                      <span className="inline-flex items-center gap-1 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 font-semibold text-[11px]">
-                        Extinguished upon Sale
-                      </span>
+                    <td className="py-2.5 text-emerald-600 dark:text-emerald-400 font-medium">
+                      Wiped out completely (You do NOT owe this)
                     </td>
                   </tr>
                   <tr>
-                    <td className="py-2.5 font-medium text-foreground">City Water Department Debt</td>
-                    <td className="py-2.5 font-mono text-rose-600 dark:text-rose-400">$1,180</td>
+                    <td className="py-2.5 font-medium text-foreground">City Water Department Bill</td>
+                    <td className="py-2.5 font-mono text-rose-600 dark:text-rose-400 num">$1,180</td>
                     <td className="py-2.5 text-muted-foreground">Current</td>
-                    <td className="py-2.5">
-                      <span className="inline-flex items-center gap-1 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 px-2 py-0.5 font-semibold text-[11px]">
-                        Survives (Buyer Pays)
-                      </span>
+                    <td className="py-2.5 text-amber-600 dark:text-amber-400 font-medium">
+                      Survives (Buyer settles upon deed transfer)
                     </td>
                   </tr>
                 </tbody>

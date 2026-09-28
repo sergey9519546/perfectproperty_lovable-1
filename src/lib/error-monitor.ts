@@ -344,6 +344,28 @@ export function initGlobalCrashMonitoring(): void {
   isGlobalMonitoringInitialized = true;
 
   window.addEventListener("error", (event: ErrorEvent) => {
+    const errorMsg = String(event.error?.message || event.message || "");
+    if (
+      errorMsg.includes("BillingNotEnabledMapError") ||
+      errorMsg.includes("Google Maps JavaScript API error") ||
+      errorMsg.includes("gm_authFailure")
+    ) {
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("gmp:billing_error", { detail: { message: errorMsg } }));
+      }
+      captureBoundaryCrash(event.error || event.message, {
+        boundary: "GoogleMapsPlatform",
+        componentName: "MapsJavaScriptAPI",
+        severity: "warning",
+        handled: true,
+        metadata: {
+          errorType: "BillingNotEnabledMapError",
+          resolutionUrl: "https://console.cloud.google.com/project/_/billing/enable",
+        },
+      });
+      return;
+    }
+
     captureBoundaryCrash(event.error || event.message, {
       boundary: "GlobalWindowOnError",
       componentName: event.filename ? `${event.filename}:${event.lineno}:${event.colno}` : undefined,
@@ -358,6 +380,24 @@ export function initGlobalCrashMonitoring(): void {
   });
 
   window.addEventListener("unhandledrejection", (event: PromiseRejectionEvent) => {
+    const reasonMsg = String((event.reason as any)?.message || event.reason || "");
+    if (
+      reasonMsg.includes("BillingNotEnabledMapError") ||
+      reasonMsg.includes("Google Maps JavaScript API error") ||
+      reasonMsg.includes("gm_authFailure")
+    ) {
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("gmp:billing_error", { detail: { message: reasonMsg } }));
+      }
+      captureBoundaryCrash(event.reason, {
+        boundary: "GoogleMapsPlatform",
+        componentName: "MapsJavaScriptAPI",
+        severity: "warning",
+        handled: true,
+      });
+      return;
+    }
+
     captureBoundaryCrash(event.reason, {
       boundary: "UnhandledPromiseRejection",
       severity: "error",

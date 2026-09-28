@@ -36,28 +36,48 @@ function NotFoundComponent() {
 
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   const router = useRouter();
+  const isChunkError =
+    error.message?.includes("dynamically imported module") ||
+    error.message?.includes("Failed to fetch dynamically") ||
+    error.message?.includes("Loading chunk");
+
   useEffect(() => {
     captureBoundaryCrash(error, {
       boundary: "tanstack_root_error_component",
-      severity: "fatal",
+      severity: isChunkError ? "warning" : "fatal",
       handled: false,
     });
-  }, [error]);
+  }, [error, isChunkError]);
+
+  const handleReload = () => {
+    if (typeof window !== "undefined") {
+      window.location.reload();
+    } else {
+      router.invalidate();
+      reset();
+    }
+  };
 
   return (
     <div className="flex min-h-[100dvh] items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold text-foreground">The engine hit an exception</h1>
-        <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
+        <h1 className="text-xl font-semibold text-foreground">
+          {isChunkError ? "Workspace module updated" : "The engine hit an exception"}
+        </h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {isChunkError
+            ? "A newer module bundle is available. Refreshing will load the latest version."
+            : error.message}
+        </p>
         <div className="mt-6 flex justify-center gap-2">
           <Button
-            onClick={() => {
+            onClick={isChunkError ? handleReload : () => {
               router.invalidate();
               reset();
             }}
-            className="rounded-md font-semibold"
+            className="rounded-md font-semibold cursor-pointer"
           >
-            Retry
+            {isChunkError ? "Reload Application" : "Retry"}
           </Button>
           <a
             href="/"

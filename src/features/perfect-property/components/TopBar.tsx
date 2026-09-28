@@ -113,21 +113,27 @@ export function TopBar({
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link to="/shadow" className="cursor-pointer flex items-center gap-2 py-1.5 text-xs">
+              <Link to="/workspace" className="cursor-pointer flex items-center gap-2 py-1.5 text-xs">
                 <Compass size={14} className="text-muted-foreground" />
-                <span>Off-Market Shadow Radar</span>
+                <span>Underwrite Map</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link to="/prophecy" className="cursor-pointer flex items-center gap-2 py-1.5 text-xs">
+              <Link to="/sheriff-sales" className="cursor-pointer flex items-center gap-2 py-1.5 text-xs">
                 <ChartLineUp size={14} className="text-muted-foreground" />
-                <span>Predicted Acquisitions</span>
+                <span>Foreclosure Auctions</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link to="/monitoring" className="cursor-pointer flex items-center gap-2 py-1.5 text-xs">
+              <Link to="/notices" className="cursor-pointer flex items-center gap-2 py-1.5 text-xs">
                 <ShieldCheck size={14} className="text-muted-foreground" />
-                <span>Portfolio Health & Risk</span>
+                <span>Legal Notice Parser</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/pricing" className="cursor-pointer flex items-center gap-2 py-1.5 text-xs">
+                <ShieldCheck size={14} className="text-muted-foreground" />
+                <span>Pricing & Plans</span>
               </Link>
             </DropdownMenuItem>
             {onSignOut && (

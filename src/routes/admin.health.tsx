@@ -521,7 +521,7 @@ function HealthError({ error, reset }: { error: Error; reset: () => void }) {
 }
 
 export const Route = createFileRoute("/admin/health")({
-  head: () => ({ meta: [{ title: "Pipeline health — Perfect Property" }] }),
+  head: () => ({ meta: [{ title: "Pipeline health — Profit Property" }] }),
   component: HealthPage,
   errorComponent: HealthError,
   notFoundComponent: () => <div className="p-8 text-sm">Not found.</div>,

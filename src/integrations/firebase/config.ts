@@ -34,7 +34,7 @@ export const auth: Auth = getAuth(app);
 
 // Suppress noisy network reconnect diagnostics in sandbox environments
 try {
-  setLogLevel("error");
+  setLogLevel("silent");
 } catch {
   // Ignore if unsupported in environment
 }

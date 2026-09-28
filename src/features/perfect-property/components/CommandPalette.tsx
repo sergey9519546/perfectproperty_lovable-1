@@ -1,8 +1,9 @@
 import { Input } from "@/components/ui/input";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { ArrowRight, MagnifyingGlass, MapPin } from '@phosphor-icons/react'
+import { ArrowRight, MagnifyingGlass, MapPin, Sparkle } from '@phosphor-icons/react'
 import type { WorkspaceParcel } from '../live'
+import { createCustomUnderwriteParcel } from '../live'
 
 type Props = {
   open: boolean
@@ -50,22 +51,32 @@ export function CommandPalette({ open, parcels, onClose, onSelect }: Props) {
     [parcels, query],
   )
 
+  const hasCustomAction = query.trim().length > 2
+  const totalItemCount = results.length + (hasCustomAction ? 1 : 0)
+
   useEffect(() => {
     setActiveIndex((current) =>
-      results.length === 0 ? -1 : Math.min(Math.max(current, 0), results.length - 1),
+      totalItemCount === 0 ? -1 : Math.min(Math.max(current, 0), totalItemCount - 1),
     )
-  }, [results.length])
+  }, [totalItemCount])
 
-  useEffect(() => {
-    if (!open || activeIndex < 0) return
-    document
-      .getElementById(`parcel-option-${results[activeIndex]?.id}`)
-      ?.scrollIntoView({ block: 'nearest' })
-  }, [activeIndex, open, results])
+  const chooseCustom = () => {
+    if (!query.trim()) return
+    const customParcel = createCustomUnderwriteParcel(query.trim())
+    onSelect(customParcel)
+    onClose()
+  }
 
   const choose = (index: number) => {
+    if (hasCustomAction && index === results.length) {
+      chooseCustom()
+      return
+    }
     const parcel = results[index]
-    if (!parcel) return
+    if (!parcel) {
+      if (hasCustomAction) chooseCustom()
+      return
+    }
     onSelect(parcel)
     onClose()
   }
@@ -74,16 +85,20 @@ export function CommandPalette({ open, parcels, onClose, onSelect }: Props) {
     if (event.key === 'ArrowDown') {
       event.preventDefault()
       setActiveIndex((current) =>
-        results.length === 0 ? -1 : (current + 1 + results.length) % results.length,
+        totalItemCount === 0 ? -1 : (current + 1 + totalItemCount) % totalItemCount,
       )
     } else if (event.key === 'ArrowUp') {
       event.preventDefault()
       setActiveIndex((current) =>
-        results.length === 0 ? -1 : (current - 1 + results.length) % results.length,
+        totalItemCount === 0 ? -1 : (current - 1 + totalItemCount) % totalItemCount,
       )
-    } else if (event.key === 'Enter' && activeIndex >= 0) {
+    } else if (event.key === 'Enter') {
       event.preventDefault()
-      choose(activeIndex)
+      if (activeIndex >= 0) {
+        choose(activeIndex)
+      } else if (hasCustomAction) {
+        chooseCustom()
+      }
     }
   }
 
@@ -170,12 +185,49 @@ export function CommandPalette({ open, parcels, onClose, onSelect }: Props) {
               </kbd>
             </label>
             <div className="max-h-96 overflow-y-auto p-2">
-              <p
-                id="parcel-search-results-label"
-                className="px-3 py-2 text-xs uppercase tracking-widest text-muted-foreground font-semibold"
-              >
-                Live scored parcels
-              </p>
+              {hasCustomAction && (
+                <div className="mb-2">
+                  <motion.button
+                    layout
+                    id="parcel-option-custom-action"
+                    role="option"
+                    aria-selected={activeIndex === results.length}
+                    onMouseMove={() => setActiveIndex(results.length)}
+                    onFocus={() => setActiveIndex(results.length)}
+                    onClick={chooseCustom}
+                    type="button"
+                    className={`group grid w-full grid-cols-[34px_1fr_auto] items-center gap-3 rounded-lg px-3 py-3 text-left transition-colors cursor-pointer border border-primary/30 ${
+                      activeIndex === results.length ? 'bg-primary/20 text-primary-foreground' : 'bg-primary/5 hover:bg-primary/10'
+                    }`}
+                  >
+                    <span className="grid h-8 w-8 place-items-center rounded bg-primary/20 text-primary">
+                      <Sparkle size={17} weight="bold" />
+                    </span>
+                    <span>
+                      <strong className="block text-sm font-bold text-foreground">
+                        Underwrite "{query.trim()}"
+                      </strong>
+                      <small className="mt-0.5 block text-xs text-muted-foreground">
+                        Generate instant financial model, ARV, rehab estimate & MAO
+                      </small>
+                    </span>
+                    <span className="flex items-center gap-2 font-mono text-xs font-bold text-primary">
+                      Instant Underwrite
+                      <ArrowRight size={14} />
+                    </span>
+                  </motion.button>
+                </div>
+              )}
+
+              {results.length > 0 && (
+                <p
+                  id="parcel-search-results-label"
+                  className="px-3 py-1.5 text-xs uppercase tracking-widest text-muted-foreground font-semibold"
+                >
+                  Live scored parcels ({results.length})
+                </p>
+              )}
+
               <div
                 id="parcel-search-results"
                 role="listbox"
@@ -215,9 +267,9 @@ export function CommandPalette({ open, parcels, onClose, onSelect }: Props) {
                     </span>
                   </motion.button>
                 ))}
-                {results.length === 0 && (
+                {results.length === 0 && !hasCustomAction && (
                   <div role="status" className="p-10 text-center text-sm text-muted-foreground">
-                    No parcels found.
+                    Type any street address, city, or county to search or underwrite.
                   </div>
                 )}
               </div>

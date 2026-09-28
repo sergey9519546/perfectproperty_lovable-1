@@ -39,7 +39,7 @@ const stats = [
 const testimonials = [
   {
     quote:
-      'We replaced three analysts manually pulling county recorder files. Perfect Property surfaced our best off-market flip in Cook County before it appeared on any public radar.',
+      'We replaced three analysts manually pulling county recorder files. Profit Property surfaced our best off-market flip in Cook County before it appeared on any public radar.',
     author: 'Marcus Vance',
     role: 'Managing Director, Apex Capital Acquisitions',
     location: 'Chicago, IL',

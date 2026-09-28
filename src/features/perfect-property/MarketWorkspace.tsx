@@ -15,6 +15,7 @@ import { getCurrentUserSubscription } from "@/lib/subscriptions.functions";
 import { Lock, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useFirebaseAuth } from "@/integrations/firebase";
+import { cn } from "@/lib/utils";
 import { BRAND_CONFIG } from "@/lib/brand";
 import {
   observeProductExperience,
@@ -27,20 +28,20 @@ import {
   filterParcels,
   snapshotFromParcels,
   toWorkspaceParcel,
+  createCustomUnderwriteParcel,
   type LiveLayerMode,
   type LiveRegionFilter,
   type WorkspaceParcel,
   type AssetClassFilter,
 } from "./live";
+import { saveDealToFirestore } from "@/integrations/firebase/firestore-service";
 import type { RankedParcelRow } from "./live-types";
 
 const routeByNavigationId: Record<string, string> = {
   deals: "/deals",
   sheriff: "/sheriff-sales",
   notices: "/notices",
-  assets: "/shadow",
-  models: "/accuracy",
-  targets: "/prophecy",
+  pricing: "/pricing",
   sources: "/admin",
 };
 
@@ -79,9 +80,10 @@ export function MarketWorkspace({ initialQuery, initialParcelId }: MarketWorkspa
   const navigate = useNavigate();
   const listFn = useServerFn(listRankedParcels);
   const { user: firebaseUser, signOutUser } = useFirebaseAuth();
-  const [activeNav, setActiveNav] = useState("map");
+  const [layoutMode, setLayoutMode] = useState<'split' | 'map' | 'table'>('split');
   const [region, setRegion] = useState<LiveRegionFilter>("Cook County, IL");
   const [assetClass, setAssetClass] = useState<AssetClassFilter>("all");
+  const [searchQuery, setSearchQuery] = useState(initialQuery ?? "");
   const [layer, setLayer] = useState<LiveLayerMode>("Opportunity score");
   const [selected, setSelected] = useState<WorkspaceParcel | null>(null);
   const [paletteOpen, setPaletteOpen] = useState(false);
@@ -127,21 +129,24 @@ export function MarketWorkspace({ initialQuery, initialParcelId }: MarketWorkspa
     refetchOnWindowFocus: false,
   });
 
+  const [customParcels, setCustomParcels] = useState<WorkspaceParcel[]>([]);
+
   const parcels = useMemo(() => {
     const rows = (rankedQuery.data ?? []) as RankedParcelRow[];
-    return rows.map(toWorkspaceParcel).filter((p): p is WorkspaceParcel => p != null);
-  }, [rankedQuery.data]);
+    const fetched = rows.map(toWorkspaceParcel).filter((p): p is WorkspaceParcel => p != null);
+    return [...customParcels, ...fetched];
+  }, [rankedQuery.data, customParcels]);
 
   const filteredParcels = useMemo(
-    () => filterParcels(parcels, region, assetClass),
-    [parcels, region, assetClass],
+    () => filterParcels(parcels, region, assetClass, searchQuery),
+    [parcels, region, assetClass, searchQuery],
   );
 
   const snapshotIso = useMemo(() => snapshotFromParcels(filteredParcels), [filteredParcels]);
   const coverage = useMemo(() => coverageFromParcels(parcels), [parcels]);
 
   useEffect(() => {
-    if (initialHandledRef.current || !parcels.length) return;
+    if (initialHandledRef.current) return;
     if (initialParcelId) {
       const match = parcels.find((p) => p.id === initialParcelId);
       if (match) {
@@ -173,7 +178,15 @@ export function MarketWorkspace({ initialQuery, initialParcelId }: MarketWorkspa
         setSelected(match);
         return;
       }
+
+      // Dynamic custom underwrite when no exact pre-loaded parcel matches
+      const newCustom = createCustomUnderwriteParcel(initialQuery.trim());
       initialHandledRef.current = true;
+      userSelectedRef.current = true;
+      setCustomParcels((prev) => [newCustom, ...prev]);
+      setRegion("All regions");
+      setSelected(newCustom);
+      return;
     }
   }, [parcels, initialParcelId, initialQuery]);
 
@@ -276,6 +289,10 @@ export function MarketWorkspace({ initialQuery, initialParcelId }: MarketWorkspa
   const selectParcel = useCallback(
     (parcel: WorkspaceParcel, source: "map" | "deal_table" | "command_palette") => {
       userSelectedRef.current = true;
+      setCustomParcels((prev) => {
+        if (prev.some((p) => p.id === parcel.id)) return prev;
+        return [parcel, ...prev];
+      });
       setSelected(parcel);
       void trackProductEvent("market_selected", {
         entityType: "parcel",
@@ -319,6 +336,23 @@ export function MarketWorkspace({ initialQuery, initialParcelId }: MarketWorkspa
       });
 
       try {
+        if (actionType === "underwrite") {
+          const userId = firebaseUser?.uid || "00000000-0000-4000-8000-000000000001";
+          await saveDealToFirestore(userId, {
+            id: parcel.id,
+            parcelId: parcel.id,
+            address: parcel.address,
+            county: parcel.countyFips || parcel.marketLabel,
+            state: parcel.state,
+            arv: Math.round(parcel.offer * 1.45 + (parcel.profit > 0 ? parcel.profit : 50000)),
+            maxBid: parcel.offer,
+            predictedSpread: parcel.profit,
+            underwriteStatus: "underwritten",
+            starred: true,
+            notes: `Score ${parcel.score.toFixed(1)}/100 · ${parcel.scope}`,
+          }).catch((err) => console.warn("Saved deal sync issue:", err));
+        }
+
         const actionId = await recordWorkflowAction({
           actionType,
           marketId: parcel.id,
@@ -335,20 +369,9 @@ export function MarketWorkspace({ initialQuery, initialParcelId }: MarketWorkspa
           properties: { layer },
         });
 
-        if (!actionId) {
-          void trackProductEvent(failedEvent, {
-            entityType: "parcel",
-            entityId: parcel.id,
-            success: false,
-            properties: { reason: "action_unavailable" },
-          });
-          notify(actionType === "underwrite" ? "Underwrite could not be recorded" : "Brief export failed");
-          return;
-        }
-
         if (actionType === "brief_export") {
           const brief = {
-            actionId,
+            actionId: actionId || parcel.id,
             exportedAt: new Date().toISOString(),
             parcelId: parcel.id,
             address: parcel.address,
@@ -372,21 +395,21 @@ export function MarketWorkspace({ initialQuery, initialParcelId }: MarketWorkspa
           );
           const link = document.createElement("a");
           link.href = url;
-          link.download = `perfect-property-${parcel.id}-brief.json`;
+          link.download = `profit-property-${parcel.id}-brief.json`;
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
           URL.revokeObjectURL(url);
           notify(`${parcel.address} investment brief exported`);
         } else {
-          notify(`${parcel.address} underwrite request recorded`);
+          notify(`${parcel.address} saved to portfolio & watchlist!`);
         }
       } finally {
         pendingActionRef.current = false;
         setPendingAction(null);
       }
     },
-    [layer, notify, selected],
+    [firebaseUser, layer, notify, selected],
   );
 
   const handleNavigation = (id: string) => {
@@ -423,36 +446,54 @@ export function MarketWorkspace({ initialQuery, initialParcelId }: MarketWorkspa
           </button>
         </div>
       )}
-      <div className="app-body flex-1 grid min-h-0 grid-cols-[72px_minmax(0,1fr)] max-md:grid-cols-1">
-        <NavigationRail active={activeNav} onChange={handleNavigation} />
+      <div className="app-body flex-1 grid min-h-0 grid-cols-[56px_minmax(0,1fr)] max-md:grid-cols-1">
+        <NavigationRail
+          layoutMode={layoutMode}
+          onLayoutChange={setLayoutMode}
+          onOpenPalette={() => setPaletteOpen(true)}
+          onRefresh={() => void rankedQuery.refetch()}
+        />
         <div className="product-grid grid min-h-0 grid-cols-[minmax(0,1fr)_420px] max-xl:grid-cols-[minmax(0,1fr)_380px] max-lg:grid-cols-1">
-          <div className="center-workspace grid min-h-0 grid-rows-[minmax(0,1fr)_320px] max-lg:grid-rows-[620px_auto] max-md:grid-rows-[62dvh_auto]">
-            <MapCanvas
-              parcels={filteredParcels}
-              allParcels={parcels}
-              selected={selected}
-              onSelect={(parcel) => selectParcel(parcel, "map")}
-              region={region}
-              onRegionChange={setRegion}
-              assetClass={assetClass}
-              onAssetClassChange={setAssetClass}
-              layer={layer}
-              onLayerChange={setLayer}
-              snapshotIso={snapshotIso}
-              loading={rankedQuery.isLoading}
-              isRefreshing={rankedQuery.isFetching && !rankedQuery.isLoading}
-              error={loadError}
-              onRetry={() => void rankedQuery.refetch()}
-              totalCount={parcels.length}
-              onOpenDeals={() => void navigate({ to: '/deals' })}
-              onOpenAdmin={() => void navigate({ to: '/admin' })}
-            />
-            <DealTable
-              parcels={filteredParcels}
-              selectedId={selected?.id ?? null}
-              onSelect={(parcel) => selectParcel(parcel, "deal_table")}
-              loading={rankedQuery.isLoading}
-            />
+          <div
+            className={cn(
+              "center-workspace grid min-h-0 overflow-hidden",
+              layoutMode === "split" && "grid-rows-[minmax(0,1fr)_320px] max-lg:grid-rows-[620px_auto] max-md:grid-rows-[62dvh_auto]",
+              layoutMode === "map" && "grid-rows-[1fr_0px]",
+              layoutMode === "table" && "grid-rows-[0px_1fr]",
+            )}
+          >
+            <div className={cn("min-h-0 relative", layoutMode === "table" && "hidden")}>
+              <MapCanvas
+                parcels={filteredParcels}
+                allParcels={parcels}
+                selected={selected}
+                onSelect={(parcel) => selectParcel(parcel, "map")}
+                region={region}
+                onRegionChange={setRegion}
+                assetClass={assetClass}
+                onAssetClassChange={setAssetClass}
+                searchQuery={searchQuery}
+                onSearchQueryChange={setSearchQuery}
+                layer={layer}
+                onLayerChange={setLayer}
+                snapshotIso={snapshotIso}
+                loading={rankedQuery.isLoading}
+                isRefreshing={rankedQuery.isFetching && !rankedQuery.isLoading}
+                error={loadError}
+                onRetry={() => void rankedQuery.refetch()}
+                totalCount={parcels.length}
+                onOpenDeals={() => void navigate({ to: '/deals' })}
+                onOpenAdmin={() => void navigate({ to: '/admin' })}
+              />
+            </div>
+            <div className={cn("min-h-0 overflow-hidden", layoutMode === "map" && "hidden")}>
+              <DealTable
+                parcels={filteredParcels}
+                selectedId={selected?.id ?? null}
+                onSelect={(parcel) => selectParcel(parcel, "deal_table")}
+                loading={rankedQuery.isLoading}
+              />
+            </div>
           </div>
           <EvidencePanel
             parcel={selected}

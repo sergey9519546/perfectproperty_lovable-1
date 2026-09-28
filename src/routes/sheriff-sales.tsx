@@ -21,7 +21,7 @@ export const Route = createFileRoute("/sheriff-sales")({
   },
   head: () => ({
     meta: [
-      { title: "Sheriff & Government Sales Intelligence — Perfect Property" },
+      { title: "Sheriff & Government Sales Intelligence — Profit Property" },
       {
         name: "description",
         content:

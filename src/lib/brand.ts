@@ -1,5 +1,5 @@
 /**
- * Canonical Single Source of Truth for Perfect Property Brand Identity.
+ * Canonical Single Source of Truth for Profit Property Brand Identity.
  *
  * Defines names, display variants, copy tokens, and the SVG geometry
  * for the official architectural brand mark with illuminated amber windows.
@@ -7,25 +7,25 @@
 
 export const BRAND_CONFIG = {
   /** Canonical title-cased brand name */
-  name: "Perfect Property",
+  name: "Profit Property",
   /** Canonical all-caps wordmark representation */
-  displayName: "PERFECT PROPERTY",
+  displayName: "PROFIT PROPERTY",
   /** Short identifier */
-  shortName: "Perfect Property",
+  shortName: "Profit Property",
   /** Primary brand tagline */
-  tagline: "Real estate deal analysis and property discovery platform with cartographic workspace and underwriting engines.",
+  tagline: "Find profitable real estate deals, calculate repair costs, check for hidden debts, and know your exact maximum offer before you buy.",
   /** Primary web domain */
-  domain: "perfectproperty.com",
+  domain: "profitproperty.com",
   /** Official registered legal business entity */
-  legalName: "PERFECTPROPERTY LLC",
+  legalName: "PROFIT PROPERTY LLC",
   /** Copyright statement */
-  copyright: `© ${new Date().getFullYear()} Perfect Property (PERFECTPROPERTY LLC). All rights reserved.`,
+  copyright: `© ${new Date().getFullYear()} Profit Property (PROFIT PROPERTY LLC). All rights reserved.`,
   /** Support address */
-  supportEmail: "support@perfectproperty.com",
+  supportEmail: "support@profitproperty.com",
   /** Default metadata */
   meta: {
-    defaultTitle: "Perfect Property — Real Estate Deal Analysis & Cartographic Workspace",
-    description: "Real estate deal analysis and property discovery platform with cartographic workspace, underwriting engines, and AI workforce sheriff & government property sales intelligence.",
+    defaultTitle: "Profit Property — Find Profitable Real Estate Deals & Check Exact Profits",
+    description: "Find profitable real estate deals, calculate repair costs, check for hidden debts, and know your exact maximum offer before you buy.",
   },
   /** Official architectural brand mark geometry */
   mark: {

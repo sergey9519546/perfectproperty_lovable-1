@@ -21,6 +21,7 @@ import { SectionBoundary } from "@/components/SectionBoundary";
 import { DataFreshness } from "@/components/DataFreshness";
 import { ScorePill } from "@/components/ScorePill";
 import { TableSkeleton } from "@/components/TableSkeleton";
+import { CardGridSkeleton } from "@/components/ui/skeleton-loaders";
 import { PageHeader } from "@/components/PageHeader";
 import { ProtectedLayout } from "@/components/ProtectedLayout";
 import {
@@ -30,12 +31,34 @@ import {
   removeSavedDealFromFirestore,
   getAuthenticatedFirebaseUser,
 } from "@/integrations/firebase";
-import { Bookmark, Sparkles, CreditCard, Lock, ArrowRight, ShieldCheck, LayoutGrid, Table2 } from "lucide-react";
+import {
+  Bookmark,
+  Sparkles,
+  CreditCard,
+  Lock,
+  ArrowRight,
+  ShieldCheck,
+  LayoutGrid,
+  Table2,
+  Search,
+  Download,
+  Filter,
+  SlidersHorizontal,
+  ArrowUpDown,
+  X,
+  Map,
+  Gavel,
+} from "lucide-react";
+import { generateDealsCsv, downloadCsvFile, type DealExportRow } from "@/lib/deal-memo";
 import { DealCard } from "@/components/DealCard";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/deals")({
   ssr: false,
+  validateSearch: (search: Record<string, unknown>): { search?: string; parcelId?: string } => ({
+    search: typeof search.search === "string" ? search.search : undefined,
+    parcelId: typeof search.parcelId === "string" ? search.parcelId : undefined,
+  }),
   beforeLoad: async () => {
     const firebaseUser = await getAuthenticatedFirebaseUser();
     if (!firebaseUser) {
@@ -48,7 +71,7 @@ export const Route = createFileRoute("/deals")({
   },
   head: () => ({
     meta: [
-      { title: "Ranked Deals — Perfect Property Engine" },
+      { title: "Ranked Deals — Profit Property Engine" },
       {
         name: "description",
         content: "Every underwritten parcel, ranked by risk-adjusted Perfect Score.",
@@ -65,14 +88,20 @@ export const Route = createFileRoute("/deals")({
 });
 
 function DealsPage() {
+  const searchParams = Route.useSearch();
   const listFn = useServerFn(listRankedParcels);
   const subFn = useServerFn(getCurrentUserSubscription);
   const { user } = useFirebaseAuth();
   const queryClient = useQueryClient();
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string | null>(searchParams.parcelId || null);
   const [viewMode, setViewMode] = useState<"all" | "saved">("all");
   const [layoutMode, setLayoutMode] = useState<"cards" | "table">("cards");
   const [selectedMetro, setSelectedMetro] = useState<string>("17031"); // Cook County, IL default
+  const [searchQuery, setSearchQuery] = useState(searchParams.search || "");
+  const [minProfitFilter, setMinProfitFilter] = useState<number | "ALL">("ALL");
+  const [minScoreFilter, setMinScoreFilter] = useState<number | "ALL">("ALL");
+  const [strategyFilter, setStrategyFilter] = useState<string>("ALL");
+  const [sortOrder, setSortOrder] = useState<"profit" | "score" | "offer_asc" | "arv" | "exit">("profit");
 
   const subQ = useQuery<any>({
     queryKey: ["current-user-subscription", user?.uid],
@@ -177,6 +206,137 @@ function DealsPage() {
     return q.data || [];
   }, [viewMode, user, q.data, savedQ.data, selectedMetro]);
 
+  const filteredDeals = useMemo(() => {
+    let list = [...displayData];
+
+    // Search query filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      list = list.filter((item: any) => {
+        const addr = (item.parcels?.address || item.address || "").toLowerCase();
+        const city = (item.parcels?.city || item.city || "").toLowerCase();
+        const state = (item.parcels?.state || item.state || "").toLowerCase();
+        const zip = (item.parcels?.zip || item.zip || "").toLowerCase();
+        const id = (item.parcel_id || item.id || "").toLowerCase();
+        const scope = (item.recommended_scope || "").toLowerCase();
+        return (
+          addr.includes(query) ||
+          city.includes(query) ||
+          state.includes(query) ||
+          zip.includes(query) ||
+          id.includes(query) ||
+          scope.includes(query)
+        );
+      });
+    }
+
+    // Min profit filter
+    if (minProfitFilter !== "ALL") {
+      list = list.filter((item: any) => Number(item.gross_profit ?? 0) >= minProfitFilter);
+    }
+
+    // Min score filter
+    if (minScoreFilter !== "ALL") {
+      list = list.filter((item: any) => Number(item.perfect_score ?? 0) >= minScoreFilter);
+    }
+
+    // Strategy filter
+    if (strategyFilter !== "ALL") {
+      list = list.filter((item: any) => {
+        const scope = (item.recommended_scope || "").toLowerCase();
+        return scope.includes(strategyFilter.toLowerCase());
+      });
+    }
+
+    // Sort order
+    list.sort((a: any, b: any) => {
+      if (sortOrder === "profit") {
+        return Number(b.gross_profit ?? 0) - Number(a.gross_profit ?? 0);
+      }
+      if (sortOrder === "score") {
+        return Number(b.perfect_score ?? 0) - Number(a.perfect_score ?? 0);
+      }
+      if (sortOrder === "offer_asc") {
+        return (
+          Number(a.modeled_offer ?? a.max_allowable_offer ?? 0) -
+          Number(b.modeled_offer ?? b.max_allowable_offer ?? 0)
+        );
+      }
+      if (sortOrder === "arv") {
+        return (
+          Number(b.full_reno_arv ?? b.arv ?? 0) -
+          Number(a.full_reno_arv ?? a.arv ?? 0)
+        );
+      }
+      if (sortOrder === "exit") {
+        return Number(a.exit_days ?? 60) - Number(b.exit_days ?? 60);
+      }
+      return 0;
+    });
+
+    return list;
+  }, [displayData, searchQuery, minProfitFilter, minScoreFilter, strategyFilter, sortOrder]);
+
+  const handleExportCsv = () => {
+    if (filteredDeals.length === 0) {
+      toast.error("No deals available to export with current filters.");
+      return;
+    }
+
+    const exportRows: DealExportRow[] = filteredDeals.map((r: any) => {
+      const p = r.parcels || {};
+      const arv = Number(r.full_reno_arv || r.arv || r.cosmetic_arv || 0);
+      const maxOffer = Number(r.modeled_offer ?? r.max_allowable_offer ?? 0);
+      const expectedProfit = Number(r.gross_profit ?? r.risk_adjusted_profit ?? 0);
+      const flags = (r.skeptic_flags as string[]) || [];
+
+      return {
+        parcelId: r.parcel_id || r.id,
+        address: p.address || r.address || "Unknown Address",
+        city: p.city || r.city || "",
+        state: p.state || r.state || "",
+        zip: p.zip || r.zip || "",
+        countyFips: p.county_fips || r.county || selectedMetro,
+        arv,
+        maxOffer,
+        expectedProfit,
+        dealScore: Number(r.perfect_score || 0),
+        confidenceGrade: r.confidence_grade || "B",
+        strategy: r.recommended_scope || "Full Renovation",
+        livingSqft: p.living_sqft ? Number(p.living_sqft) : null,
+        yearBuilt: p.year_built ? Number(p.year_built) : null,
+        bedrooms: p.bedrooms ? Number(p.bedrooms) : null,
+        bathrooms: p.bathrooms ? Number(p.bathrooms) : null,
+        pLossPercent: r.mc_p_loss != null ? Math.round(Number(r.mc_p_loss) * 100) : null,
+        typicalProfitP50: r.mc_profit_p50 ? Number(r.mc_profit_p50) : null,
+        worstCaseProfitP5: r.mc_profit_p5 ? Number(r.mc_profit_p5) : null,
+        exitDays: r.exit_days ? Number(r.exit_days) : null,
+        warningsCount: flags.length,
+        warnings: flags.join("; "),
+        isSaved: savedIds.has(r.parcel_id || r.id),
+      };
+    });
+
+    const csv = generateDealsCsv(exportRows);
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const filename = `perfect-property-${viewMode === "saved" ? "portfolio" : "deals"}-${selectedMetro}-${dateStr}.csv`;
+    downloadCsvFile(csv, filename);
+    toast.success(`Exported ${exportRows.length} deal${exportRows.length > 1 ? "s" : ""} to CSV for CRM import`);
+  };
+
+  const hasActiveFilters =
+    searchQuery.trim() !== "" ||
+    minProfitFilter !== "ALL" ||
+    minScoreFilter !== "ALL" ||
+    strategyFilter !== "ALL";
+
+  const clearFilters = () => {
+    setSearchQuery("");
+    setMinProfitFilter("ALL");
+    setMinScoreFilter("ALL");
+    setStrategyFilter("ALL");
+  };
+
   const metroTitle =
     selectedMetro === "17031"
       ? `New deals in Cook County, IL today (${displayData.length} scored)`
@@ -226,7 +386,7 @@ function DealsPage() {
                 </h3>
               </div>
               <p className="text-xs text-muted-foreground max-w-2xl">
-                Unlock our complete pipeline of 500+ live scored parcels, Monte Carlo P5/P50 profit ranges, and automated comps radius. Backed by our 30-Day Money-Back Guarantee.
+                Unlock all 500+ Cook County deals, estimated repair budgets, verified neighborhood comps, and safe max offer calculations. Backed by our 30-Day Money-Back Guarantee.
               </p>
             </div>
             <Link
@@ -330,7 +490,10 @@ function DealsPage() {
 
           <div className="flex items-center gap-3">
             <div id="deals-count-indicator" className="text-[13px] text-muted-foreground hidden sm:block">
-              Showing <span className="font-semibold text-foreground">{displayData.length}</span>{" "}
+              Showing <span className="font-semibold text-foreground">{filteredDeals.length}</span>{" "}
+              {filteredDeals.length !== displayData.length && (
+                <span>of {displayData.length} </span>
+              )}
               {viewMode === "saved" ? "saved properties" : `deals in ${metroLabel}`}
             </div>
 
@@ -368,36 +531,198 @@ function DealsPage() {
           </div>
         </div>
 
+        {/* Interactive Filter & Action Bar */}
+        <div id="deals-filter-bar" className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card p-3 shadow-2xs">
+          <div className="flex flex-1 flex-wrap items-center gap-2.5 min-w-[280px]">
+            {/* Search Input */}
+            <div className="relative flex-1 min-w-[200px] max-w-sm">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <Input
+                id="deals-search-input"
+                type="text"
+                placeholder="Search address, city, zip, or plan…"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="h-8.5 pl-8.5 pr-8 text-xs bg-muted/30 border-border"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  aria-label="Clear search"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </div>
+
+            {/* Min Profit Filter */}
+            <div className="flex items-center gap-1 text-xs">
+              <span className="text-muted-foreground font-medium hidden md:inline">Profit:</span>
+              <div className="flex items-center rounded-lg border border-border bg-muted/30 p-0.5">
+                {[
+                  { label: "All", val: "ALL" as const },
+                  { label: "$40k+", val: 40000 },
+                  { label: "$60k+", val: 60000 },
+                  { label: "$80k+", val: 80000 },
+                ].map((tier) => (
+                  <button
+                    key={tier.label}
+                    type="button"
+                    onClick={() => setMinProfitFilter(tier.val)}
+                    className={`rounded-md px-2 py-1 text-[11px] font-medium transition-colors cursor-pointer ${
+                      minProfitFilter === tier.val
+                        ? "bg-card text-emerald-600 dark:text-emerald-400 font-bold shadow-2xs border border-border"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {tier.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Min Score Filter */}
+            <div className="flex items-center gap-1 text-xs">
+              <span className="text-muted-foreground font-medium hidden lg:inline">Score:</span>
+              <div className="flex items-center rounded-lg border border-border bg-muted/30 p-0.5">
+                {[
+                  { label: "All", val: "ALL" as const },
+                  { label: "70+", val: 70 },
+                  { label: "80+", val: 80 },
+                  { label: "85+", val: 85 },
+                ].map((s) => (
+                  <button
+                    key={s.label}
+                    type="button"
+                    onClick={() => setMinScoreFilter(s.val)}
+                    className={`rounded-md px-2 py-1 text-[11px] font-medium transition-colors cursor-pointer ${
+                      minScoreFilter === s.val
+                        ? "bg-card text-primary font-bold shadow-2xs border border-border"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Strategy Filter */}
+            <div className="flex items-center gap-1 text-xs">
+              <select
+                id="deals-strategy-filter"
+                value={strategyFilter}
+                onChange={(e) => setStrategyFilter(e.target.value)}
+                className="h-8 rounded-lg border border-border bg-muted/30 px-2 text-[11px] font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
+                aria-label="Filter by repair scope"
+              >
+                <option value="ALL">All Repair Types</option>
+                <option value="Cosmetic">Light Cosmetic</option>
+                <option value="Full Renovation">Full Remodel</option>
+                <option value="Expanded">Major Renovation</option>
+              </select>
+            </div>
+
+            {/* Sort Selector */}
+            <div className="flex items-center gap-1 text-xs">
+              <select
+                id="deals-sort-select"
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value as any)}
+                className="h-8 rounded-lg border border-border bg-muted/30 px-2 text-[11px] font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
+                aria-label="Sort deals"
+              >
+                <option value="profit">Sort: Highest Net Profit</option>
+                <option value="score">Sort: Highest Deal Rating</option>
+                <option value="offer_asc">Sort: Lowest Purchase Price</option>
+                <option value="arv">Sort: Highest Resale Value</option>
+                <option value="exit">Sort: Quickest Turnaround</option>
+              </select>
+            </div>
+
+            {hasActiveFilters && (
+              <button
+                type="button"
+                id="deals-clear-filters-btn"
+                onClick={clearFilters}
+                className="text-xs text-muted-foreground hover:text-destructive transition-colors font-medium flex items-center gap-1 cursor-pointer"
+              >
+                <X className="h-3 w-3" />
+                <span>Reset filters</span>
+              </button>
+            )}
+          </div>
+
+          {/* Right Action Tools: CSV Export & Cross-Links */}
+          <div className="flex items-center gap-2">
+            <Button
+              id="deals-export-csv-btn"
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleExportCsv}
+              disabled={filteredDeals.length === 0}
+              className="h-8 text-xs font-semibold gap-1.5 border-border bg-card hover:bg-muted cursor-pointer"
+              title="Export filtered deals to CSV for Excel, Podio, or CRM"
+            >
+              <Download className="h-3.5 w-3.5 text-primary" />
+              <span>Export CSV ({filteredDeals.length})</span>
+            </Button>
+
+            <Link
+              to="/workspace"
+              className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-border bg-card px-2.5 text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              title="Open full interactive cadastral map workspace"
+            >
+              <Map className="h-3.5 w-3.5 text-primary" />
+              <span className="hidden sm:inline">Map</span>
+            </Link>
+
+            <Link
+              to="/sheriff-sales"
+              className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-border bg-card px-2.5 text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              title="Inspect court foreclosure & sheriff auction pipeline"
+            >
+              <Gavel className="h-3.5 w-3.5 text-amber-500" />
+              <span className="hidden sm:inline">Auctions</span>
+            </Link>
+          </div>
+        </div>
+
         {/* Content View: Cards vs Table */}
         {layoutMode === "cards" ? (
           <div>
-            {q.isLoading ? (
-              <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {Array.from({ length: 6 }).map((_, idx) => (
-                  <div
-                    key={idx}
-                    className="h-72 rounded-2xl border border-border bg-card p-5 animate-pulse flex flex-col justify-between"
-                  >
-                    <div className="space-y-3">
-                      <div className="h-4 w-28 bg-muted rounded" />
-                      <div className="h-6 w-3/4 bg-muted rounded" />
-                      <div className="h-3 w-1/2 bg-muted rounded" />
-                      <div className="h-16 w-full bg-muted/60 rounded-xl mt-3" />
-                    </div>
-                    <div className="h-10 w-full bg-muted rounded-xl" />
-                  </div>
-                ))}
+            {(viewMode === "all" ? q.isLoading : savedQ.isLoading) ? (
+              <div className="mt-6">
+                <CardGridSkeleton count={6} />
               </div>
-            ) : displayData.length === 0 ? (
-              <div className="mt-6 rounded-2xl border border-border bg-card p-12 text-center text-sm text-muted-foreground">
-                {viewMode === "saved"
-                  ? "No deals saved in your list yet. Click 'Add to my list' on any property card to save it."
-                  : "No properties found matching current criteria. Try selecting Cook County or All Metros."}
+            ) : filteredDeals.length === 0 ? (
+              <div className="mt-6 rounded-2xl border border-border bg-card p-12 text-center text-sm text-muted-foreground space-y-3">
+                <p>
+                  {hasActiveFilters
+                    ? "No properties match your current search and filter criteria."
+                    : viewMode === "saved"
+                      ? "No deals saved in your list yet. Click 'Add to my list' on any property card to save it."
+                      : "No properties found matching current criteria. Try selecting Cook County or All Metros."}
+                </p>
+                {hasActiveFilters && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={clearFilters}
+                    className="text-xs font-semibold"
+                  >
+                    Reset all filters
+                  </Button>
+                )}
               </div>
             ) : (
               <>
                 <div id="deals-card-grid" className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {displayData.map((deal: any) => (
+                  {filteredDeals.map((deal: any) => (
                     <DealCard
                       key={deal.parcel_id}
                       deal={deal}
@@ -408,7 +733,7 @@ function DealsPage() {
                   ))}
                 </div>
 
-                {!isSubscribed && displayData.length > 0 && (
+                {!isSubscribed && filteredDeals.length > 0 && (
                   <div id="deals-cards-locked-footer" className="mt-8 rounded-2xl border border-border bg-muted/20 p-6 sm:p-8 text-center space-y-3">
                     <div className="inline-flex items-center justify-center p-2 rounded-full bg-primary/10 text-primary mb-1">
                       <Lock className="h-5 w-5" />
@@ -499,8 +824,10 @@ function DealsPage() {
                     Failed to load ranked deals: {q.error instanceof Error ? q.error.message : "Database error"}
                     <Button
                       type="button"
+                      variant="outline"
+                      size="sm"
                       onClick={() => q.refetch()}
-                      className="ml-3 font-medium underline hover:text-rose-600"
+                      className="ml-3 text-xs font-semibold cursor-pointer"
                     >
                       Retry
                     </Button>
@@ -513,24 +840,28 @@ function DealsPage() {
                     Failed to load Firestore portfolio: {savedQ.error instanceof Error ? savedQ.error.message : "Firestore error"}
                     <Button
                       type="button"
+                      variant="outline"
+                      size="sm"
                       onClick={() => savedQ.refetch()}
-                      className="ml-3 font-medium underline hover:text-rose-600"
+                      className="ml-3 text-xs font-semibold cursor-pointer"
                     >
                       Retry
                     </Button>
                   </td>
                 </tr>
               )}
-              {!(viewMode === "all" ? q.isLoading : savedQ.isLoading) && displayData.length === 0 && (
+              {!(viewMode === "all" ? q.isLoading : savedQ.isLoading) && filteredDeals.length === 0 && (
                 <tr>
                   <td colSpan={11} className="px-4 py-8 text-center text-sm text-muted-foreground">
-                    {viewMode === "saved"
-                      ? "No deals saved in your list yet. Click 'Add to my list' on any property card or table row to track it."
-                      : "No properties found matching current criteria."}
+                    {hasActiveFilters
+                      ? "No properties match your current search and filter criteria."
+                      : viewMode === "saved"
+                        ? "No deals saved in your list yet. Click 'Add to my list' on any property card or table row to track it."
+                        : "No properties found matching current criteria."}
                   </td>
                 </tr>
               )}
-              {!(viewMode === "all" ? q.isLoading : savedQ.isLoading) && displayData.map((r: any, i: number) => {
+              {!(viewMode === "all" ? q.isLoading : savedQ.isLoading) && filteredDeals.map((r: any, i: number) => {
                 const flags = (r.skeptic_flags as string[]) ?? [];
                 const pLoss = Number(r.mc_p_loss);
                 return (
@@ -668,19 +999,20 @@ function DealsPage() {
 
 function HelpStrip() {
   const items = [
-    { k: "Score", v: "0–100 buy rating. 80+ = great, 65–79 = strong, 50–64 = worth a look." },
-    { k: "Our offer", v: "The price we'd pay today to hit our profit target." },
-    { k: "Loss risk", v: "How often this deal loses money across thousands of simulations." },
-    { k: "Deal odds", v: "How likely the seller says yes at our offer." },
+    { k: "Deal Rating", v: "0 to 100 score. 80+ is an exceptional deal, 65–79 is strong, 50–64 is viable." },
+    { k: "Max Safe Offer", v: "The highest price you can pay while still securing your target profit margin." },
+    { k: "Downside Risk", v: "The probability of losing money if repair costs run high or sales take longer." },
+    { k: "Offer Acceptance", v: "Estimated likelihood that a motivated seller accepts this cash offer." },
   ];
   return (
     <div className="mt-4 rounded-xl border border-border bg-card p-4 shadow-2xs">
-      <div className="mb-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-        How to read this
+      <div className="mb-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+        <Sparkles className="h-3.5 w-3.5 text-primary" />
+        <span>How to evaluate these properties</span>
       </div>
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {items.map((it) => (
-          <div key={it.k} className="text-[13px]">
+          <div key={it.k} className="text-xs leading-relaxed">
             <span className="font-semibold text-foreground">{it.k}: </span>
             <span className="text-muted-foreground">{it.v}</span>
           </div>
@@ -903,12 +1235,12 @@ function RealieLookup({ onCreated }: { onCreated: (id: string) => void }) {
     >
       <div className="flex-1 min-w-[220px]">
         <div className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-          Add parcel by address (Realie)
+          Analyze Any Property Address
         </div>
         <Input
           value={address}
           onChange={(e) => setAddress(e.target.value)}
-          placeholder="123 Main St"
+          placeholder="e.g. 123 Main St"
           className="mt-1.5 w-full rounded-lg border border-border bg-card px-3 py-2 text-[13px] text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary"
         />
       </div>
@@ -937,7 +1269,7 @@ function RealieLookup({ onCreated }: { onCreated: (id: string) => void }) {
         disabled={busy}
         className="rounded-lg border border-border bg-foreground px-4 py-2 text-[13px] font-semibold text-white shadow-2xs hover:bg-slate-800 disabled:opacity-50 cursor-pointer transition-all"
       >
-        {busy ? "Underwriting…" : "Lookup + underwrite"}
+        {busy ? "Analyzing…" : "Calculate Deal Numbers"}
       </Button>
       {err && <div className="w-full text-[12px] font-medium text-rose-600">{err}</div>}
     </form>
